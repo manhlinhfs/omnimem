@@ -37,18 +37,18 @@ def search_memory(query, n_results=5, full=False, as_json=False):
         print(json.dumps(out_data, ensure_ascii=False, indent=2))
         return
 
-    print(f"
-[OmniMem Search]: '{query}'")
-    print("
---- FOUND MEMORIES ---")
+    print(f"""
+[OmniMem Search]: '{query}'""")
+    print("""
+--- FOUND MEMORIES ---""")
     for i, doc in enumerate(documents):
         meta = metadatas[i] if metadatas else {}
         dist = distances[i] if distances else 0.0
         print(f"[{i+1}] ID: {ids[i]} (Distance: {dist:.4f})")
-        print(f"Content:
-{doc}" if full else f"Content: {doc[:200]}..." if len(doc) > 200 else f"Content: {doc}")
-        print(f"Source: {meta.get('source', 'N/A')} | Time: {meta.get('timestamp', 'N/A')}
-" + "-"*30)
+        print(f"""Content:
+{doc}""" if full else f"Content: {doc[:200]}..." if len(doc) > 200 else f"Content: {doc}")
+        print(f"""Source: {meta.get('source', 'N/A')} | Time: {meta.get('timestamp', 'N/A')}
+""" + "-"*30)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Search OmniMem's knowledge base")

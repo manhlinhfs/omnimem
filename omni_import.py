@@ -30,9 +30,7 @@ async def import_file_advanced(file_path):
         print("Error: No content could be extracted.")
         sys.exit(1)
 
-    chunks = content.split('
-
-')
+    chunks = content.split('\n\n')
     client = chromadb.PersistentClient(path=DB_PATH)
     ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)

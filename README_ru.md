@@ -15,7 +15,7 @@ OmniMem — это мультимодальная система RAG (Retrieval-
 
 ### Linux / macOS
 ```bash
-git clone https://git.rawcode.io/manhlinhfs/omnimem.git
+git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
 chmod +x setup.sh
 ./setup.sh
@@ -23,7 +23,7 @@ chmod +x setup.sh
 
 ### Windows (PowerShell)
 ```powershell
-git clone https://git.rawcode.io/manhlinhfs/omnimem.git
+git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
 .\setup.ps1
 ```
