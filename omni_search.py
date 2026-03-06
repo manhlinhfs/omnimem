@@ -3,14 +3,15 @@ import json
 import os
 import sys
 
-import chromadb
-
-from omni_embeddings import build_embedding_function
 from omni_version import add_version_argument
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 
 def search_memory(query, n_results=5, full=False, as_json=False):
+    import chromadb
+
+    from omni_embeddings import build_embedding_function
+
     client = chromadb.PersistentClient(path=DB_PATH)
     ef = build_embedding_function()
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)

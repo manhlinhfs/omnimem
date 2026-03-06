@@ -1,4 +1,4 @@
-# OmniMem v1.2.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
+# OmniMem v1.3.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -78,3 +78,8 @@ python3 omni_update.py
 - **Đọc file:** `python3 omni_import.py tai_lieu.pdf`
 - **Tìm kiếm:** `python3 omni_search.py "mật khẩu" --full`
 - **Dọn dẹp DB:** `python3 omni_del.py --wipe-all`
+
+## Dành cho phát triển
+- **Chạy test:** `python3 -m unittest discover -s tests -v`
+- **Xem release notes:** `CHANGELOG.md`
+- **Theo checklist release:** `docs/release-checklist.md`

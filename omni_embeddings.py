@@ -2,9 +2,6 @@ import os
 import shutil
 from pathlib import Path
 
-from chromadb.utils import embedding_functions
-from huggingface_hub import snapshot_download
-
 ROOT_DIR = Path(__file__).resolve().parent
 MODEL_REPO_ID = os.getenv(
     "OMNIMEM_EMBED_MODEL_REPO", "sentence-transformers/all-MiniLM-L6-v2"
@@ -35,6 +32,8 @@ def is_model_bootstrapped(model_dir=None):
 
 
 def bootstrap_model(local_files_only=False, force=False):
+    from huggingface_hub import snapshot_download
+
     model_dir = get_model_dir()
     if is_model_bootstrapped(model_dir) and not force:
         return model_dir
@@ -89,6 +88,8 @@ def ensure_model_ready():
 
 
 def build_embedding_function():
+    from chromadb.utils import embedding_functions
+
     model_dir = ensure_model_ready()
 
     # Runtime should stay offline-safe after the model has been bootstrapped.

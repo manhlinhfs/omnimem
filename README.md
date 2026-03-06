@@ -1,4 +1,4 @@
-# OmniMem v1.2.0 - The Universal CLI Brain 🧠
+# OmniMem v1.3.0 - The Universal CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -76,3 +76,8 @@ To give your AI Agent the ability to use OmniMem, you MUST inject the following 
 - **Import file:** `python3 omni_import.py my_design.pdf`
 - **Search:** `python3 omni_search.py "password" --full`
 - **Delete:** `python3 omni_del.py --wipe-all`
+
+## Development
+- **Run tests:** `python3 -m unittest discover -s tests -v`
+- **Read release notes:** `CHANGELOG.md`
+- **Follow release gates:** `docs/release-checklist.md`

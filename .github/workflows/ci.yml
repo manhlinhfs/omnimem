@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Compile Python files
+        run: |
+          python -m compileall \
+            omni_add.py \
+            omni_search.py \
+            omni_import.py \
+            omni_del.py \
+            omni_bootstrap.py \
+            omni_doctor.py \
+            omni_update.py \
+            omni_version.py
+
+      - name: Validate shell setup script
+        run: bash -n setup.sh
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v

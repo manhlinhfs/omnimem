@@ -5,9 +5,6 @@ import os
 import sys
 import uuid
 
-import chromadb
-
-from omni_embeddings import build_embedding_function
 from omni_version import add_version_argument
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
@@ -46,6 +43,10 @@ async def extract_with_fallback(file_path):
 
 
 async def import_file_advanced(file_path):
+    import chromadb
+
+    from omni_embeddings import build_embedding_function
+
     print(f"[OmniMem] Reading file: {file_path}")
 
     extraction_result = await extract_with_fallback(file_path)

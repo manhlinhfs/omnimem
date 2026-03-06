@@ -1,4 +1,4 @@
-# OmniMem v1.2.0 - Универсальный CLI-Мозг 🧠
+# OmniMem v1.3.0 - Универсальный CLI-Мозг 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -78,3 +78,8 @@ python3 omni_update.py
 - **Импортировать файл:** `python3 omni_import.py my_design.pdf`
 - **Поиск:** `python3 omni_search.py "пароль" --full`
 - **Удалить всё:** `python3 omni_del.py --wipe-all`
+
+## Для разработки
+- **Запустить тесты:** `python3 -m unittest discover -s tests -v`
+- **Посмотреть release notes:** `CHANGELOG.md`
+- **Следовать release checklist:** `docs/release-checklist.md`
