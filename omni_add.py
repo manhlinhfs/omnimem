@@ -4,6 +4,7 @@ import os
 import sys
 import uuid
 
+from omni_metadata import build_base_metadata
 from omni_version import add_version_argument
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
@@ -18,9 +19,13 @@ def add_memory(text, source="user_input", tags=None):
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
     
     doc_id = str(uuid.uuid4())
-    timestamp = datetime.datetime.now().isoformat()
-    metadata = {"source": source, "timestamp": timestamp}
-    if tags: metadata["tags"] = tags
+    timestamp = datetime.datetime.utcnow().isoformat(timespec="microseconds")
+    metadata = build_base_metadata(
+        source=source,
+        timestamp=timestamp,
+        tags=tags,
+        record_kind="note",
+    )
 
     print(f"Adding memory: '{text[:50]}...'")
     collection.add(documents=[text], metadatas=[metadata], ids=[doc_id])

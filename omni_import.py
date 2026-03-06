@@ -5,6 +5,7 @@ import os
 import sys
 import uuid
 
+from omni_metadata import build_base_metadata, coerce_metadata_value, normalize_mime_type
 from omni_version import add_version_argument
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
@@ -64,7 +65,7 @@ async def import_file_advanced(file_path):
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
 
     documents, metadatas, ids = [], [], []
-    timestamp = datetime.datetime.now().isoformat()
+    timestamp = datetime.datetime.utcnow().isoformat(timespec="microseconds")
     source_name = os.path.basename(file_path)
     valid_chunks = [c.strip() for c in chunks if c.strip()]
 
@@ -72,17 +73,15 @@ async def import_file_advanced(file_path):
 
     for i, chunk in enumerate(valid_chunks):
         doc_id = str(uuid.uuid4())
-        meta = {
-            "source": source_name,
-            "timestamp": timestamp,
-            "chunk_index": i,
-            "mime_type": str(mime_type),
-        }
+        meta = build_base_metadata(
+            source=source_name,
+            timestamp=timestamp,
+            record_kind="import_chunk",
+            chunk_index=i,
+            mime_type=normalize_mime_type(mime_type) or "unknown",
+        )
         for k, v in doc_metadata.items():
-            if isinstance(v, (str, int, float, bool)):
-                meta[f"doc_{k}"] = v
-            else:
-                meta[f"doc_{k}"] = str(v)
+            meta[f"doc_{k}"] = coerce_metadata_value(v)
         documents.append(chunk)
         metadatas.append(meta)
         ids.append(doc_id)

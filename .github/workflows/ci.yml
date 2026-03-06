@@ -22,17 +22,21 @@ jobs:
       - name: Compile Python files
         run: |
           python -m compileall \
+            omnimem.py \
             omni_add.py \
             omni_search.py \
             omni_import.py \
             omni_del.py \
             omni_bootstrap.py \
             omni_doctor.py \
+            omni_metadata.py \
             omni_update.py \
             omni_version.py
 
       - name: Validate shell setup script
-        run: bash -n setup.sh
+        run: |
+          bash -n setup.sh
+          bash -n omnimem
 
       - name: Run unit tests
         run: python -m unittest discover -s tests -v

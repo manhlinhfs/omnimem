@@ -1,4 +1,4 @@
-# OmniMem v1.4.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
+# OmniMem v1.5.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -62,11 +62,12 @@ python3 omni_update.py
 
 ```markdown
 ## Giao thức OmniMem (Second Brain)
-1. **LUÔN TÌM KIẾM TRƯỚC:** Trước khi trả lời các câu hỏi về dự án, BẮT BUỘC phải chạy lệnh: `[OMNIMEM_PATH]/venv/bin/python3 [OMNIMEM_PATH]/omni_search.py "câu truy vấn" --full` để lấy ngữ cảnh. Bắt buộc dùng cờ `--full` để lấy trọn vẹn văn bản. Có thể dùng thêm `--json` nếu cần phân tách dữ liệu tĩnh.
-2. **LUÔN NẠP TÀI LIỆU:** Khi người dùng yêu cầu đọc hoặc nhớ một file (PDF, DOCX, Code, Ảnh OCR...), hãy chạy lệnh: `[OMNIMEM_PATH]/venv/bin/python3 [OMNIMEM_PATH]/omni_import.py <đường_dẫn_file>` để trích xuất file thông qua lõi Kreuzberg.
-3. **LƯU TRỮ THÀNH QUẢ:** Sau khi fix xong bug lớn hoặc chốt một cột mốc, hãy chạy lệnh: `[OMNIMEM_PATH]/venv/bin/python3 [OMNIMEM_PATH]/omni_add.py "tóm tắt ngắn gọn"` để lưu kết quả cho những phiên chat vào ngày mai.
+1. **LUÔN TÌM KIẾM TRƯỚC:** Trước khi trả lời các câu hỏi về dự án, BẮT BUỘC phải chạy lệnh: `[OMNIMEM_PATH]/omnimem search "câu truy vấn" --full` để lấy ngữ cảnh. Bắt buộc dùng cờ `--full` để lấy trọn vẹn văn bản. Có thể dùng thêm `--json` nếu cần phân tách dữ liệu tĩnh.
+2. **LUÔN NẠP TÀI LIỆU:** Khi người dùng yêu cầu đọc hoặc nhớ một file (PDF, DOCX, Code, Ảnh OCR...), hãy chạy lệnh: `[OMNIMEM_PATH]/omnimem import <đường_dẫn_file>` để trích xuất file thông qua lõi Kreuzberg.
+3. **LƯU TRỮ THÀNH QUẢ:** Sau khi fix xong bug lớn hoặc chốt một cột mốc, hãy chạy lệnh: `[OMNIMEM_PATH]/omnimem add "tóm tắt ngắn gọn"` để lưu kết quả cho những phiên chat vào ngày mai.
 ```
 *(Lưu ý: Bạn phải thay chữ `[OMNIMEM_PATH]` thành đường dẫn tuyệt đối tới thư mục omnimem trên máy của bạn, ví dụ: `/root/omnimem` hoặc `C:\omnimem`)*
+Các script `omni_*.py` cũ vẫn còn dùng được khi cần.
 
 ## CLI thống nhất (khuyến nghị)
 Hãy ưu tiên launcher của repo khi dùng hằng ngày vì nó tự chọn `venv` local. Trên Windows, dùng `.\omnimem.ps1` hoặc `.\omnimem.bat` từ thư mục repo.
@@ -80,6 +81,8 @@ Hãy ưu tiên launcher của repo khi dùng hằng ngày vì nó tự chọn `v
 - **Thêm note:** `./omnimem add "Mật khẩu là 123"`
 - **Đọc file:** `./omnimem import tai_lieu.pdf`
 - **Tìm kiếm:** `./omnimem search "mật khẩu" --full`
+- **Tìm kiếm có filter:** `./omnimem search "release" --source omnimem --since 2026-03-06`
+- **Chỉ tìm PDF đã import:** `./omnimem search "invoice" --mime-type application/pdf`
 - **Dọn dẹp DB:** `./omnimem delete --wipe-all`
 
 ## Script cũ vẫn dùng được
@@ -93,4 +96,6 @@ Hãy ưu tiên launcher của repo khi dùng hằng ngày vì nó tự chọn `v
 ## Dành cho phát triển
 - **Chạy test:** `python3 -m unittest discover -s tests -v`
 - **Xem release notes:** `CHANGELOG.md`
+- **Xem roadmap:** `ROADMAP.md`
+- **Xem tài liệu search filter:** `docs/search-filters.md`
 - **Theo checklist release:** `docs/release-checklist.md`

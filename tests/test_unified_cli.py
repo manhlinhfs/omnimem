@@ -35,6 +35,10 @@ class TestUnifiedCli(unittest.TestCase):
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         self.assertIn("--full", result.stdout)
         self.assertIn("--json", result.stdout)
+        self.assertIn("--source", result.stdout)
+        self.assertIn("--since", result.stdout)
+        self.assertIn("--until", result.stdout)
+        self.assertIn("--mime-type", result.stdout)
 
     def test_cross_platform_launchers_exist(self):
         self.assertTrue((ROOT_DIR / "omnimem").exists())

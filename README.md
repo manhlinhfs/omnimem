@@ -1,4 +1,4 @@
-# OmniMem v1.4.0 - The Universal CLI Brain 🧠
+# OmniMem v1.5.0 - The Universal CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -60,11 +60,12 @@ To give your AI Agent the ability to use OmniMem, you MUST inject the following 
 
 ```markdown
 ## OmniMem Protocol (Second Brain)
-1. **ALWAYS Search First:** Before answering complex project questions, you MUST run the command: `[OMNIMEM_PATH]/venv/bin/python3 [OMNIMEM_PATH]/omni_search.py "your query" --full` to fetch context. Use `--full` to read the entire text without truncation. You can also use `--json` for structured data parsing.
-2. **ALWAYS Import Docs:** When the user asks you to read or remember a complex file (PDF, DOCX, Image, Code), run: `[OMNIMEM_PATH]/venv/bin/python3 [OMNIMEM_PATH]/omni_import.py <file_path>` to ingest it via Kreuzberg.
-3. **Save Milestones:** After resolving a major issue, run: `[OMNIMEM_PATH]/venv/bin/python3 [OMNIMEM_PATH]/omni_add.py "brief summary"` to save the context for your future sessions.
+1. **ALWAYS Search First:** Before answering complex project questions, you MUST run the command: `[OMNIMEM_PATH]/omnimem search "your query" --full` to fetch context. Use `--full` to read the entire text without truncation. You can also use `--json` for structured data parsing.
+2. **ALWAYS Import Docs:** When the user asks you to read or remember a complex file (PDF, DOCX, Image, Code), run: `[OMNIMEM_PATH]/omnimem import <file_path>` to ingest it via Kreuzberg.
+3. **Save Milestones:** After resolving a major issue, run: `[OMNIMEM_PATH]/omnimem add "brief summary"` to save the context for your future sessions.
 ```
 *(Note: Replace `[OMNIMEM_PATH]` with the absolute path to your cloned omnimem directory, e.g., `/root/omnimem` or `C:\omnimem`)*
+Legacy `omni_*.py` scripts remain available when you need them.
 
 ## Unified CLI Usage
 Use the repo launchers for normal operation because they prefer the local `venv` automatically. On Windows, use `.\omnimem.ps1` or `.\omnimem.bat` from the repo root.
@@ -78,6 +79,8 @@ Use the repo launchers for normal operation because they prefer the local `venv`
 - **Add text:** `./omnimem add "Server password is 123"`
 - **Import file:** `./omnimem import my_design.pdf`
 - **Search:** `./omnimem search "password" --full`
+- **Search with filters:** `./omnimem search "release" --source omnimem --since 2026-03-06`
+- **Search imported PDFs only:** `./omnimem search "invoice" --mime-type application/pdf`
 - **Delete:** `./omnimem delete --wipe-all`
 
 ## Legacy standalone scripts
@@ -91,4 +94,6 @@ Use the repo launchers for normal operation because they prefer the local `venv`
 ## Development
 - **Run tests:** `python3 -m unittest discover -s tests -v`
 - **Read release notes:** `CHANGELOG.md`
+- **Read the roadmap:** `ROADMAP.md`
+- **Read search filter docs:** `docs/search-filters.md`
 - **Follow release gates:** `docs/release-checklist.md`

@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.5.0
+- Added shared metadata helpers in `omni_metadata.py` for timestamps, tags, and search filter parsing
+- Added `search` filters for `source`, `since`, `until`, and `mime_type` in both `omni_search.py` and `omnimem search`
+- Normalized metadata creation for new note/import records without requiring a migration
+- Added `ROADMAP.md` and `docs/search-filters.md`
+- Expanded stdlib-only tests to cover metadata normalization and filter wiring
+
 ## v1.4.0
 - Added `omnimem.py` as a unified OmniMem CLI with `add`, `search`, `import`, `delete`, `doctor`, `bootstrap`, `update`, and `version` subcommands
 - Added cross-platform repo launchers: `omnimem`, `omnimem.ps1`, and `omnimem.bat`

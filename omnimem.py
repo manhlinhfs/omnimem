@@ -17,7 +17,16 @@ def handle_add(args):
 def handle_search(args):
     from omni_search import search_memory
 
-    search_memory(args.query, args.n, args.full, args.json)
+    search_memory(
+        args.query,
+        args.n,
+        args.full,
+        args.json,
+        source=args.source,
+        since=args.since,
+        until=args.until,
+        mime_type=args.mime_type,
+    )
     return 0
 
 
@@ -121,6 +130,22 @@ def build_parser():
         "--json",
         action="store_true",
         help="Output results in JSON format",
+    )
+    search_parser.add_argument(
+        "--source",
+        help="Only search memories from an exact source value",
+    )
+    search_parser.add_argument(
+        "--since",
+        help="Only search memories at or after YYYY-MM-DD or ISO-8601 datetime",
+    )
+    search_parser.add_argument(
+        "--until",
+        help="Only search memories at or before YYYY-MM-DD or ISO-8601 datetime",
+    )
+    search_parser.add_argument(
+        "--mime-type",
+        help="Only search imported memories with the exact MIME type",
     )
     search_parser.set_defaults(handler=handle_search)
 

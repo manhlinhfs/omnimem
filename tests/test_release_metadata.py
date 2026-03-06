@@ -18,3 +18,13 @@ class TestReleaseMetadata(unittest.TestCase):
     def test_ci_workflow_exists(self):
         workflow = ROOT_DIR / ".github" / "workflows" / "ci.yml"
         self.assertTrue(workflow.exists())
+
+    def test_roadmap_exists(self):
+        roadmap = ROOT_DIR / "ROADMAP.md"
+        self.assertTrue(roadmap.exists())
+        self.assertIn("OmniMem Roadmap", roadmap.read_text(encoding="utf-8"))
+
+    def test_search_filter_docs_exist(self):
+        search_filters = ROOT_DIR / "docs" / "search-filters.md"
+        self.assertTrue(search_filters.exists())
+        self.assertIn("Search Filters", search_filters.read_text(encoding="utf-8"))
