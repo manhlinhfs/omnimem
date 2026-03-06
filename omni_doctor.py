@@ -5,13 +5,8 @@ import platform
 import sys
 from pathlib import Path
 
-from omni_paths import (
-    SOURCE_ROOT,
-    detect_install_mode,
-    get_bootstrap_command,
-    get_db_dir,
-    get_runtime_home,
-)
+from omni_config import resolve_runtime_config, serialize_runtime_config
+from omni_paths import SOURCE_ROOT, get_bootstrap_command, get_db_dir, get_runtime_home
 
 from omni_embeddings import (  # noqa: E402
     MODEL_REPO_ID,
@@ -23,10 +18,17 @@ from omni_embeddings import (  # noqa: E402
 from omni_version import add_version_argument, get_version, get_version_banner  # noqa: E402
 
 
+COLLECTION_NAME = "omnimem_core"
+
+
 def _result(name, status, detail, **extra):
     item = {"name": name, "status": status, "detail": detail}
     item.update(extra)
     return item
+
+
+def _is_missing_collection_error(exc):
+    return isinstance(exc, ValueError) or exc.__class__.__name__ == "NotFoundError"
 
 
 def _hf_cache_candidates():
@@ -40,9 +42,12 @@ def _hf_cache_candidates():
 
 
 def run_doctor(deep=False):
-    install_mode_report = detect_install_mode(root_dir=SOURCE_ROOT)
-    runtime_home = get_runtime_home(root_dir=SOURCE_ROOT, install_mode_report=install_mode_report)
-    db_dir = get_db_dir(root_dir=SOURCE_ROOT, install_mode_report=install_mode_report)
+    runtime_config = resolve_runtime_config(root_dir=SOURCE_ROOT, ignore_errors=True)
+    config_snapshot = serialize_runtime_config(runtime_config)
+    install_mode_report = runtime_config["install_mode"]
+    config_report = runtime_config["config"]
+    runtime_home = get_runtime_home(root_dir=SOURCE_ROOT)
+    db_dir = get_db_dir(root_dir=SOURCE_ROOT)
     db_file = db_dir / "chroma.sqlite3"
     bootstrap_command = get_bootstrap_command(
         root_dir=SOURCE_ROOT,
@@ -64,6 +69,43 @@ def run_doctor(deep=False):
             "pass",
             install_mode_report["mode"],
             detail_text=install_mode_report["detail"],
+        )
+    )
+
+    if config_report.get("error"):
+        results.append(
+            _result(
+                "config_file",
+                "fail",
+                config_report["error"],
+                config=config_report,
+            )
+        )
+    elif config_report.get("loaded"):
+        results.append(
+            _result(
+                "config_file",
+                "pass",
+                f"Loaded config from {config_report['selected_path']}",
+                config=config_report,
+            )
+        )
+    else:
+        results.append(
+            _result(
+                "config_file",
+                "warn",
+                f"No config file loaded. Preferred path: {config_report['preferred_path']}",
+                config=config_report,
+            )
+        )
+
+    results.append(
+        _result(
+            "effective_config",
+            "pass",
+            "Resolved runtime settings from overrides/env/config/defaults",
+            settings=config_snapshot["settings"],
         )
     )
     results.append(_result("runtime_home", "pass", str(runtime_home)))
@@ -98,17 +140,19 @@ def run_doctor(deep=False):
         try:
             client = chromadb.PersistentClient(path=str(db_dir))
             try:
-                collection = client.get_collection(name="omnimem_core")
-            except ValueError:
+                collection = client.get_collection(name=COLLECTION_NAME)
+            except Exception as exc:
+                if not _is_missing_collection_error(exc):
+                    raise
                 results.append(
-                    _result("collection", "warn", "Collection 'omnimem_core' does not exist yet")
+                    _result("collection", "warn", f"Collection '{COLLECTION_NAME}' does not exist yet")
                 )
             else:
                 results.append(
                     _result(
                         "collection",
                         "pass",
-                        f"Collection 'omnimem_core' is available with {collection.count()} items",
+                        f"Collection '{COLLECTION_NAME}' is available with {collection.count()} items",
                     )
                 )
         except Exception as exc:
@@ -191,6 +235,7 @@ def run_doctor(deep=False):
         "version": get_version(),
         "overall": overall,
         "deep": deep,
+        "effective_config": config_snapshot,
         "checks": results,
     }
 
@@ -203,11 +248,23 @@ def print_human_report(report):
         print(f"[{item['status'].upper():4}] {item['name']}: {item['detail']}")
         if item["name"] == "install_mode" and item.get("detail_text"):
             print(f"      {item['detail_text']}")
+        if item["name"] == "config_file":
+            config = item.get("config") or {}
+            if config.get("candidates"):
+                print("      Candidates:")
+                for candidate in config["candidates"]:
+                    print(f"      - {candidate}")
+        if item["name"] == "effective_config":
+            for setting_name, setting in (item.get("settings") or {}).items():
+                print(
+                    f"      {setting_name} = {setting.get('value')} "
+                    f"({setting.get('source')})"
+                )
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Inspect OmniMem runtime health, bootstrap state, and local dependencies"
+        description="Inspect OmniMem runtime health, config resolution, bootstrap state, and local dependencies"
     )
     parser.add_argument(
         "--deep",

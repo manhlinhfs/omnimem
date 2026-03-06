@@ -100,6 +100,71 @@ def handle_update(args):
     return 0
 
 
+def handle_backup(args):
+    from omni_ops import OpsError, create_backup, print_human_report
+
+    try:
+        report = create_backup(
+            output_path=args.output,
+            overwrite=args.overwrite,
+            include_models=not args.no_models,
+            include_config=not args.no_config,
+        )
+    except OpsError as exc:
+        if args.json:
+            print(json.dumps({"tool": "omni_backup", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+        else:
+            print(f"Error: {exc}")
+        return 1
+
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0
+
+    print_human_report(report)
+    return 0
+
+
+def handle_export(args):
+    from omni_ops import OpsError, export_memories, print_human_report
+
+    try:
+        report = export_memories(output_path=args.output, overwrite=args.overwrite)
+    except OpsError as exc:
+        if args.json:
+            print(json.dumps({"tool": "omni_export", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+        else:
+            print(f"Error: {exc}")
+        return 1
+
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0
+
+    print_human_report(report)
+    return 0
+
+
+def handle_restore(args):
+    from omni_ops import OpsError, print_human_report, restore_snapshot
+
+    try:
+        report = restore_snapshot(args.input_path, force=args.force)
+    except OpsError as exc:
+        if args.json:
+            print(json.dumps({"tool": "omni_restore", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+        else:
+            print(f"Error: {exc}")
+        return 1
+
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0
+
+    print_human_report(report)
+    return 0
+
+
 def handle_version(_args):
     print(get_version_banner())
     return 0
@@ -107,7 +172,7 @@ def handle_version(_args):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        description="Unified OmniMem CLI for add/search/import/doctor/update workflows"
+        description="Unified OmniMem CLI for add/search/import/doctor/update/operations workflows"
     )
     add_version_argument(parser)
     subparsers = parser.add_subparsers(dest="command")
@@ -226,6 +291,61 @@ def build_parser():
         help="Allow OmniMem to download the embedding model during update if needed",
     )
     update_parser.set_defaults(handler=handle_update)
+
+    backup_parser = subparsers.add_parser("backup", help="Create a runtime backup archive")
+    backup_parser.add_argument("--output", help="Write the backup archive to this path")
+    backup_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite the output path if it exists",
+    )
+    backup_parser.add_argument(
+        "--no-models",
+        action="store_true",
+        help="Skip backing up the model directory",
+    )
+    backup_parser.add_argument(
+        "--no-config",
+        action="store_true",
+        help="Skip backing up the active config file",
+    )
+    backup_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output the backup report as JSON",
+    )
+    backup_parser.set_defaults(handler=handle_backup)
+
+    export_parser = subparsers.add_parser("export", help="Export the vector collection to JSON")
+    export_parser.add_argument("--output", help="Write the export JSON to this path")
+    export_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite the output path if it exists",
+    )
+    export_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output the export report as JSON",
+    )
+    export_parser.set_defaults(handler=handle_export)
+
+    restore_parser = subparsers.add_parser(
+        "restore",
+        help="Restore from a backup archive or export JSON",
+    )
+    restore_parser.add_argument("input_path", help="Path to a backup archive or export JSON file")
+    restore_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Replace existing data at the restore target",
+    )
+    restore_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output the restore report as JSON",
+    )
+    restore_parser.set_defaults(handler=handle_restore)
 
     version_parser = subparsers.add_parser("version", help="Print the OmniMem version")
     version_parser.set_defaults(handler=handle_version)

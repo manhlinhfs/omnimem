@@ -1,0 +1,7 @@
+{
+  "home": "/absolute/path/to/omnimem-runtime",
+  "db_dir": "/absolute/path/to/omnimem-db",
+  "models_dir": "/absolute/path/to/omnimem-models",
+  "allow_model_download": false,
+  "async_extract_timeout_seconds": 20
+}

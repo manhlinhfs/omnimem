@@ -89,45 +89,69 @@ def get_default_user_data_root():
     return Path.home() / ".local" / "share" / "omnimem"
 
 
-def get_runtime_home(root_dir=SOURCE_ROOT, install_mode_report=None, site_roots=None, user_data_root=None):
-    override = os.getenv("OMNIMEM_HOME")
+def get_default_user_config_root():
+    override = os.getenv("OMNIMEM_CONFIG_HOME")
     if override:
         return Path(override).expanduser()
 
-    report = install_mode_report or detect_install_mode(root_dir=root_dir, site_roots=site_roots)
-    if report["mode"] == "package_install":
-        if user_data_root is not None:
-            return Path(user_data_root).expanduser()
-        return get_default_user_data_root()
-    return Path(root_dir).expanduser().resolve()
+    if os.name == "nt":
+        base = os.getenv("APPDATA") or os.getenv("LOCALAPPDATA")
+        if base:
+            return Path(base).expanduser() / "omnimem"
+        return Path.home() / "AppData" / "Roaming" / "omnimem"
+
+    if sys.platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / "omnimem"
+
+    xdg_config_home = os.getenv("XDG_CONFIG_HOME")
+    if xdg_config_home:
+        return Path(xdg_config_home).expanduser() / "omnimem"
+    return Path.home() / ".config" / "omnimem"
+
+
+def _resolve_runtime_config(root_dir=SOURCE_ROOT, site_roots=None, user_data_root=None):
+    from omni_config import resolve_runtime_config
+
+    return resolve_runtime_config(
+        root_dir=root_dir,
+        site_roots=site_roots,
+        user_data_root=user_data_root,
+    )
+
+
+def get_runtime_home(root_dir=SOURCE_ROOT, install_mode_report=None, site_roots=None, user_data_root=None):
+    if install_mode_report is not None:
+        config = _resolve_runtime_config(
+            root_dir=root_dir,
+            site_roots=site_roots,
+            user_data_root=user_data_root,
+        )
+        return Path(config["values"]["home"]).expanduser()
+
+    config = _resolve_runtime_config(
+        root_dir=root_dir,
+        site_roots=site_roots,
+        user_data_root=user_data_root,
+    )
+    return Path(config["values"]["home"]).expanduser()
 
 
 def get_db_dir(root_dir=SOURCE_ROOT, install_mode_report=None, site_roots=None, user_data_root=None):
-    override = os.getenv("OMNIMEM_DB_DIR")
-    if override:
-        return Path(override).expanduser()
-
-    runtime_home = get_runtime_home(
+    config = _resolve_runtime_config(
         root_dir=root_dir,
-        install_mode_report=install_mode_report,
         site_roots=site_roots,
         user_data_root=user_data_root,
     )
-    return runtime_home / ".omnimem_db"
+    return Path(config["values"]["db_dir"]).expanduser()
 
 
 def get_models_root(root_dir=SOURCE_ROOT, install_mode_report=None, site_roots=None, user_data_root=None):
-    override = os.getenv("OMNIMEM_MODELS_DIR")
-    if override:
-        return Path(override).expanduser()
-
-    runtime_home = get_runtime_home(
+    config = _resolve_runtime_config(
         root_dir=root_dir,
-        install_mode_report=install_mode_report,
         site_roots=site_roots,
         user_data_root=user_data_root,
     )
-    return runtime_home / ".omnimem_models"
+    return Path(config["values"]["models_dir"]).expanduser()
 
 
 def get_bootstrap_command(root_dir=SOURCE_ROOT, install_mode_report=None, site_roots=None):

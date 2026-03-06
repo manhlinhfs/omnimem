@@ -1,4 +1,4 @@
-# OmniMem v1.6.0 - Устанавливаемый CLI-Мозг 🧠
+# OmniMem v1.7.0 - Настраиваемый CLI-Мозг 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -56,6 +56,13 @@ python3 omni_doctor.py --deep
 python3 omni_doctor.py --json
 ```
 
+### Настройка runtime-путей
+```bash
+cp omnimem.example.json omnimem.json
+./omnimem doctor
+```
+Изменяйте `omnimem.json`, чтобы перенести DB, model directory и операционные настройки без правки кода.
+
 ### Обновление текущего клона
 ```bash
 python3 omni_update.py --check
@@ -64,6 +71,14 @@ python3 omni_update.py
 `omni_update.py` обновляет текущую ветку с fast-forward only семантикой, отказывается перезаписывать грязный worktree, переустанавливает зависимости при изменении `requirements.txt` и обновляет локальное состояние bootstrap модели.
 
 Для package install `omnimem update` не поддерживается; обновляйте через `pip`.
+
+### Backup, export и restore
+```bash
+./omnimem backup
+./omnimem export
+./omnimem restore /path/to/omnimem-backup.tar.gz
+./omnimem restore /path/to/omnimem-export.json --force
+```
 
 ## Offline-safe runtime
 - Команды `omni_add.py`, `omni_search.py`, `omni_import.py` теперь по умолчанию загружают модель из `.omnimem_models/`.
@@ -95,6 +110,9 @@ python3 omni_update.py
 - **Проверить обновления:** `./omnimem update --check`
 - **Обновить этот клон:** `./omnimem update`
 - **Bootstrap model:** `./omnimem bootstrap`
+- **Backup runtime:** `./omnimem backup`
+- **Export memories:** `./omnimem export`
+- **Restore runtime:** `./omnimem restore /path/to/file`
 - **Добавить текст:** `./omnimem add "Пароль сервера 123"`
 - **Импортировать файл:** `./omnimem import my_design.pdf`
 - **Поиск:** `./omnimem search "пароль" --full`
@@ -108,6 +126,9 @@ python3 omni_update.py
 - `python3 omni_search.py "пароль" --full`
 - `python3 omni_del.py --wipe-all`
 - `python3 omni_doctor.py`
+- `python3 omni_ops.py backup`
+- `python3 omni_ops.py export`
+- `python3 omni_ops.py restore /path/to/file`
 - `python3 omni_update.py --check`
 
 ## Для разработки
@@ -116,5 +137,7 @@ python3 omni_update.py
 - **Посмотреть release notes:** `CHANGELOG.md`
 - **Посмотреть roadmap:** `ROADMAP.md`
 - **Прочитать docs по install modes:** `docs/install-modes.md`
+- **Прочитать docs по configuration:** `docs/configuration.md`
+- **Прочитать docs по operations:** `docs/operations.md`
 - **Прочитать docs по search filters:** `docs/search-filters.md`
 - **Следовать release checklist:** `docs/release-checklist.md`

@@ -6,7 +6,19 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 EXPECTED_BANNER = f"OmniMem v{(ROOT_DIR / 'VERSION').read_text(encoding='utf-8').strip()}"
-SUBCOMMANDS = ("add", "search", "import", "delete", "doctor", "bootstrap", "update", "version")
+SUBCOMMANDS = (
+    "add",
+    "search",
+    "import",
+    "delete",
+    "doctor",
+    "bootstrap",
+    "update",
+    "backup",
+    "export",
+    "restore",
+    "version",
+)
 
 
 def run_cli(*args):

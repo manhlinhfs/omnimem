@@ -27,16 +27,12 @@ This roadmap is intentionally conservative: each minor release should have one m
 - Support installation without relying on a raw git clone
 - Detect install mode in `update` and explain unsupported flows clearly
 
-## Planned
-
 ### v1.7.0 - Config And Operations
-- Add a config file with clear precedence rules
-- Add backup/export/restore commands
-- Expand doctor output with effective config reporting
+- Added a shared JSON config layer with clear precedence rules
+- Added `backup`, `export`, and `restore` operations
+- Expanded `doctor` output with effective config reporting
 
-Exit criteria:
-- Users can move DB/model paths without editing code
-- Export/restore roundtrips are tested
+## Planned
 
 ### v1.8.0 - Retrieval Quality
 - Improve chunking beyond blank-line splits

@@ -5,12 +5,10 @@ import os
 import sys
 import uuid
 
+from omni_config import get_async_extract_timeout_seconds
 from omni_metadata import build_base_metadata, coerce_metadata_value, normalize_mime_type
 from omni_paths import get_db_dir
 from omni_version import add_version_argument
-
-ASYNC_EXTRACTION_TIMEOUT_SECONDS = int(os.getenv("OMNIMEM_ASYNC_EXTRACT_TIMEOUT", "20"))
-
 
 async def extract_with_fallback(file_path):
     try:
@@ -20,12 +18,13 @@ async def extract_with_fallback(file_path):
         sys.exit(1)
 
     try:
+        timeout_seconds = get_async_extract_timeout_seconds()
         print(
-            f"[OmniMem] Trying async extraction (timeout: {ASYNC_EXTRACTION_TIMEOUT_SECONDS}s)..."
+            f"[OmniMem] Trying async extraction (timeout: {timeout_seconds}s)..."
         )
         extraction_result = await asyncio.wait_for(
             extract_file(file_path),
-            timeout=ASYNC_EXTRACTION_TIMEOUT_SECONDS,
+            timeout=timeout_seconds,
         )
         print("[OmniMem] Async extraction succeeded.")
         return extraction_result

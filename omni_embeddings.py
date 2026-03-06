@@ -2,6 +2,7 @@ import os
 import shutil
 from pathlib import Path
 
+from omni_config import get_allow_model_download
 from omni_paths import SOURCE_ROOT, get_bootstrap_command, get_models_root
 
 MODEL_REPO_ID = os.getenv(
@@ -81,7 +82,10 @@ def ensure_model_ready():
     try:
         return bootstrap_model(local_files_only=True)
     except RuntimeError:
-        if _env_flag("OMNIMEM_ALLOW_MODEL_DOWNLOAD", default=False):
+        if get_allow_model_download(root_dir=SOURCE_ROOT) or _env_flag(
+            "OMNIMEM_ALLOW_MODEL_DOWNLOAD",
+            default=False,
+        ):
             return bootstrap_model(local_files_only=False)
         raise RuntimeError(
             f"Embedding model is not ready at '{model_dir}'. Run "

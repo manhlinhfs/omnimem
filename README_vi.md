@@ -1,4 +1,4 @@
-# OmniMem v1.6.0 - Bộ Não CLI Có Thể Cài Đặt 🧠
+# OmniMem v1.7.0 - Bộ Não CLI Có Thể Cấu Hình 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -56,6 +56,13 @@ python3 omni_doctor.py --deep
 python3 omni_doctor.py --json
 ```
 
+### Cấu hình đường dẫn runtime
+```bash
+cp omnimem.example.json omnimem.json
+./omnimem doctor
+```
+Sửa `omnimem.json` để đổi vị trí DB, model hoặc các thiết lập vận hành mà không cần sửa code.
+
 ### Update clone hiện tại
 ```bash
 python3 omni_update.py --check
@@ -64,6 +71,14 @@ python3 omni_update.py
 `omni_update.py` sẽ cập nhật branch đang track upstream theo chế độ fast-forward only, từ chối ghi đè worktree đang bẩn, cài lại dependencies nếu `requirements.txt` đổi, và refresh trạng thái bootstrap model local.
 
 Với package install, `omnimem update` không được hỗ trợ; hãy update bằng `pip`.
+
+### Backup, export và restore
+```bash
+./omnimem backup
+./omnimem export
+./omnimem restore /path/to/omnimem-backup.tar.gz
+./omnimem restore /path/to/omnimem-export.json --force
+```
 
 ## Runtime offline-safe
 - Các lệnh `omni_add.py`, `omni_search.py`, `omni_import.py` giờ mặc định load model từ `.omnimem_models/`.
@@ -95,6 +110,9 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - **Kiểm tra update:** `./omnimem update --check`
 - **Update clone này:** `./omnimem update`
 - **Bootstrap model:** `./omnimem bootstrap`
+- **Backup runtime:** `./omnimem backup`
+- **Export memories:** `./omnimem export`
+- **Restore runtime:** `./omnimem restore /path/to/file`
 - **Thêm note:** `./omnimem add "Mật khẩu là 123"`
 - **Đọc file:** `./omnimem import tai_lieu.pdf`
 - **Tìm kiếm:** `./omnimem search "mật khẩu" --full`
@@ -108,6 +126,9 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - `python3 omni_search.py "mật khẩu" --full`
 - `python3 omni_del.py --wipe-all`
 - `python3 omni_doctor.py`
+- `python3 omni_ops.py backup`
+- `python3 omni_ops.py export`
+- `python3 omni_ops.py restore /path/to/file`
 - `python3 omni_update.py --check`
 
 ## Dành cho phát triển
@@ -116,5 +137,7 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - **Xem release notes:** `CHANGELOG.md`
 - **Xem roadmap:** `ROADMAP.md`
 - **Xem tài liệu install mode:** `docs/install-modes.md`
+- **Xem tài liệu cấu hình:** `docs/configuration.md`
+- **Xem tài liệu vận hành:** `docs/operations.md`
 - **Xem tài liệu search filter:** `docs/search-filters.md`
 - **Theo checklist release:** `docs/release-checklist.md`

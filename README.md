@@ -1,4 +1,4 @@
-# OmniMem v1.6.0 - The Installable CLI Brain 🧠
+# OmniMem v1.7.0 - The Configurable CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -54,6 +54,13 @@ python3 omni_doctor.py --deep
 python3 omni_doctor.py --json
 ```
 
+### Configure runtime paths and behavior
+```bash
+cp omnimem.example.json omnimem.json
+./omnimem doctor
+```
+Edit `omnimem.json` to move the DB/model directories or change operational settings without editing code.
+
 ### Update an existing clone
 ```bash
 python3 omni_update.py --check
@@ -62,6 +69,14 @@ python3 omni_update.py
 `omni_update.py` updates the current tracked branch with fast-forward only semantics, refuses to overwrite a dirty worktree, reinstalls dependencies when `requirements.txt` changes, and refreshes the local model bootstrap state.
 
 Package installs do not support `omnimem update`; reinstall or upgrade them with `pip` instead.
+
+### Backup, export, and restore
+```bash
+./omnimem backup
+./omnimem export
+./omnimem restore /path/to/omnimem-backup.tar.gz
+./omnimem restore /path/to/omnimem-export.json --force
+```
 
 ## Offline-safe runtime
 - Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
@@ -93,6 +108,9 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - **Check for updates:** `./omnimem update --check`
 - **Update this clone:** `./omnimem update`
 - **Bootstrap model:** `./omnimem bootstrap`
+- **Backup runtime:** `./omnimem backup`
+- **Export memories:** `./omnimem export`
+- **Restore runtime:** `./omnimem restore /path/to/file`
 - **Add text:** `./omnimem add "Server password is 123"`
 - **Import file:** `./omnimem import my_design.pdf`
 - **Search:** `./omnimem search "password" --full`
@@ -106,6 +124,9 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - `python3 omni_search.py "password" --full`
 - `python3 omni_del.py --wipe-all`
 - `python3 omni_doctor.py`
+- `python3 omni_ops.py backup`
+- `python3 omni_ops.py export`
+- `python3 omni_ops.py restore /path/to/file`
 - `python3 omni_update.py --check`
 
 ## Development
@@ -114,5 +135,7 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - **Read release notes:** `CHANGELOG.md`
 - **Read the roadmap:** `ROADMAP.md`
 - **Read install mode docs:** `docs/install-modes.md`
+- **Read configuration docs:** `docs/configuration.md`
+- **Read operations docs:** `docs/operations.md`
 - **Read search filter docs:** `docs/search-filters.md`
 - **Follow release gates:** `docs/release-checklist.md`

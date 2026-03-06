@@ -33,3 +33,23 @@ class TestReleaseMetadata(unittest.TestCase):
         install_modes = ROOT_DIR / "docs" / "install-modes.md"
         self.assertTrue(install_modes.exists())
         self.assertIn("Install Modes", install_modes.read_text(encoding="utf-8"))
+
+    def test_configuration_docs_exist(self):
+        configuration = ROOT_DIR / "docs" / "configuration.md"
+        self.assertTrue(configuration.exists())
+        self.assertIn("Configuration", configuration.read_text(encoding="utf-8"))
+
+    def test_operations_docs_exist(self):
+        operations = ROOT_DIR / "docs" / "operations.md"
+        self.assertTrue(operations.exists())
+        self.assertIn("Operations", operations.read_text(encoding="utf-8"))
+
+    def test_example_config_exists(self):
+        example = ROOT_DIR / "omnimem.example.json"
+        self.assertTrue(example.exists())
+        self.assertIn("\"db_dir\"", example.read_text(encoding="utf-8"))
+
+    def test_manifest_exists(self):
+        manifest = ROOT_DIR / "MANIFEST.in"
+        self.assertTrue(manifest.exists())
+        self.assertIn("recursive-include docs", manifest.read_text(encoding="utf-8"))

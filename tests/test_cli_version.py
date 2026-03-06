@@ -12,6 +12,7 @@ SCRIPTS = (
     "omni_import.py",
     "omni_del.py",
     "omni_bootstrap.py",
+    "omni_ops.py",
     "omni_doctor.py",
     "omni_update.py",
 )

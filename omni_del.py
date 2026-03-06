@@ -3,6 +3,11 @@ import argparse
 from omni_paths import get_db_dir
 from omni_version import add_version_argument
 
+
+def _is_missing_collection_error(exc):
+    return isinstance(exc, ValueError) or exc.__class__.__name__ == "NotFoundError"
+
+
 def delete_memory(doc_id=None, source=None, wipe_all=False):
     import chromadb
 
@@ -10,7 +15,9 @@ def delete_memory(doc_id=None, source=None, wipe_all=False):
     
     try:
         collection = client.get_collection(name="omnimem_core")
-    except ValueError:
+    except Exception as exc:
+        if not _is_missing_collection_error(exc):
+            raise
         print("OmniMem knowledge base is currently empty.")
         return
 

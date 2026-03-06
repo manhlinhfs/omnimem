@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.7.0
+- Added `omni_config.py` with shared JSON config discovery and precedence rules for runtime paths and operational settings
+- Added `omni_ops.py` plus unified CLI subcommands for `backup`, `export`, and `restore`
+- Expanded `omni_doctor.py` to report config discovery, preferred config locations, and effective runtime settings
+- Added `docs/configuration.md`, `docs/operations.md`, and `omnimem.example.json`
+- Expanded tests to cover config resolution, doctor config output, and backup/export/restore roundtrips
+
 ## v1.6.0
 - Added `pyproject.toml` with a real `omnimem` console entry point for package installs
 - Added `omni_paths.py` so clone mode keeps repo-local data while package installs use a user data directory
