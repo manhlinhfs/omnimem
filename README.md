@@ -1,4 +1,4 @@
-# OmniMem v1.7.0 - The Configurable CLI Brain 🧠
+# OmniMem v1.8.0 - The Retrieval-Tuned CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -78,6 +78,13 @@ Package installs do not support `omnimem update`; reinstall or upgrade them with
 ./omnimem restore /path/to/omnimem-export.json --force
 ```
 
+### Reindex older imports with the new chunker
+```bash
+./omnimem reindex --dry-run
+./omnimem reindex
+```
+This is intended for users who imported files on older OmniMem releases and want to rebuild their DB with the current chunking strategy.
+
 ## Offline-safe runtime
 - Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
 - If the local model directory is missing, OmniMem first tries to restore it from the local Hugging Face cache.
@@ -111,6 +118,7 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - **Backup runtime:** `./omnimem backup`
 - **Export memories:** `./omnimem export`
 - **Restore runtime:** `./omnimem restore /path/to/file`
+- **Reindex imported docs:** `./omnimem reindex`
 - **Add text:** `./omnimem add "Server password is 123"`
 - **Import file:** `./omnimem import my_design.pdf`
 - **Search:** `./omnimem search "password" --full`
@@ -127,6 +135,8 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - `python3 omni_ops.py backup`
 - `python3 omni_ops.py export`
 - `python3 omni_ops.py restore /path/to/file`
+- `python3 omni_reindex.py --dry-run`
+- `python3 omni_reindex.py`
 - `python3 omni_update.py --check`
 
 ## Development
@@ -137,5 +147,7 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - **Read install mode docs:** `docs/install-modes.md`
 - **Read configuration docs:** `docs/configuration.md`
 - **Read operations docs:** `docs/operations.md`
+- **Read chunking docs:** `docs/chunking.md`
+- **Read reindexing docs:** `docs/reindexing.md`
 - **Read search filter docs:** `docs/search-filters.md`
 - **Follow release gates:** `docs/release-checklist.md`

@@ -1,4 +1,4 @@
-# OmniMem v1.7.0 - Bộ Não CLI Có Thể Cấu Hình 🧠
+# OmniMem v1.8.0 - Bộ Não CLI Tối Ưu Cho Retrieval 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -80,6 +80,13 @@ Với package install, `omnimem update` không được hỗ trợ; hãy update 
 ./omnimem restore /path/to/omnimem-export.json --force
 ```
 
+### Reindex dữ liệu import cũ với chunker mới
+```bash
+./omnimem reindex --dry-run
+./omnimem reindex
+```
+Phần này dành cho người dùng đã import tài liệu từ các phiên bản cũ và muốn rebuild DB theo chiến lược chunking mới.
+
 ## Runtime offline-safe
 - Các lệnh `omni_add.py`, `omni_search.py`, `omni_import.py` giờ mặc định load model từ `.omnimem_models/`.
 - Nếu thiếu thư mục model local, OmniMem sẽ thử khôi phục từ cache local của Hugging Face trước.
@@ -113,6 +120,7 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - **Backup runtime:** `./omnimem backup`
 - **Export memories:** `./omnimem export`
 - **Restore runtime:** `./omnimem restore /path/to/file`
+- **Reindex tài liệu đã import:** `./omnimem reindex`
 - **Thêm note:** `./omnimem add "Mật khẩu là 123"`
 - **Đọc file:** `./omnimem import tai_lieu.pdf`
 - **Tìm kiếm:** `./omnimem search "mật khẩu" --full`
@@ -129,6 +137,8 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - `python3 omni_ops.py backup`
 - `python3 omni_ops.py export`
 - `python3 omni_ops.py restore /path/to/file`
+- `python3 omni_reindex.py --dry-run`
+- `python3 omni_reindex.py`
 - `python3 omni_update.py --check`
 
 ## Dành cho phát triển
@@ -139,5 +149,7 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - **Xem tài liệu install mode:** `docs/install-modes.md`
 - **Xem tài liệu cấu hình:** `docs/configuration.md`
 - **Xem tài liệu vận hành:** `docs/operations.md`
+- **Xem tài liệu chunking:** `docs/chunking.md`
+- **Xem tài liệu reindex:** `docs/reindexing.md`
 - **Xem tài liệu search filter:** `docs/search-filters.md`
 - **Theo checklist release:** `docs/release-checklist.md`

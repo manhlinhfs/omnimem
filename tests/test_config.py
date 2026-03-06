@@ -27,6 +27,8 @@ class TestOmniConfig(unittest.TestCase):
                         "models_dir": str(root / "custom-models"),
                         "allow_model_download": True,
                         "async_extract_timeout_seconds": 33,
+                        "chunk_target_tokens": 444,
+                        "chunk_overlap_tokens": 77,
                     }
                 ),
                 encoding="utf-8",
@@ -41,6 +43,8 @@ class TestOmniConfig(unittest.TestCase):
             self.assertEqual(report["values"]["models_dir"], root / "custom-models")
             self.assertTrue(report["values"]["allow_model_download"])
             self.assertEqual(report["values"]["async_extract_timeout_seconds"], 33)
+            self.assertEqual(report["values"]["chunk_target_tokens"], 444)
+            self.assertEqual(report["values"]["chunk_overlap_tokens"], 77)
 
     def test_environment_variables_override_config_values(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -58,6 +62,21 @@ class TestOmniConfig(unittest.TestCase):
 
             self.assertEqual(report["values"]["db_dir"], env_db)
             self.assertEqual(report["settings"]["db_dir"]["source"], "env:OMNIMEM_DB_DIR")
+
+    def test_chunk_env_overrides_apply(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "repo"
+            root.mkdir()
+            (root / ".git").mkdir()
+
+            with self._clean_env(
+                OMNIMEM_CHUNK_TARGET_TOKENS="512",
+                OMNIMEM_CODE_CHUNK_OVERLAP_TOKENS="55",
+            ):
+                report = resolve_runtime_config(root_dir=root)
+
+            self.assertEqual(report["values"]["chunk_target_tokens"], 512)
+            self.assertEqual(report["values"]["code_chunk_overlap_tokens"], 55)
 
     def test_package_install_prefers_user_config_path(self):
         with tempfile.TemporaryDirectory() as temp_dir:

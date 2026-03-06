@@ -45,6 +45,20 @@ def _coerce_int(value):
     raise ConfigError(f"Expected an integer value, got {value!r}")
 
 
+def _resolve_int_setting(overrides, payload, key, env_var, default, config_label):
+    if overrides.get(key) is not None:
+        value = _coerce_int(overrides[key])
+        return value, _setting(key, value, "override")
+    if os.getenv(env_var) is not None:
+        value = _coerce_int(os.getenv(env_var))
+        return value, _setting(key, value, f"env:{env_var}", env_var=env_var)
+    if payload.get(key) is not None:
+        value = _coerce_int(payload.get(key))
+        return value, _setting(key, value, config_label)
+    value = default
+    return value, _setting(key, value, f"default:{default}")
+
+
 def _coerce_path(value):
     if value is None:
         raise ConfigError("Expected a filesystem path, got null")
@@ -255,27 +269,62 @@ def resolve_runtime_config(
         allow_model_download = False
         allow_model_download_setting = _setting("allow_model_download", allow_model_download, "default:false")
 
-    if overrides.get("async_extract_timeout_seconds") is not None:
-        async_timeout = _coerce_int(overrides["async_extract_timeout_seconds"])
-        async_timeout_setting = _setting("async_extract_timeout_seconds", async_timeout, "override")
-    elif os.getenv("OMNIMEM_ASYNC_EXTRACT_TIMEOUT") is not None:
-        async_timeout = _coerce_int(os.getenv("OMNIMEM_ASYNC_EXTRACT_TIMEOUT"))
-        async_timeout_setting = _setting(
-            "async_extract_timeout_seconds",
-            async_timeout,
-            "env:OMNIMEM_ASYNC_EXTRACT_TIMEOUT",
-            env_var="OMNIMEM_ASYNC_EXTRACT_TIMEOUT",
-        )
-    elif payload.get("async_extract_timeout_seconds") is not None:
-        async_timeout = _coerce_int(payload.get("async_extract_timeout_seconds"))
-        async_timeout_setting = _setting(
-            "async_extract_timeout_seconds",
-            async_timeout,
-            config_label,
-        )
-    else:
-        async_timeout = 20
-        async_timeout_setting = _setting("async_extract_timeout_seconds", async_timeout, "default:20")
+    async_timeout, async_timeout_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "async_extract_timeout_seconds",
+        "OMNIMEM_ASYNC_EXTRACT_TIMEOUT",
+        20,
+        config_label,
+    )
+    chunk_target_tokens, chunk_target_tokens_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "chunk_target_tokens",
+        "OMNIMEM_CHUNK_TARGET_TOKENS",
+        420,
+        config_label,
+    )
+    chunk_overlap_tokens, chunk_overlap_tokens_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "chunk_overlap_tokens",
+        "OMNIMEM_CHUNK_OVERLAP_TOKENS",
+        70,
+        config_label,
+    )
+    code_chunk_target_tokens, code_chunk_target_tokens_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "code_chunk_target_tokens",
+        "OMNIMEM_CODE_CHUNK_TARGET_TOKENS",
+        260,
+        config_label,
+    )
+    code_chunk_overlap_tokens, code_chunk_overlap_tokens_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "code_chunk_overlap_tokens",
+        "OMNIMEM_CODE_CHUNK_OVERLAP_TOKENS",
+        40,
+        config_label,
+    )
+    ocr_chunk_target_tokens, ocr_chunk_target_tokens_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "ocr_chunk_target_tokens",
+        "OMNIMEM_OCR_CHUNK_TARGET_TOKENS",
+        320,
+        config_label,
+    )
+    ocr_chunk_overlap_tokens, ocr_chunk_overlap_tokens_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "ocr_chunk_overlap_tokens",
+        "OMNIMEM_OCR_CHUNK_OVERLAP_TOKENS",
+        90,
+        config_label,
+    )
 
     settings = {
         "home": home_setting,
@@ -283,6 +332,12 @@ def resolve_runtime_config(
         "models_dir": models_dir_setting,
         "allow_model_download": allow_model_download_setting,
         "async_extract_timeout_seconds": async_timeout_setting,
+        "chunk_target_tokens": chunk_target_tokens_setting,
+        "chunk_overlap_tokens": chunk_overlap_tokens_setting,
+        "code_chunk_target_tokens": code_chunk_target_tokens_setting,
+        "code_chunk_overlap_tokens": code_chunk_overlap_tokens_setting,
+        "ocr_chunk_target_tokens": ocr_chunk_target_tokens_setting,
+        "ocr_chunk_overlap_tokens": ocr_chunk_overlap_tokens_setting,
     }
 
     return {
@@ -318,6 +373,15 @@ def get_allow_model_download(root_dir=SOURCE_ROOT):
 
 def get_async_extract_timeout_seconds(root_dir=SOURCE_ROOT):
     return int(resolve_runtime_config(root_dir=root_dir)["values"]["async_extract_timeout_seconds"])
+
+
+def get_chunk_settings_for_profile(profile, root_dir=SOURCE_ROOT):
+    values = resolve_runtime_config(root_dir=root_dir)["values"]
+    if profile == "code":
+        return int(values["code_chunk_target_tokens"]), int(values["code_chunk_overlap_tokens"])
+    if profile == "ocr":
+        return int(values["ocr_chunk_target_tokens"]), int(values["ocr_chunk_overlap_tokens"])
+    return int(values["chunk_target_tokens"]), int(values["chunk_overlap_tokens"])
 
 
 if __name__ == "__main__":

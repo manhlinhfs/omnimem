@@ -165,6 +165,31 @@ def handle_restore(args):
     return 0
 
 
+def handle_reindex(args):
+    from omni_reindex import ReindexError, print_human_report, reindex_collection
+
+    try:
+        report = reindex_collection(
+            source=args.source,
+            dry_run=args.dry_run,
+            skip_backup=args.skip_backup,
+            backup_output=args.backup_output,
+        )
+    except ReindexError as exc:
+        if args.json:
+            print(json.dumps({"tool": "omni_reindex", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+        else:
+            print(f"Error: {exc}")
+        return 1
+
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0
+
+    print_human_report(report)
+    return 0
+
+
 def handle_version(_args):
     print(get_version_banner())
     return 0
@@ -172,7 +197,7 @@ def handle_version(_args):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        description="Unified OmniMem CLI for add/search/import/doctor/update/operations workflows"
+        description="Unified OmniMem CLI for add/search/import/doctor/update/operations/reindex workflows"
     )
     add_version_argument(parser)
     subparsers = parser.add_subparsers(dest="command")
@@ -346,6 +371,32 @@ def build_parser():
         help="Output the restore report as JSON",
     )
     restore_parser.set_defaults(handler=handle_restore)
+
+    reindex_parser = subparsers.add_parser(
+        "reindex",
+        help="Rebuild imported chunks using the current retrieval strategy",
+    )
+    reindex_parser.add_argument("--source", help="Only reindex imported memories from this source")
+    reindex_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be rebuilt without mutating the collection",
+    )
+    reindex_parser.add_argument(
+        "--skip-backup",
+        action="store_true",
+        help="Skip exporting a JSON backup before reindexing",
+    )
+    reindex_parser.add_argument(
+        "--backup-output",
+        help="Write the pre-reindex JSON backup to this path",
+    )
+    reindex_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output the reindex report as JSON",
+    )
+    reindex_parser.set_defaults(handler=handle_reindex)
 
     version_parser = subparsers.add_parser("version", help="Print the OmniMem version")
     version_parser.set_defaults(handler=handle_version)

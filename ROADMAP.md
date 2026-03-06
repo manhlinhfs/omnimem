@@ -32,16 +32,12 @@ This roadmap is intentionally conservative: each minor release should have one m
 - Added `backup`, `export`, and `restore` operations
 - Expanded `doctor` output with effective config reporting
 
-## Planned
-
 ### v1.8.0 - Retrieval Quality
-- Improve chunking beyond blank-line splits
-- Add chunk sizing/overlap controls
-- Explore better result grouping and reranking
+- Replaced blank-line chunking with a structure-aware chunker for prose, code, and OCR-like imports
+- Added chunk size and overlap controls through shared config
+- Added richer import metadata and a supported `reindex` workflow for older DBs
 
-Exit criteria:
-- Import behavior is measurably better on text/code/document fixtures
-- Retrieval regressions are covered by tests
+## Planned
 
 ### v1.9.0 - Security And Hygiene
 - Add secret redaction rules for obvious credentials

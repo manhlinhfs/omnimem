@@ -1,4 +1,4 @@
-# OmniMem v1.7.0 - Настраиваемый CLI-Мозг 🧠
+# OmniMem v1.8.0 - CLI-Мозг, Настроенный Под Retrieval 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -80,6 +80,13 @@ python3 omni_update.py
 ./omnimem restore /path/to/omnimem-export.json --force
 ```
 
+### Reindex старых импортов новым chunker-ом
+```bash
+./omnimem reindex --dry-run
+./omnimem reindex
+```
+Это предназначено для пользователей, которые импортировали документы в старых версиях OmniMem и хотят перестроить DB под новую стратегию chunking.
+
 ## Offline-safe runtime
 - Команды `omni_add.py`, `omni_search.py`, `omni_import.py` теперь по умолчанию загружают модель из `.omnimem_models/`.
 - Если локальная директория модели отсутствует, OmniMem сначала пытается восстановить ее из локального Hugging Face cache.
@@ -113,6 +120,7 @@ python3 omni_update.py
 - **Backup runtime:** `./omnimem backup`
 - **Export memories:** `./omnimem export`
 - **Restore runtime:** `./omnimem restore /path/to/file`
+- **Reindex импортов:** `./omnimem reindex`
 - **Добавить текст:** `./omnimem add "Пароль сервера 123"`
 - **Импортировать файл:** `./omnimem import my_design.pdf`
 - **Поиск:** `./omnimem search "пароль" --full`
@@ -129,6 +137,8 @@ python3 omni_update.py
 - `python3 omni_ops.py backup`
 - `python3 omni_ops.py export`
 - `python3 omni_ops.py restore /path/to/file`
+- `python3 omni_reindex.py --dry-run`
+- `python3 omni_reindex.py`
 - `python3 omni_update.py --check`
 
 ## Для разработки
@@ -139,5 +149,7 @@ python3 omni_update.py
 - **Прочитать docs по install modes:** `docs/install-modes.md`
 - **Прочитать docs по configuration:** `docs/configuration.md`
 - **Прочитать docs по operations:** `docs/operations.md`
+- **Прочитать docs по chunking:** `docs/chunking.md`
+- **Прочитать docs по reindexing:** `docs/reindexing.md`
 - **Прочитать docs по search filters:** `docs/search-filters.md`
 - **Следовать release checklist:** `docs/release-checklist.md`

@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.0
+- Added `omni_chunking.py` with structure-aware chunking profiles for prose, code, and OCR-like imports
+- Added chunk size and overlap controls through shared config and environment variables
+- Updated `omni_import.py` to use the new chunker and store richer import metadata
+- Added `omni_reindex.py` plus a unified CLI `reindex` command so older imported DBs can be rebuilt safely
+- Added `docs/chunking.md` and `docs/reindexing.md`, and extended the example config with chunking settings
+- Expanded tests to cover chunking logic, config overrides, and reindex rebuild behavior
+
 ## v1.7.0
 - Added `omni_config.py` with shared JSON config discovery and precedence rules for runtime paths and operational settings
 - Added `omni_ops.py` plus unified CLI subcommands for `backup`, `export`, and `restore`

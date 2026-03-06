@@ -44,6 +44,16 @@ class TestReleaseMetadata(unittest.TestCase):
         self.assertTrue(operations.exists())
         self.assertIn("Operations", operations.read_text(encoding="utf-8"))
 
+    def test_chunking_docs_exist(self):
+        chunking = ROOT_DIR / "docs" / "chunking.md"
+        self.assertTrue(chunking.exists())
+        self.assertIn("Chunking", chunking.read_text(encoding="utf-8"))
+
+    def test_reindexing_docs_exist(self):
+        reindexing = ROOT_DIR / "docs" / "reindexing.md"
+        self.assertTrue(reindexing.exists())
+        self.assertIn("Reindexing", reindexing.read_text(encoding="utf-8"))
+
     def test_example_config_exists(self):
         example = ROOT_DIR / "omnimem.example.json"
         self.assertTrue(example.exists())

@@ -17,6 +17,7 @@ SUBCOMMANDS = (
     "backup",
     "export",
     "restore",
+    "reindex",
     "version",
 )
 

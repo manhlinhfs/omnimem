@@ -10,7 +10,13 @@ OmniMem v1.7.0 adds a shared JSON config layer so users can move runtime paths w
   "db_dir": "/absolute/path/to/omnimem-db",
   "models_dir": "/absolute/path/to/omnimem-models",
   "allow_model_download": false,
-  "async_extract_timeout_seconds": 20
+  "async_extract_timeout_seconds": 20,
+  "chunk_target_tokens": 420,
+  "chunk_overlap_tokens": 70,
+  "code_chunk_target_tokens": 260,
+  "code_chunk_overlap_tokens": 40,
+  "ocr_chunk_target_tokens": 320,
+  "ocr_chunk_overlap_tokens": 90
 }
 ```
 
@@ -47,6 +53,12 @@ Default user config paths:
 - `OMNIMEM_MODELS_DIR`
 - `OMNIMEM_ALLOW_MODEL_DOWNLOAD`
 - `OMNIMEM_ASYNC_EXTRACT_TIMEOUT`
+- `OMNIMEM_CHUNK_TARGET_TOKENS`
+- `OMNIMEM_CHUNK_OVERLAP_TOKENS`
+- `OMNIMEM_CODE_CHUNK_TARGET_TOKENS`
+- `OMNIMEM_CODE_CHUNK_OVERLAP_TOKENS`
+- `OMNIMEM_OCR_CHUNK_TARGET_TOKENS`
+- `OMNIMEM_OCR_CHUNK_OVERLAP_TOKENS`
 
 ## Inspect effective config
 

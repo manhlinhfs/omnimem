@@ -1,12 +1,11 @@
 import argparse
 import asyncio
-import datetime
 import os
 import sys
-import uuid
 
 from omni_config import get_async_extract_timeout_seconds
-from omni_metadata import build_base_metadata, coerce_metadata_value, normalize_mime_type
+from omni_chunking import build_import_records
+from omni_metadata import current_timestamp
 from omni_paths import get_db_dir
 from omni_version import add_version_argument
 
@@ -58,32 +57,30 @@ async def import_file_advanced(file_path):
         print("Error: No content could be extracted.")
         sys.exit(1)
 
-    chunks = content.split("\n\n")
     client = chromadb.PersistentClient(path=str(get_db_dir()))
     ef = build_embedding_function()
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
 
-    documents, metadatas, ids = [], [], []
-    timestamp = datetime.datetime.utcnow().isoformat(timespec="microseconds")
+    timestamp = current_timestamp()
     source_name = os.path.basename(file_path)
-    valid_chunks = [c.strip() for c in chunks if c.strip()]
+    import_records = build_import_records(
+        content=content,
+        mime_type=mime_type,
+        source_name=source_name,
+        doc_metadata={f"doc_{key}": value for key, value in doc_metadata.items()},
+        file_path=file_path,
+        timestamp=timestamp,
+    )
+    documents = import_records["documents"]
+    metadatas = import_records["metadatas"]
+    ids = import_records["ids"]
 
-    print(f"Extracted {len(valid_chunks)} Markdown chunks. Ingesting to OmniMem...")
-
-    for i, chunk in enumerate(valid_chunks):
-        doc_id = str(uuid.uuid4())
-        meta = build_base_metadata(
-            source=source_name,
-            timestamp=timestamp,
-            record_kind="import_chunk",
-            chunk_index=i,
-            mime_type=normalize_mime_type(mime_type) or "unknown",
-        )
-        for k, v in doc_metadata.items():
-            meta[f"doc_{k}"] = coerce_metadata_value(v)
-        documents.append(chunk)
-        metadatas.append(meta)
-        ids.append(doc_id)
+    print(
+        "[OmniMem] Chunk profile: "
+        f"{import_records['profile']} | target={import_records['target_tokens']} | "
+        f"overlap={import_records['overlap_tokens']}"
+    )
+    print(f"Extracted {len(documents)} chunks. Ingesting to OmniMem...")
 
     if documents:
         collection.add(documents=documents, metadatas=metadatas, ids=ids)
