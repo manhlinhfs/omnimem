@@ -5,16 +5,19 @@ import subprocess
 import sys
 from pathlib import Path
 
+from omni_paths import SOURCE_ROOT, detect_install_mode
 from omni_version import add_version_argument, get_version, get_version_banner
 
-ROOT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = SOURCE_ROOT
 
 
 class UpdateError(RuntimeError):
     pass
 
 
-def run_command(cmd, cwd=ROOT_DIR, check=True):
+def run_command(cmd, cwd=None, check=True):
+    if cwd is None:
+        cwd = ROOT_DIR
     try:
         result = subprocess.run(
             cmd,
@@ -29,16 +32,23 @@ def run_command(cmd, cwd=ROOT_DIR, check=True):
     return result
 
 
-def git(*args, check=True):
-    return run_command(["git", *args], check=check)
+def git(*args, root_dir=ROOT_DIR, check=True):
+    return run_command(["git", *args], cwd=root_dir, check=check)
 
 
-def get_current_branch():
-    return git("rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
+def get_current_branch(root_dir=ROOT_DIR):
+    return git("rev-parse", "--abbrev-ref", "HEAD", root_dir=root_dir).stdout.strip()
 
 
-def get_upstream():
-    result = git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}", check=False)
+def get_upstream(root_dir=ROOT_DIR):
+    result = git(
+        "rev-parse",
+        "--abbrev-ref",
+        "--symbolic-full-name",
+        "@{u}",
+        root_dir=root_dir,
+        check=False,
+    )
     if result.returncode != 0:
         raise UpdateError(
             "This branch has no upstream configured. Set a tracked remote branch before running omni_update.py."
@@ -46,45 +56,48 @@ def get_upstream():
     return result.stdout.strip()
 
 
-def get_head_commit(ref="HEAD"):
-    return git("rev-parse", ref).stdout.strip()
+def get_head_commit(ref="HEAD", root_dir=ROOT_DIR):
+    return git("rev-parse", ref, root_dir=root_dir).stdout.strip()
 
 
-def get_worktree_status():
-    return git("status", "--short").stdout.strip()
+def get_worktree_status(root_dir=ROOT_DIR):
+    return git("status", "--short", root_dir=root_dir).stdout.strip()
 
 
-def fetch_remote(remote):
-    git("fetch", "--tags", remote)
+def fetch_remote(remote, root_dir=ROOT_DIR):
+    git("fetch", "--tags", remote, root_dir=root_dir)
 
 
-def get_ahead_behind(upstream):
-    counts = git("rev-list", "--left-right", "--count", f"HEAD...{upstream}").stdout.strip()
+def get_ahead_behind(upstream, root_dir=ROOT_DIR):
+    counts = git("rev-list", "--left-right", "--count", f"HEAD...{upstream}", root_dir=root_dir).stdout.strip()
     ahead_str, behind_str = counts.split()
     return int(ahead_str), int(behind_str)
 
 
-def get_version_for_ref(ref):
-    result = git("show", f"{ref}:VERSION", check=False)
+def get_version_for_ref(ref, root_dir=ROOT_DIR):
+    result = git("show", f"{ref}:VERSION", root_dir=root_dir, check=False)
     if result.returncode != 0:
         return None
     return result.stdout.strip() or None
 
 
-def get_changed_files(old_ref, new_ref):
-    output = git("diff", "--name-only", old_ref, new_ref).stdout.strip()
+def get_changed_files(old_ref, new_ref, root_dir=ROOT_DIR):
+    output = git("diff", "--name-only", old_ref, new_ref, root_dir=root_dir).stdout.strip()
     if not output:
         return []
     return output.splitlines()
 
 
-def reinstall_dependencies():
-    run_command([sys.executable, "-m", "pip", "install", "-r", str(ROOT_DIR / "requirements.txt")])
+def reinstall_dependencies(root_dir=ROOT_DIR):
+    run_command(
+        [sys.executable, "-m", "pip", "install", "-r", str(Path(root_dir) / "requirements.txt")],
+        cwd=root_dir,
+    )
 
 
-def bootstrap_model(allow_model_download=False):
-    cmd = [sys.executable, str(ROOT_DIR / "omni_bootstrap.py"), "--offline-only"]
-    result = run_command(cmd, check=False)
+def bootstrap_model(root_dir=ROOT_DIR, allow_model_download=False):
+    cmd = [sys.executable, str(Path(root_dir) / "omni_bootstrap.py"), "--offline-only"]
+    result = run_command(cmd, cwd=root_dir, check=False)
     if result.returncode == 0:
         return {
             "name": "bootstrap",
@@ -98,7 +111,7 @@ def bootstrap_model(allow_model_download=False):
         "yes",
         "on",
     }:
-        run_command([sys.executable, str(ROOT_DIR / "omni_bootstrap.py")])
+        run_command([sys.executable, str(Path(root_dir) / "omni_bootstrap.py")], cwd=root_dir)
         return {
             "name": "bootstrap",
             "status": "pass",
@@ -115,20 +128,52 @@ def bootstrap_model(allow_model_download=False):
     }
 
 
-def inspect_update_state():
-    branch = get_current_branch()
+def build_install_mode_guidance(mode):
+    if mode == "package_install":
+        return (
+            "This OmniMem install is running from a Python package, not a git clone. "
+            "Self-update is only supported for git clones. Reinstall or upgrade with pip instead, "
+            "for example `python -m pip install --upgrade .` from a newer source tree or "
+            "`python -m pip install --upgrade git+https://github.com/manhlinhfs/omnimem.git`."
+        )
+    return (
+        "This OmniMem copy is a source tree without git metadata. Self-update is only supported "
+        "for tracked git clones. Download a newer source tree or reclone the repository."
+    )
+
+
+def inspect_update_state(root_dir=ROOT_DIR, site_roots=None):
+    install_mode_report = detect_install_mode(root_dir=root_dir, site_roots=site_roots)
+    report = {
+        "tool": "omni_update",
+        "current_version": get_version(),
+        "install_mode": install_mode_report["mode"],
+        "install_mode_detail": install_mode_report["detail"],
+        "root_dir": str(Path(root_dir).resolve()),
+    }
+
+    if install_mode_report["mode"] != "git_clone":
+        report.update(
+            {
+                "status": "unsupported_install_mode",
+                "detail": build_install_mode_guidance(install_mode_report["mode"]),
+            }
+        )
+        return report
+
+    branch = get_current_branch(root_dir=root_dir)
     if branch == "HEAD":
         raise UpdateError("Detached HEAD is not supported. Check out a branch before updating.")
 
-    upstream = get_upstream()
+    upstream = get_upstream(root_dir=root_dir)
     remote = upstream.split("/", 1)[0]
-    fetch_remote(remote)
+    fetch_remote(remote, root_dir=root_dir)
 
-    head = get_head_commit("HEAD")
-    upstream_head = get_head_commit(upstream)
-    ahead, behind = get_ahead_behind(upstream)
+    head = get_head_commit("HEAD", root_dir=root_dir)
+    upstream_head = get_head_commit(upstream, root_dir=root_dir)
+    ahead, behind = get_ahead_behind(upstream, root_dir=root_dir)
     local_version = get_version()
-    upstream_version = get_version_for_ref(upstream)
+    upstream_version = get_version_for_ref(upstream, root_dir=root_dir)
 
     if ahead > 0 and behind > 0:
         status = "diverged"
@@ -139,28 +184,33 @@ def inspect_update_state():
     else:
         status = "up_to_date"
 
-    return {
-        "tool": "omni_update",
-        "current_version": local_version,
-        "upstream_version": upstream_version,
-        "branch": branch,
-        "upstream": upstream,
-        "head": head,
-        "upstream_head": upstream_head,
-        "ahead": ahead,
-        "behind": behind,
-        "status": status,
-    }
+    report.update(
+        {
+            "current_version": local_version,
+            "upstream_version": upstream_version,
+            "branch": branch,
+            "upstream": upstream,
+            "head": head,
+            "upstream_head": upstream_head,
+            "ahead": ahead,
+            "behind": behind,
+            "status": status,
+        }
+    )
+    return report
 
 
-def perform_update(skip_deps=False, skip_bootstrap=False, allow_model_download=False):
-    status = get_worktree_status()
+def perform_update(root_dir=ROOT_DIR, skip_deps=False, skip_bootstrap=False, allow_model_download=False):
+    report = inspect_update_state(root_dir=root_dir)
+    if report["status"] == "unsupported_install_mode":
+        raise UpdateError(report["detail"])
+
+    status = get_worktree_status(root_dir=root_dir)
     if status:
         raise UpdateError(
             "Working tree is not clean. Commit, stash, or remove local changes before running omni_update.py."
         )
 
-    report = inspect_update_state()
     if report["status"] == "diverged":
         raise UpdateError(
             f"Local branch '{report['branch']}' has diverged from {report['upstream']}. Resolve it manually first."
@@ -176,20 +226,22 @@ def perform_update(skip_deps=False, skip_bootstrap=False, allow_model_download=F
 
     old_head = report["head"]
     old_version = report["current_version"]
-    git("merge", "--ff-only", report["upstream"])
-    new_head = get_head_commit("HEAD")
+    git("merge", "--ff-only", report["upstream"], root_dir=root_dir)
+    new_head = get_head_commit("HEAD", root_dir=root_dir)
     new_version = get_version()
-    changed_files = get_changed_files(old_head, new_head)
+    changed_files = get_changed_files(old_head, new_head, root_dir=root_dir)
     post_update_steps = []
 
     if "requirements.txt" in changed_files and not skip_deps:
-        reinstall_dependencies()
+        reinstall_dependencies(root_dir=root_dir)
         post_update_steps.append({"name": "dependencies", "status": "pass", "detail": "requirements.txt reinstalled"})
     elif "requirements.txt" in changed_files:
         post_update_steps.append({"name": "dependencies", "status": "warn", "detail": "requirements.txt changed but reinstall was skipped"})
 
     if not skip_bootstrap:
-        post_update_steps.append(bootstrap_model(allow_model_download=allow_model_download))
+        post_update_steps.append(
+            bootstrap_model(root_dir=root_dir, allow_model_download=allow_model_download)
+        )
 
     report.update(
         {
@@ -208,6 +260,15 @@ def perform_update(skip_deps=False, skip_bootstrap=False, allow_model_download=F
 
 def print_human_report(report):
     print(get_version_banner())
+    print(f"Install mode: {report.get('install_mode', 'unknown')}")
+    print(f"Install detail: {report.get('install_mode_detail', 'unknown')}")
+
+    if report["status"] == "unsupported_install_mode":
+        print(f"Status: {report['status']}")
+        print("")
+        print(report["detail"])
+        return
+
     print(f"Branch: {report['branch']}")
     print(f"Upstream: {report['upstream']}")
     print(f"Local version: {report.get('current_version')}")
@@ -235,7 +296,7 @@ def print_human_report(report):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Update the current OmniMem git clone safely using fast-forward only semantics"
+        description="Update the current OmniMem install safely using fast-forward only semantics"
     )
     parser.add_argument(
         "--check",

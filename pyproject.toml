@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=82", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnimem"
+dynamic = ["version"]
+description = "A local terminal-first second brain for AI coding agents"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "chromadb>=1.5,<2",
+  "kreuzberg>=4.3,<5",
+  "sentence-transformers>=5.2,<6",
+]
+
+[project.urls]
+Homepage = "https://github.com/manhlinhfs/omnimem"
+Repository = "https://github.com/manhlinhfs/omnimem.git"
+Issues = "https://github.com/manhlinhfs/omnimem/issues"
+
+[project.scripts]
+omnimem = "omnimem:main"
+
+[tool.setuptools]
+py-modules = [
+  "omnimem",
+  "omni_add",
+  "omni_bootstrap",
+  "omni_del",
+  "omni_doctor",
+  "omni_embeddings",
+  "omni_import",
+  "omni_metadata",
+  "omni_paths",
+  "omni_search",
+  "omni_update",
+  "omni_version",
+]
+
+[tool.setuptools.dynamic]
+version = {file = ["VERSION"]}

@@ -44,6 +44,7 @@ class TestUnifiedCli(unittest.TestCase):
         self.assertTrue((ROOT_DIR / "omnimem").exists())
         self.assertTrue((ROOT_DIR / "omnimem.ps1").exists())
         self.assertTrue((ROOT_DIR / "omnimem.bat").exists())
+        self.assertTrue((ROOT_DIR / "pyproject.toml").exists())
 
     @unittest.skipUnless(os.name == "posix", "POSIX launcher test only applies on POSIX hosts")
     def test_posix_launcher_prints_version(self):

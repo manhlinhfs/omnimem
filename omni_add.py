@@ -1,20 +1,18 @@
 import argparse
 import datetime
-import os
 import sys
 import uuid
 
 from omni_metadata import build_base_metadata
+from omni_paths import get_db_dir
 from omni_version import add_version_argument
-
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 
 def add_memory(text, source="user_input", tags=None):
     import chromadb
 
     from omni_embeddings import build_embedding_function
 
-    client = chromadb.PersistentClient(path=DB_PATH)
+    client = chromadb.PersistentClient(path=str(get_db_dir()))
     ef = build_embedding_function()
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
     

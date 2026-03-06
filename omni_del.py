@@ -1,14 +1,12 @@
 import argparse
-import os
 
+from omni_paths import get_db_dir
 from omni_version import add_version_argument
-
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 
 def delete_memory(doc_id=None, source=None, wipe_all=False):
     import chromadb
 
-    client = chromadb.PersistentClient(path=DB_PATH)
+    client = chromadb.PersistentClient(path=str(get_db_dir()))
     
     try:
         collection = client.get_collection(name="omnimem_core")

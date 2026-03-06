@@ -1,4 +1,4 @@
-# OmniMem v1.5.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
+# OmniMem v1.6.0 - Bộ Não CLI Có Thể Cài Đặt 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -30,6 +30,19 @@ cd omnimem
 ```
 `setup.ps1` cũng thực hiện bước bootstrap model tương tự trên Windows.
 
+### Chế độ cài package
+```bash
+python3 -m pip install .
+omnimem --version
+```
+Khi cài theo kiểu package, OmniMem sẽ lưu dữ liệu runtime vào user data directory thay vì `site-packages`, đồng thời cung cấp lệnh `omnimem` trực tiếp trên PATH.
+
+### Cài trực tiếp từ GitHub
+```bash
+python3 -m pip install "git+https://github.com/manhlinhfs/omnimem.git@main"
+omnimem --version
+```
+
 ### Bootstrap model thủ công
 ```bash
 python3 omni_bootstrap.py
@@ -50,6 +63,8 @@ python3 omni_update.py
 ```
 `omni_update.py` sẽ cập nhật branch đang track upstream theo chế độ fast-forward only, từ chối ghi đè worktree đang bẩn, cài lại dependencies nếu `requirements.txt` đổi, và refresh trạng thái bootstrap model local.
 
+Với package install, `omnimem update` không được hỗ trợ; hãy update bằng `pip`.
+
 ## Runtime offline-safe
 - Các lệnh `omni_add.py`, `omni_search.py`, `omni_import.py` giờ mặc định load model từ `.omnimem_models/`.
 - Nếu thiếu thư mục model local, OmniMem sẽ thử khôi phục từ cache local của Hugging Face trước.
@@ -67,13 +82,15 @@ python3 omni_update.py
 3. **LƯU TRỮ THÀNH QUẢ:** Sau khi fix xong bug lớn hoặc chốt một cột mốc, hãy chạy lệnh: `[OMNIMEM_PATH]/omnimem add "tóm tắt ngắn gọn"` để lưu kết quả cho những phiên chat vào ngày mai.
 ```
 *(Lưu ý: Bạn phải thay chữ `[OMNIMEM_PATH]` thành đường dẫn tuyệt đối tới thư mục omnimem trên máy của bạn, ví dụ: `/root/omnimem` hoặc `C:\omnimem`)*
+Nếu bạn cài OmniMem như package và `omnimem` đã có trên PATH, có thể dùng thẳng `omnimem` thay cho `[OMNIMEM_PATH]/omnimem`.
 Các script `omni_*.py` cũ vẫn còn dùng được khi cần.
 
 ## CLI thống nhất (khuyến nghị)
-Hãy ưu tiên launcher của repo khi dùng hằng ngày vì nó tự chọn `venv` local. Trên Windows, dùng `.\omnimem.ps1` hoặc `.\omnimem.bat` từ thư mục repo.
+Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `venv` local. Trên Windows, dùng `.\omnimem.ps1` hoặc `.\omnimem.bat` từ thư mục repo. Nếu cài theo package mode, dùng lệnh `omnimem` trực tiếp.
 
 - **Xem version:** `python3 omnimem.py --version`
 - **Xem version qua launcher:** `./omnimem --version`
+- **Xem version qua package đã cài:** `omnimem --version`
 - **Doctor:** `./omnimem doctor`
 - **Kiểm tra update:** `./omnimem update --check`
 - **Update clone này:** `./omnimem update`
@@ -95,7 +112,9 @@ Hãy ưu tiên launcher của repo khi dùng hằng ngày vì nó tự chọn `v
 
 ## Dành cho phát triển
 - **Chạy test:** `python3 -m unittest discover -s tests -v`
+- **Build package:** `python3 -m build`
 - **Xem release notes:** `CHANGELOG.md`
 - **Xem roadmap:** `ROADMAP.md`
+- **Xem tài liệu install mode:** `docs/install-modes.md`
 - **Xem tài liệu search filter:** `docs/search-filters.md`
 - **Theo checklist release:** `docs/release-checklist.md`

@@ -2,11 +2,11 @@ import os
 import shutil
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parent
+from omni_paths import SOURCE_ROOT, get_bootstrap_command, get_models_root
+
 MODEL_REPO_ID = os.getenv(
     "OMNIMEM_EMBED_MODEL_REPO", "sentence-transformers/all-MiniLM-L6-v2"
 )
-DEFAULT_MODEL_DIR = ROOT_DIR / ".omnimem_models" / MODEL_REPO_ID.split("/")[-1]
 REQUIRED_MODEL_FILES = (
     "config.json",
     "modules.json",
@@ -23,7 +23,10 @@ def _env_flag(name, default=False):
 
 
 def get_model_dir():
-    return Path(os.getenv("OMNIMEM_MODEL_DIR", str(DEFAULT_MODEL_DIR))).expanduser()
+    override = os.getenv("OMNIMEM_MODEL_DIR")
+    if override:
+        return Path(override).expanduser()
+    return get_models_root() / MODEL_REPO_ID.split("/")[-1]
 
 
 def is_model_bootstrapped(model_dir=None):
@@ -55,7 +58,7 @@ def bootstrap_model(local_files_only=False, force=False):
             raise RuntimeError(
                 f"Embedding model is not bootstrapped at '{model_dir}' and could not be restored "
                 "from the local Hugging Face cache. Run "
-                f"`python {ROOT_DIR / 'omni_bootstrap.py'}` once while online."
+                f"`{get_bootstrap_command(root_dir=SOURCE_ROOT)}` once while online."
             ) from exc
         raise RuntimeError(
             f"Failed to download the embedding model '{MODEL_REPO_ID}' into '{model_dir}'. "
@@ -82,7 +85,7 @@ def ensure_model_ready():
             return bootstrap_model(local_files_only=False)
         raise RuntimeError(
             f"Embedding model is not ready at '{model_dir}'. Run "
-            f"`python {ROOT_DIR / 'omni_bootstrap.py'}` once while online, "
+            f"`{get_bootstrap_command(root_dir=SOURCE_ROOT)}` once while online, "
             "or set OMNIMEM_ALLOW_MODEL_DOWNLOAD=1 to let runtime download it."
         )
 

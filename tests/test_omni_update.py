@@ -6,8 +6,21 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from omni_update import inspect_update_state
+
 ROOT_DIR = Path(__file__).resolve().parents[1]
-IGNORE_NAMES = {".git", "venv", "__pycache__", ".omnimem_db", ".omnimem_models", ".pytest_cache"}
+IGNORE_NAMES = {
+    ".git",
+    "venv",
+    "__pycache__",
+    ".omnimem_db",
+    ".omnimem_models",
+    ".pytest_cache",
+    "build",
+    "dist",
+    ".pkg-smoke",
+    "omnimem.egg-info",
+}
 
 
 def run(cmd, cwd):
@@ -93,3 +106,15 @@ class TestOmniUpdate(unittest.TestCase):
         )
         self.assertNotEqual(dirty_result.returncode, 0)
         self.assertIn("Working tree is not clean", dirty_result.stdout)
+
+    def test_check_reports_unsupported_package_install_mode(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            site_root = Path(temp_dir) / "site-packages"
+            package_root = site_root / "omnimem"
+            package_root.mkdir(parents=True)
+
+            payload = inspect_update_state(root_dir=package_root, site_roots=[site_root])
+
+        self.assertEqual(payload["status"], "unsupported_install_mode")
+        self.assertEqual(payload["install_mode"], "package_install")
+        self.assertIn("pip", payload["detail"])

@@ -30,6 +30,7 @@ jobs:
             omni_bootstrap.py \
             omni_doctor.py \
             omni_metadata.py \
+            omni_paths.py \
             omni_update.py \
             omni_version.py
 
@@ -40,3 +41,28 @@ jobs:
 
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
+
+      - name: Build package
+        run: python -m build
+
+      - name: Smoke test installed console entry point
+        run: |
+          python -m venv .pkg-smoke
+          . .pkg-smoke/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install --no-deps dist/*.whl
+          omnimem --version
+          python - <<'PY'
+          import json
+          import subprocess
+
+          result = subprocess.run(
+              ["omnimem", "update", "--check", "--json"],
+              text=True,
+              capture_output=True,
+              check=True,
+          )
+          payload = json.loads(result.stdout)
+          assert payload["status"] == "unsupported_install_mode", payload
+          assert payload["install_mode"] == "package_install", payload
+          PY

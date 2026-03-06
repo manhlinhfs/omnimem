@@ -17,26 +17,17 @@ This roadmap is intentionally conservative: each minor release should have one m
 ### v1.4.0
 - Unified `omnimem` CLI and cross-platform launchers
 
-## Planned
-
 ### v1.5.0 - Search Precision Foundation
 - Normalize metadata creation for new records
 - Add `search` filters for `source`, `since`, `until`, and `mime_type`
 - Document search filter behavior and compatibility notes
-
-Exit criteria:
-- `omnimem search` supports the new metadata filters
-- Old records remain searchable without a migration step
-- Tests cover metadata normalization and filter wiring
 
 ### v1.6.0 - Packaging And Install Modes
 - Add package metadata and console entry points
 - Support installation without relying on a raw git clone
 - Detect install mode in `update` and explain unsupported flows clearly
 
-Exit criteria:
-- `pip install .` exposes `omnimem`
-- Docs explain clone mode vs package mode
+## Planned
 
 ### v1.7.0 - Config And Operations
 - Add a config file with clear precedence rules

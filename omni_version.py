@@ -1,3 +1,4 @@
+from importlib import metadata
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -5,7 +6,13 @@ VERSION_FILE = ROOT_DIR / "VERSION"
 
 
 def get_version():
-    return VERSION_FILE.read_text(encoding="utf-8").strip()
+    if VERSION_FILE.exists():
+        return VERSION_FILE.read_text(encoding="utf-8").strip()
+
+    try:
+        return metadata.version("omnimem")
+    except metadata.PackageNotFoundError:
+        return "0.0.0+unknown"
 
 
 def get_version_banner():

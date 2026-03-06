@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.6.0
+- Added `pyproject.toml` with a real `omnimem` console entry point for package installs
+- Added `omni_paths.py` so clone mode keeps repo-local data while package installs use a user data directory
+- Taught `omni_update.py` to detect install mode and explain unsupported package/source-tree updates clearly
+- Added `docs/install-modes.md` and refreshed multilingual README installation guidance
+- Expanded CI and tests to cover packaging metadata, runtime path resolution, and installed-console smoke checks
+
 ## v1.5.0
 - Added shared metadata helpers in `omni_metadata.py` for timestamps, tags, and search filter parsing
 - Added `search` filters for `source`, `since`, `until`, and `mime_type` in both `omni_search.py` and `omnimem search`

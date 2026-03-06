@@ -5,9 +5,13 @@ import platform
 import sys
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parent
-DB_DIR = ROOT_DIR / ".omnimem_db"
-DB_FILE = DB_DIR / "chroma.sqlite3"
+from omni_paths import (
+    SOURCE_ROOT,
+    detect_install_mode,
+    get_bootstrap_command,
+    get_db_dir,
+    get_runtime_home,
+)
 
 from omni_embeddings import (  # noqa: E402
     MODEL_REPO_ID,
@@ -36,6 +40,14 @@ def _hf_cache_candidates():
 
 
 def run_doctor(deep=False):
+    install_mode_report = detect_install_mode(root_dir=SOURCE_ROOT)
+    runtime_home = get_runtime_home(root_dir=SOURCE_ROOT, install_mode_report=install_mode_report)
+    db_dir = get_db_dir(root_dir=SOURCE_ROOT, install_mode_report=install_mode_report)
+    db_file = db_dir / "chroma.sqlite3"
+    bootstrap_command = get_bootstrap_command(
+        root_dir=SOURCE_ROOT,
+        install_mode_report=install_mode_report,
+    )
     results = []
     results.append(_result("version", "pass", get_version_banner(), version=get_version()))
     results.append(
@@ -45,23 +57,32 @@ def run_doctor(deep=False):
             f"{platform.python_version()} ({sys.executable})",
         )
     )
-    results.append(_result("root_dir", "pass", str(ROOT_DIR)))
+    results.append(_result("source_root", "pass", str(SOURCE_ROOT)))
+    results.append(
+        _result(
+            "install_mode",
+            "pass",
+            install_mode_report["mode"],
+            detail_text=install_mode_report["detail"],
+        )
+    )
+    results.append(_result("runtime_home", "pass", str(runtime_home)))
 
-    if DB_DIR.exists():
-        results.append(_result("db_dir", "pass", str(DB_DIR)))
+    if db_dir.exists():
+        results.append(_result("db_dir", "pass", str(db_dir)))
     else:
         results.append(
-            _result("db_dir", "warn", f"{DB_DIR} does not exist yet. It will be created on first use.")
+            _result("db_dir", "warn", f"{db_dir} does not exist yet. It will be created on first use.")
         )
 
-    if DB_FILE.exists():
-        results.append(_result("db_file", "pass", str(DB_FILE)))
+    if db_file.exists():
+        results.append(_result("db_file", "pass", str(db_file)))
     else:
         results.append(
             _result(
                 "db_file",
                 "warn",
-                f"{DB_FILE} does not exist yet. Search/add/import has probably not created the DB on this clone.",
+                f"{db_file} does not exist yet. Search/add/import has probably not created the DB yet.",
             )
         )
 
@@ -73,9 +94,9 @@ def run_doctor(deep=False):
     else:
         results.append(_result("chromadb_import", "pass", "chromadb import succeeded"))
 
-    if chromadb is not None and DB_DIR.exists():
+    if chromadb is not None and db_dir.exists():
         try:
-            client = chromadb.PersistentClient(path=str(DB_DIR))
+            client = chromadb.PersistentClient(path=str(db_dir))
             try:
                 collection = client.get_collection(name="omnimem_core")
             except ValueError:
@@ -111,7 +132,7 @@ def run_doctor(deep=False):
             _result(
                 "model_dir",
                 "warn",
-                f"{model_dir} is missing or incomplete. Run `python {ROOT_DIR / 'omni_bootstrap.py'}`.",
+                f"{model_dir} is missing or incomplete. Run `{bootstrap_command}`.",
             )
         )
 
@@ -180,6 +201,8 @@ def print_human_report(report):
     print("")
     for item in report["checks"]:
         print(f"[{item['status'].upper():4}] {item['name']}: {item['detail']}")
+        if item["name"] == "install_mode" and item.get("detail_text"):
+            print(f"      {item['detail_text']}")
 
 
 def main():

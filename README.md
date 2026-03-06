@@ -1,4 +1,4 @@
-# OmniMem v1.5.0 - The Universal CLI Brain 🧠
+# OmniMem v1.6.0 - The Installable CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -28,6 +28,19 @@ cd omnimem
 ```
 `setup.ps1` performs the same bootstrap step for Windows users.
 
+### Package install mode
+```bash
+python3 -m pip install .
+omnimem --version
+```
+Package installs place runtime data in a user data directory instead of `site-packages`, and they expose `omnimem` directly on your PATH.
+
+### Install directly from GitHub
+```bash
+python3 -m pip install "git+https://github.com/manhlinhfs/omnimem.git@main"
+omnimem --version
+```
+
 ### Bootstrap the embedding model manually
 ```bash
 python3 omni_bootstrap.py
@@ -48,6 +61,8 @@ python3 omni_update.py
 ```
 `omni_update.py` updates the current tracked branch with fast-forward only semantics, refuses to overwrite a dirty worktree, reinstalls dependencies when `requirements.txt` changes, and refreshes the local model bootstrap state.
 
+Package installs do not support `omnimem update`; reinstall or upgrade them with `pip` instead.
+
 ## Offline-safe runtime
 - Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
 - If the local model directory is missing, OmniMem first tries to restore it from the local Hugging Face cache.
@@ -65,13 +80,15 @@ To give your AI Agent the ability to use OmniMem, you MUST inject the following 
 3. **Save Milestones:** After resolving a major issue, run: `[OMNIMEM_PATH]/omnimem add "brief summary"` to save the context for your future sessions.
 ```
 *(Note: Replace `[OMNIMEM_PATH]` with the absolute path to your cloned omnimem directory, e.g., `/root/omnimem` or `C:\omnimem`)*
+If you installed OmniMem as a package and `omnimem` is already on your PATH, you can use plain `omnimem` instead of `[OMNIMEM_PATH]/omnimem`.
 Legacy `omni_*.py` scripts remain available when you need them.
 
 ## Unified CLI Usage
-Use the repo launchers for normal operation because they prefer the local `venv` automatically. On Windows, use `.\omnimem.ps1` or `.\omnimem.bat` from the repo root.
+Use the repo launchers for clone mode because they prefer the local `venv` automatically. On Windows, use `.\omnimem.ps1` or `.\omnimem.bat` from the repo root. In package mode, use the installed `omnimem` command directly.
 
 - **Show version:** `python3 omnimem.py --version`
 - **Show version via launcher:** `./omnimem --version`
+- **Show version via installed package:** `omnimem --version`
 - **Doctor:** `./omnimem doctor`
 - **Check for updates:** `./omnimem update --check`
 - **Update this clone:** `./omnimem update`
@@ -93,7 +110,9 @@ Use the repo launchers for normal operation because they prefer the local `venv`
 
 ## Development
 - **Run tests:** `python3 -m unittest discover -s tests -v`
+- **Build package:** `python3 -m build`
 - **Read release notes:** `CHANGELOG.md`
 - **Read the roadmap:** `ROADMAP.md`
+- **Read install mode docs:** `docs/install-modes.md`
 - **Read search filter docs:** `docs/search-filters.md`
 - **Follow release gates:** `docs/release-checklist.md`

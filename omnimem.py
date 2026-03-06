@@ -198,7 +198,7 @@ def build_parser():
 
     update_parser = subparsers.add_parser(
         "update",
-        help="Update the current OmniMem git clone safely",
+        help="Update the current OmniMem install safely (git clones only)",
     )
     update_parser.add_argument(
         "--check",

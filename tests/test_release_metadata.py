@@ -28,3 +28,8 @@ class TestReleaseMetadata(unittest.TestCase):
         search_filters = ROOT_DIR / "docs" / "search-filters.md"
         self.assertTrue(search_filters.exists())
         self.assertIn("Search Filters", search_filters.read_text(encoding="utf-8"))
+
+    def test_install_mode_docs_exist(self):
+        install_modes = ROOT_DIR / "docs" / "install-modes.md"
+        self.assertTrue(install_modes.exists())
+        self.assertIn("Install Modes", install_modes.read_text(encoding="utf-8"))

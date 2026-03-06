@@ -6,9 +6,9 @@ import sys
 import uuid
 
 from omni_metadata import build_base_metadata, coerce_metadata_value, normalize_mime_type
+from omni_paths import get_db_dir
 from omni_version import add_version_argument
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 ASYNC_EXTRACTION_TIMEOUT_SECONDS = int(os.getenv("OMNIMEM_ASYNC_EXTRACT_TIMEOUT", "20"))
 
 
@@ -60,7 +60,7 @@ async def import_file_advanced(file_path):
         sys.exit(1)
 
     chunks = content.split("\n\n")
-    client = chromadb.PersistentClient(path=DB_PATH)
+    client = chromadb.PersistentClient(path=str(get_db_dir()))
     ef = build_embedding_function()
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
 
