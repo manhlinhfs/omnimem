@@ -6,7 +6,8 @@ import sys
 import uuid
 
 import chromadb
-from chromadb.utils import embedding_functions
+
+from omni_embeddings import build_embedding_function
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 ASYNC_EXTRACTION_TIMEOUT_SECONDS = int(os.getenv("OMNIMEM_ASYNC_EXTRACT_TIMEOUT", "20"))
@@ -57,9 +58,7 @@ async def import_file_advanced(file_path):
 
     chunks = content.split("\n\n")
     client = chromadb.PersistentClient(path=DB_PATH)
-    ef = embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name="all-MiniLM-L6-v2"
-    )
+    ef = build_embedding_function()
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
 
     documents, metadatas, ids = [], [], []
@@ -98,6 +97,10 @@ if __name__ == "__main__":
     parser.add_argument("file_path", help="Path to the file to import")
     args = parser.parse_args()
     if os.path.exists(args.file_path):
-        asyncio.run(import_file_advanced(args.file_path))
+        try:
+            asyncio.run(import_file_advanced(args.file_path))
+        except RuntimeError as exc:
+            print(f"Error: {exc}")
+            sys.exit(1)
     else:
         print(f"Error: File not found: {args.file_path}")

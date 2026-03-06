@@ -9,7 +9,7 @@ Nó cho phép các AI này có khả năng "đọc hiểu", "nhúng" và "ghi nh
 ## Công nghệ cốt lõi
 - **Kreuzberg (Rust Core):** Trích xuất tự động văn bản chuẩn Markdown và siêu dữ liệu (Metadata) từ hơn 56 định dạng file.
 - **ChromaDB:** Cơ sở dữ liệu Vector cục bộ (Local), lưu trữ an toàn ngay trên ổ cứng của bạn (Offline).
-- **SentenceTransformers:** Tích hợp mô hình mã nguồn mở `all-MiniLM-L6-v2` để tạo nhúng (Embeddings).
+- **SentenceTransformers:** Dùng bản local đã được bootstrap của `all-MiniLM-L6-v2` để tạo embeddings trong lúc chạy.
 
 ## Cài đặt
 
@@ -20,6 +20,7 @@ cd omnimem
 chmod +x setup.sh
 ./setup.sh
 ```
+`setup.sh` giờ sẽ cài dependencies và tải model embedding vào `.omnimem_models/` để runtime không phụ thuộc mạng.
 
 ### Windows (PowerShell)
 ```powershell
@@ -27,6 +28,19 @@ git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
 .\setup.ps1
 ```
+`setup.ps1` cũng thực hiện bước bootstrap model tương tự trên Windows.
+
+### Bootstrap model thủ công
+```bash
+python3 omni_bootstrap.py
+```
+Dùng `--offline-only` nếu bạn chỉ muốn khôi phục model từ local Hugging Face cache mà không truy cập mạng.
+
+## Runtime offline-safe
+- Các lệnh `omni_add.py`, `omni_search.py`, `omni_import.py` giờ mặc định load model từ `.omnimem_models/`.
+- Nếu thiếu thư mục model local, OmniMem sẽ thử khôi phục từ cache local của Hugging Face trước.
+- Nếu vẫn thiếu model, OmniMem sẽ báo rõ cần chạy `python3 omni_bootstrap.py` thay vì văng traceback giữa chừng.
+- Chỉ đặt `OMNIMEM_ALLOW_MODEL_DOWNLOAD=1` nếu bạn muốn runtime tự tải model khi cần.
 
 ## Hướng dẫn kết nối cho các AI Agents (Bước bắt buộc)
 
@@ -41,6 +55,7 @@ cd omnimem
 *(Lưu ý: Bạn phải thay chữ `[OMNIMEM_PATH]` thành đường dẫn tuyệt đối tới thư mục omnimem trên máy của bạn, ví dụ: `/root/omnimem` hoặc `C:\omnimem`)*
 
 ## Sử dụng thủ công bằng tay (Dành cho con người)
+- **Bootstrap model:** `python3 omni_bootstrap.py`
 - **Thêm note:** `python3 omni_add.py "Mật khẩu là 123"`
 - **Đọc file:** `python3 omni_import.py tai_lieu.pdf`
 - **Tìm kiếm:** `python3 omni_search.py "mật khẩu" --full`

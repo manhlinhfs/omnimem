@@ -1,15 +1,18 @@
 import argparse
-import chromadb
-from chromadb.utils import embedding_functions
-import os
-import uuid
 import datetime
+import os
+import sys
+import uuid
+
+import chromadb
+
+from omni_embeddings import build_embedding_function
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 
 def add_memory(text, source="user_input", tags=None):
     client = chromadb.PersistentClient(path=DB_PATH)
-    ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+    ef = build_embedding_function()
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
     
     doc_id = str(uuid.uuid4())
@@ -27,4 +30,8 @@ if __name__ == "__main__":
     parser.add_argument("--source", default="user_input", help="Source of the information")
     parser.add_argument("--tags", default=None, help="Comma separated tags")
     args = parser.parse_args()
-    add_memory(args.text, args.source, args.tags)
+    try:
+        add_memory(args.text, args.source, args.tags)
+    except RuntimeError as exc:
+        print(f"Error: {exc}")
+        sys.exit(1)

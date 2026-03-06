@@ -7,7 +7,7 @@ OmniMem is an LLM-agnostic, multimodal Retrieval-Augmented Generation (RAG) syst
 ## Core Architecture
 - **Kreuzberg (Rust Core):** Ingests and extracts clean Markdown and metadata from 56+ file formats.
 - **ChromaDB:** A persistent, local Vector Database running entirely offline on your hard drive.
-- **SentenceTransformers:** Uses open-source `all-MiniLM-L6-v2` for generating embeddings.
+- **SentenceTransformers:** Uses a bootstrapped local copy of `all-MiniLM-L6-v2` for generating embeddings at runtime.
 
 ## Installation
 
@@ -18,6 +18,7 @@ cd omnimem
 chmod +x setup.sh
 ./setup.sh
 ```
+`setup.sh` now installs dependencies and downloads the embedding model into `.omnimem_models/` so runtime stays offline-safe.
 
 ### Windows (PowerShell)
 ```powershell
@@ -25,6 +26,19 @@ git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
 .\setup.ps1
 ```
+`setup.ps1` performs the same bootstrap step for Windows users.
+
+### Bootstrap the embedding model manually
+```bash
+python3 omni_bootstrap.py
+```
+Use `--offline-only` to restore from the local Hugging Face cache without hitting the network.
+
+## Offline-safe runtime
+- Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
+- If the local model directory is missing, OmniMem first tries to restore it from the local Hugging Face cache.
+- If the model is still missing, OmniMem fails with a direct instruction to run `python3 omni_bootstrap.py` instead of crashing in the middle of a request.
+- Set `OMNIMEM_ALLOW_MODEL_DOWNLOAD=1` only if you explicitly want runtime to download the model on demand.
 
 ## How to integrate with AI Agents (Crucial Step)
 
@@ -39,6 +53,7 @@ To give your AI Agent the ability to use OmniMem, you MUST inject the following 
 *(Note: Replace `[OMNIMEM_PATH]` with the absolute path to your cloned omnimem directory, e.g., `/root/omnimem` or `C:\omnimem`)*
 
 ## Manual CLI Usage
+- **Bootstrap model:** `python3 omni_bootstrap.py`
 - **Add text:** `python3 omni_add.py "Server password is 123"`
 - **Import file:** `python3 omni_import.py my_design.pdf`
 - **Search:** `python3 omni_search.py "password" --full`

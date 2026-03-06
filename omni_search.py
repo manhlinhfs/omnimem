@@ -1,14 +1,17 @@
 import argparse
-import chromadb
-from chromadb.utils import embedding_functions
-import os
 import json
+import os
+import sys
+
+import chromadb
+
+from omni_embeddings import build_embedding_function
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 
 def search_memory(query, n_results=5, full=False, as_json=False):
     client = chromadb.PersistentClient(path=DB_PATH)
-    ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+    ef = build_embedding_function()
     collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
     
     results = collection.query(query_texts=[query], n_results=n_results)
@@ -57,4 +60,8 @@ if __name__ == "__main__":
     parser.add_argument("--full", action="store_true", help="Print full content without truncating")
     parser.add_argument("--json", action="store_true", help="Output results in JSON format")
     args = parser.parse_args()
-    search_memory(args.query, args.n, args.full, args.json)
+    try:
+        search_memory(args.query, args.n, args.full, args.json)
+    except RuntimeError as exc:
+        print(f"Error: {exc}")
+        sys.exit(1)

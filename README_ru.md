@@ -9,7 +9,7 @@ OmniMem — это мультимодальная система RAG (Retrieval-
 ## Базовые Технологии
 - **Kreuzberg (Rust Core):** Быстрое извлечение Markdown и метаданных из более чем 56 форматов.
 - **ChromaDB:** Локальная векторная база данных, работающая полностью автономно (offline).
-- **SentenceTransformers:** Встроенная модель `all-MiniLM-L6-v2` для генерации эмбеддингов.
+- **SentenceTransformers:** Использует локальную bootstrapped-копию `all-MiniLM-L6-v2` для генерации эмбеддингов во время работы.
 
 ## Установка
 
@@ -20,6 +20,7 @@ cd omnimem
 chmod +x setup.sh
 ./setup.sh
 ```
+`setup.sh` теперь ставит зависимости и загружает модель эмбеддингов в `.omnimem_models/`, чтобы runtime не зависел от сети.
 
 ### Windows (PowerShell)
 ```powershell
@@ -27,6 +28,19 @@ git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
 .\setup.ps1
 ```
+`setup.ps1` выполняет тот же шаг bootstrap для Windows.
+
+### Ручной bootstrap модели
+```bash
+python3 omni_bootstrap.py
+```
+Используйте `--offline-only`, если нужно восстановить модель только из локального Hugging Face cache без доступа к сети.
+
+## Offline-safe runtime
+- Команды `omni_add.py`, `omni_search.py`, `omni_import.py` теперь по умолчанию загружают модель из `.omnimem_models/`.
+- Если локальная директория модели отсутствует, OmniMem сначала пытается восстановить ее из локального Hugging Face cache.
+- Если модели все еще нет, OmniMem выводит явную инструкцию запустить `python3 omni_bootstrap.py` вместо непонятного traceback.
+- Устанавливайте `OMNIMEM_ALLOW_MODEL_DOWNLOAD=1` только если вы явно хотите разрешить runtime скачивать модель по требованию.
 
 ## Как интегрировать с ИИ (Обязательный шаг)
 
@@ -41,6 +55,7 @@ cd omnimem
 *(Примечание: Замените `[OMNIMEM_PATH]` на абсолютный путь к вашей директории omnimem, например `/root/omnimem` или `C:\omnimem`)*
 
 ## Использование вручную
+- **Bootstrap model:** `python3 omni_bootstrap.py`
 - **Добавить текст:** `python3 omni_add.py "Пароль сервера 123"`
 - **Импортировать файл:** `python3 omni_import.py my_design.pdf`
 - **Поиск:** `python3 omni_search.py "пароль" --full`
