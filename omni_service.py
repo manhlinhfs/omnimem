@@ -11,14 +11,14 @@ from urllib import error, request
 
 from omni_config import get_search_service_settings as get_config_search_service_settings
 from omni_paths import SOURCE_ROOT, get_runtime_home
-from omni_search_core import SearchRuntime
+from omni_search_core import OmniRuntime
 from omni_version import add_version_argument, get_version_banner
 
 DEFAULT_SERVICE_HOST = "127.0.0.1"
 DEFAULT_SERVICE_PORT = 41733
 DEFAULT_STARTUP_TIMEOUT_SECONDS = 20
 DEFAULT_REQUEST_TIMEOUT_SECONDS = 10
-SERVICE_LOG_FILE = ".omnimem_search_service.log"
+SERVICE_LOG_FILE = ".omnimem_runtime/search_service.log"
 
 
 class SearchServiceError(RuntimeError):
@@ -65,6 +65,10 @@ class _SearchServiceHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.path != "/search":
+            if self.path == "/add-records":
+                return self._handle_add_records()
+            if self.path == "/replace-core-records":
+                return self._handle_replace_core_records()
             self._send_json({"status": "not_found"}, status=404)
             return
 
@@ -91,6 +95,42 @@ class _SearchServiceHandler(BaseHTTPRequestHandler):
 
         self._send_json({"status": "ok", "records": records})
 
+    def _read_json_payload(self):
+        content_length = int(self.headers.get("Content-Length", "0") or "0")
+        raw_body = self.rfile.read(content_length)
+        try:
+            return json.loads(raw_body.decode("utf-8") if raw_body else "{}")
+        except json.JSONDecodeError:
+            self._send_json({"status": "fail", "detail": "Invalid JSON body"}, status=400)
+            return None
+
+    def _handle_add_records(self):
+        payload = self._read_json_payload()
+        if payload is None:
+            return
+        try:
+            documents = payload.get("documents") or []
+            metadatas = payload.get("metadatas") or []
+            ids = payload.get("ids") or []
+            report = self.server.runtime.add_records(documents, metadatas, ids)
+        except Exception as exc:
+            self._send_json({"status": "fail", "detail": str(exc)}, status=500)
+            return
+        self._send_json({"status": "ok", **report})
+
+    def _handle_replace_core_records(self):
+        payload = self._read_json_payload()
+        if payload is None:
+            return
+        try:
+            records = payload.get("records") or []
+            batch_size = int(payload.get("batch_size", 100) or 100)
+            report = self.server.runtime.replace_core_records(records, batch_size=batch_size)
+        except Exception as exc:
+            self._send_json({"status": "fail", "detail": str(exc)}, status=500)
+            return
+        self._send_json({"status": "ok", **report})
+
     def log_message(self, fmt, *args):
         if getattr(self.server, "quiet", False):
             return
@@ -111,7 +151,9 @@ def get_search_service_settings(root_dir=SOURCE_ROOT):
 def _get_service_log_path(root_dir=SOURCE_ROOT):
     runtime_home = get_runtime_home(root_dir=root_dir)
     runtime_home.mkdir(parents=True, exist_ok=True)
-    return runtime_home / SERVICE_LOG_FILE
+    log_path = runtime_home / SERVICE_LOG_FILE
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    return log_path
 
 
 def _build_service_url(host, port, path):
@@ -286,12 +328,63 @@ def search_via_service(
     return payload.get("records") or []
 
 
+def add_records_via_service(
+    documents,
+    metadatas,
+    ids,
+    root_dir=SOURCE_ROOT,
+    autostart=True,
+):
+    settings = get_search_service_settings(root_dir=root_dir)
+    host = settings["host"]
+    port = settings["port"]
+    if not settings["enabled"]:
+        raise SearchServiceUnavailable("Search service is disabled by configuration")
+    if autostart:
+        ensure_search_service(root_dir=root_dir, host=host, port=port)
+
+    payload = _request_json(
+        "POST",
+        _build_service_url(host, port, "/add-records"),
+        payload={"documents": documents, "metadatas": metadatas, "ids": ids},
+        timeout_seconds=settings["request_timeout_seconds"],
+    )
+    if payload.get("status") != "ok":
+        raise SearchServiceProtocolError(payload.get("detail") or "Unexpected add-records response")
+    return payload
+
+
+def replace_core_records_via_service(
+    records,
+    root_dir=SOURCE_ROOT,
+    autostart=True,
+    batch_size=100,
+):
+    settings = get_search_service_settings(root_dir=root_dir)
+    host = settings["host"]
+    port = settings["port"]
+    if not settings["enabled"]:
+        raise SearchServiceUnavailable("Search service is disabled by configuration")
+    if autostart:
+        ensure_search_service(root_dir=root_dir, host=host, port=port)
+
+    payload = _request_json(
+        "POST",
+        _build_service_url(host, port, "/replace-core-records"),
+        payload={"records": records, "batch_size": batch_size},
+        timeout_seconds=settings["request_timeout_seconds"],
+    )
+    if payload.get("status") != "ok":
+        raise SearchServiceProtocolError(payload.get("detail") or "Unexpected replace-core-records response")
+    return payload
+
+
 def run_search_service(host=None, port=None, quiet=False, root_dir=SOURCE_ROOT):
     settings = get_search_service_settings(root_dir=root_dir)
     host = host or settings["host"]
     port = int(port or settings["port"])
 
-    runtime = SearchRuntime()
+    runtime = OmniRuntime(root_dir=root_dir)
     server = _SearchServiceServer((host, port), _SearchServiceHandler)
     server.runtime = runtime
     server.quiet = quiet

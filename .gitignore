@@ -4,6 +4,8 @@ __pycache__/
 .pytest_cache/
 .omnimem_db/
 .omnimem_models/
+.omnimem_runtime/
+.omnimem_search_service.log
 build/
 dist/
 *.egg-info/

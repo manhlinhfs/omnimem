@@ -10,7 +10,7 @@ from omni_version import add_version_argument, get_version_banner
 def handle_add(args):
     from omni_add import add_memory
 
-    add_memory(args.text, args.source, args.tags)
+    add_memory(args.text, args.source, args.tags, prefer_service=not args.direct)
     return 0
 
 
@@ -38,7 +38,7 @@ def handle_import(args):
         print(f"Error: File not found: {args.file_path}")
         return 1
 
-    asyncio.run(import_file_advanced(args.file_path))
+    asyncio.run(import_file_advanced(args.file_path, prefer_service=not args.direct))
     return 0
 
 
@@ -175,6 +175,7 @@ def handle_reindex(args):
             dry_run=args.dry_run,
             skip_backup=args.skip_backup,
             backup_output=args.backup_output,
+            prefer_service=not args.direct,
         )
     except ReindexError as exc:
         if args.json:
@@ -216,6 +217,11 @@ def build_parser():
     add_parser.add_argument("text", help="The text content to remember")
     add_parser.add_argument("--source", default="user_input", help="Source of the information")
     add_parser.add_argument("--tags", default=None, help="Comma separated tags")
+    add_parser.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the warm local runtime service and ingest directly in this process",
+    )
     add_parser.set_defaults(handler=handle_add)
 
     search_parser = subparsers.add_parser("search", help="Search OmniMem")
@@ -256,6 +262,11 @@ def build_parser():
 
     import_parser = subparsers.add_parser("import", help="Import a file into OmniMem")
     import_parser.add_argument("file_path", help="Path to the file to import")
+    import_parser.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the warm local runtime service and ingest directly in this process",
+    )
     import_parser.set_defaults(handler=handle_import)
 
     delete_parser = subparsers.add_parser(
@@ -405,6 +416,11 @@ def build_parser():
     reindex_parser.add_argument(
         "--backup-output",
         help="Write the pre-reindex JSON backup to this path",
+    )
+    reindex_parser.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the warm local runtime service and rebuild directly in this process",
     )
     reindex_parser.add_argument(
         "--json",

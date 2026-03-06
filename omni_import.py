@@ -6,7 +6,8 @@ import sys
 from omni_config import get_async_extract_timeout_seconds
 from omni_chunking import build_import_records
 from omni_metadata import current_timestamp
-from omni_paths import get_db_dir
+from omni_paths import SOURCE_ROOT
+from omni_search_core import OmniRuntime
 from omni_version import add_version_argument
 
 async def extract_with_fallback(file_path):
@@ -41,11 +42,7 @@ async def extract_with_fallback(file_path):
         sys.exit(1)
 
 
-async def import_file_advanced(file_path):
-    import chromadb
-
-    from omni_embeddings import build_embedding_function
-
+async def import_file_advanced(file_path, prefer_service=False):
     print(f"[OmniMem] Reading file: {file_path}")
 
     extraction_result = await extract_with_fallback(file_path)
@@ -56,10 +53,6 @@ async def import_file_advanced(file_path):
     if not content or not content.strip():
         print("Error: No content could be extracted.")
         sys.exit(1)
-
-    client = chromadb.PersistentClient(path=str(get_db_dir()))
-    ef = build_embedding_function()
-    collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
 
     timestamp = current_timestamp()
     source_name = os.path.basename(file_path)
@@ -83,7 +76,23 @@ async def import_file_advanced(file_path):
     print(f"Extracted {len(documents)} chunks. Ingesting to OmniMem...")
 
     if documents:
-        collection.add(documents=documents, metadatas=metadatas, ids=ids)
+        if prefer_service:
+            try:
+                from omni_service import SearchServiceError, add_records_via_service
+
+                add_records_via_service(
+                    documents,
+                    metadatas,
+                    ids,
+                    root_dir=SOURCE_ROOT,
+                    autostart=True,
+                )
+            except SearchServiceError:
+                runtime = OmniRuntime(root_dir=SOURCE_ROOT)
+                runtime.add_records(documents, metadatas, ids)
+        else:
+            runtime = OmniRuntime(root_dir=SOURCE_ROOT)
+            runtime.add_records(documents, metadatas, ids)
         print(f"Success! Imported {len(documents)} memories from {file_path} (MIME: {mime_type}).")
 
 
@@ -92,11 +101,16 @@ if __name__ == "__main__":
         description="OmniMem Advanced Bulk Import (PDF, DOCX, Code, Images)"
     )
     parser.add_argument("file_path", help="Path to the file to import")
+    parser.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the warm local runtime service and ingest directly in this process",
+    )
     add_version_argument(parser)
     args = parser.parse_args()
     if os.path.exists(args.file_path):
         try:
-            asyncio.run(import_file_advanced(args.file_path))
+            asyncio.run(import_file_advanced(args.file_path, prefer_service=not args.direct))
         except RuntimeError as exc:
             print(f"Error: {exc}")
             sys.exit(1)

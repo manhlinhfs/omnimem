@@ -32,7 +32,7 @@ class TestReleaseMetadata(unittest.TestCase):
     def test_search_service_docs_exist(self):
         search_service = ROOT_DIR / "docs" / "search-service.md"
         self.assertTrue(search_service.exists())
-        self.assertIn("Search Service", search_service.read_text(encoding="utf-8"))
+        self.assertIn("Warm Runtime Service", search_service.read_text(encoding="utf-8"))
 
     def test_install_mode_docs_exist(self):
         install_modes = ROOT_DIR / "docs" / "install-modes.md"

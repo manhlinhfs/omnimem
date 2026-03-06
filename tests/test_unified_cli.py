@@ -55,6 +55,13 @@ class TestUnifiedCli(unittest.TestCase):
         self.assertIn("--mime-type", result.stdout)
         self.assertIn("--direct", result.stdout)
 
+    def test_write_command_help_mentions_direct_mode(self):
+        for subcommand in ("add", "import", "reindex"):
+            with self.subTest(subcommand=subcommand):
+                result = run_cli(subcommand, "--help")
+                self.assertEqual(result.returncode, 0, msg=result.stderr)
+                self.assertIn("--direct", result.stdout)
+
     def test_cross_platform_launchers_exist(self):
         self.assertTrue((ROOT_DIR / "omnimem").exists())
         self.assertTrue((ROOT_DIR / "omnimem.ps1").exists())

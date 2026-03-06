@@ -1,4 +1,4 @@
-# OmniMem v1.8.1 - CLI-Мозг, Настроенный Под Retrieval 🧠
+# OmniMem v1.8.2 - CLI-Мозг, Настроенный Под Retrieval 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -93,7 +93,7 @@ python3 omni_update.py
 ./omnimem search "release notes" --full
 ./omnimem search "release notes" --direct
 ```
-Теперь `search` предпочитает локальный сервис, который держит embedding model и Chroma client в памяти между повторными запросами. Первый запрос через сервис все еще прогревает модель один раз, но последующие запросы уже обходят большую часть прежней startup-стоимости.
+Теперь `search`, `add`, `import` и `reindex` предпочитают локальный сервис, который держит embedding model и Chroma client в памяти между повторными командами. Первая команда через сервис все еще прогревает модель один раз, но последующие запросы уже обходят большую часть прежней startup-стоимости.
 
 ## Offline-safe runtime
 - Команды `omni_add.py`, `omni_search.py`, `omni_import.py` теперь по умолчанию загружают модель из `.omnimem_models/`.
@@ -131,16 +131,21 @@ python3 omni_update.py
 - **Reindex импортов:** `./omnimem reindex`
 - **Проверить search service:** `./omnimem serve --status`
 - **Добавить текст:** `./omnimem add "Пароль сервера 123"`
+- **Добавить текст по direct path:** `./omnimem add "Пароль сервера 123" --direct`
 - **Импортировать файл:** `./omnimem import my_design.pdf`
+- **Импортировать файл по direct path:** `./omnimem import my_design.pdf --direct`
 - **Поиск:** `./omnimem search "пароль" --full`
 - **Поиск с фильтрами:** `./omnimem search "release" --source omnimem --since 2026-03-06`
 - **Обойти warm service для отладки:** `./omnimem search "пароль" --direct`
+- **Reindex по direct path:** `./omnimem reindex --direct`
 - **Искать только импортированные PDF:** `./omnimem search "invoice" --mime-type application/pdf`
 - **Удалить всё:** `./omnimem delete --wipe-all`
 
 ## Старые standalone-скрипты все еще работают
 - `python3 omni_add.py "Пароль сервера 123"`
+- `python3 omni_add.py "Пароль сервера 123" --direct`
 - `python3 omni_import.py my_design.pdf`
+- `python3 omni_import.py my_design.pdf --direct`
 - `python3 omni_search.py "пароль" --full`
 - `python3 omni_search.py "пароль" --direct`
 - `python3 omni_del.py --wipe-all`
@@ -150,6 +155,7 @@ python3 omni_update.py
 - `python3 omni_ops.py restore /path/to/file`
 - `python3 omni_reindex.py --dry-run`
 - `python3 omni_reindex.py`
+- `python3 omni_reindex.py --direct`
 - `python3 omni_update.py --check`
 
 ## Для разработки

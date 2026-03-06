@@ -75,7 +75,7 @@ Default user config paths:
 - `search_service_startup_timeout_seconds`: how long `search` waits for a newly spawned service to become ready
 - `search_service_request_timeout_seconds`: timeout for `/health` and `/search` requests
 
-If `search_service_enabled` is true, CLI `search` commands prefer the local warm service automatically. Use `./omnimem search --direct ...` when you need to bypass it.
+If `search_service_enabled` is true, CLI `search`, `add`, `import`, and `reindex` commands prefer the local warm service automatically. Use `--direct` on those commands when you need to bypass it.
 
 ## Inspect effective config
 

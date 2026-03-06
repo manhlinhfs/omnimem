@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.8.2
+- Extended the warm local runtime service so `add`, `import`, and `reindex` can reuse the already-loaded embedding model instead of rebuilding it in each CLI process
+- Updated `omni_add.py`, `omni_import.py`, and `omni_reindex.py` plus the unified CLI to prefer the service-backed path by default while keeping `--direct` escape hatches
+- Expanded `omni_search_core.py` into a shared runtime for both read-path and write-path operations
+- Moved service runtime files under `.omnimem_runtime/` and ignored them in git so local service activity no longer pollutes the repo status
+- Added write-path service tests for add/import/reindex flows and fallback behavior
+
 ## v1.8.1
 - Added a warm local search service in `omni_service.py` so repeated `search` calls can reuse a preloaded embedding model and Chroma client
 - Added `omni_search_core.py` to share the direct search runtime between the CLI path and the service path

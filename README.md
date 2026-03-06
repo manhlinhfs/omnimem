@@ -1,4 +1,4 @@
-# OmniMem v1.8.1 - The Retrieval-Tuned CLI Brain 🧠
+# OmniMem v1.8.2 - The Retrieval-Tuned CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -91,7 +91,7 @@ This is intended for users who imported files on older OmniMem releases and want
 ./omnimem search "release notes" --full
 ./omnimem search "release notes" --direct
 ```
-`search` now prefers a local service that keeps the embedding model and Chroma client warm across repeated searches. The first service-backed search still warms the model once; subsequent searches reuse it and avoid most of the previous startup cost.
+`search`, `add`, `import`, and `reindex` now prefer a local service that keeps the embedding model and Chroma client warm across repeated commands. The first service-backed command still warms the model once; subsequent commands reuse it and avoid most of the previous startup cost.
 
 ## Offline-safe runtime
 - Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
@@ -129,16 +129,21 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - **Reindex imported docs:** `./omnimem reindex`
 - **Search service status:** `./omnimem serve --status`
 - **Add text:** `./omnimem add "Server password is 123"`
+- **Add text directly without the warm service:** `./omnimem add "Server password is 123" --direct`
 - **Import file:** `./omnimem import my_design.pdf`
+- **Import file directly without the warm service:** `./omnimem import my_design.pdf --direct`
 - **Search:** `./omnimem search "password" --full`
 - **Search with filters:** `./omnimem search "release" --source omnimem --since 2026-03-06`
 - **Bypass the warm service for debugging:** `./omnimem search "password" --direct`
+- **Reindex directly without the warm service:** `./omnimem reindex --direct`
 - **Search imported PDFs only:** `./omnimem search "invoice" --mime-type application/pdf`
 - **Delete:** `./omnimem delete --wipe-all`
 
 ## Legacy standalone scripts
 - `python3 omni_add.py "Server password is 123"`
+- `python3 omni_add.py "Server password is 123" --direct`
 - `python3 omni_import.py my_design.pdf`
+- `python3 omni_import.py my_design.pdf --direct`
 - `python3 omni_search.py "password" --full`
 - `python3 omni_search.py "password" --direct`
 - `python3 omni_del.py --wipe-all`
@@ -148,6 +153,7 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - `python3 omni_ops.py restore /path/to/file`
 - `python3 omni_reindex.py --dry-run`
 - `python3 omni_reindex.py`
+- `python3 omni_reindex.py --direct`
 - `python3 omni_update.py --check`
 
 ## Development

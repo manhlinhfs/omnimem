@@ -8,6 +8,7 @@ from pathlib import Path
 from omni_chunking import build_import_records
 from omni_ops import COLLECTION_NAME, export_memories
 from omni_paths import SOURCE_ROOT, get_db_dir, get_runtime_home
+from omni_search_core import OmniRuntime
 from omni_version import add_version_argument, get_version, get_version_banner
 
 
@@ -168,26 +169,15 @@ def plan_reindex(items, source=None):
     }
 
 
-def _add_records(collection, records, batch_size=100):
-    for start in range(0, len(records), batch_size):
-        batch = records[start : start + batch_size]
-        collection.add(
-            ids=[record["id"] for record in batch],
-            documents=[record["document"] for record in batch],
-            metadatas=[record.get("metadata") or {} for record in batch],
-        )
-
-
 def reindex_collection(
     source=None,
     dry_run=False,
     skip_backup=False,
     backup_output=None,
     root_dir=SOURCE_ROOT,
+    prefer_service=False,
 ):
     import chromadb
-
-    from omni_embeddings import build_embedding_function
 
     client = chromadb.PersistentClient(path=str(get_db_dir(root_dir=root_dir)))
     try:
@@ -211,6 +201,7 @@ def reindex_collection(
         "total_records_after": len(plan["all_records"]),
         "dry_run": dry_run,
         "backup_output": None,
+        "ingest_mode": "service" if prefer_service else "direct",
     }
 
     if plan["matched_import_groups"] == 0:
@@ -229,23 +220,24 @@ def reindex_collection(
         backup_report = export_memories(output_path=backup_path, overwrite=False, root_dir=root_dir)
         report["backup_output"] = backup_report["output_path"]
 
-    temp_name = f"{COLLECTION_NAME}_reindex_{_utc_stamp()}"
-    legacy_name = f"{COLLECTION_NAME}_legacy_{_utc_stamp()}"
-    try:
-        client.delete_collection(name=temp_name)
-    except Exception as exc:
-        if not _is_missing_collection_error(exc):
-            raise
+    if prefer_service:
+        try:
+            from omni_service import SearchServiceError, replace_core_records_via_service
 
-    temp_collection = client.get_or_create_collection(
-        name=temp_name,
-        embedding_function=build_embedding_function(),
-    )
-    _add_records(temp_collection, plan["all_records"])
-
-    collection.modify(name=legacy_name)
-    temp_collection.modify(name=COLLECTION_NAME)
-    client.delete_collection(name=legacy_name)
+            replace_core_records_via_service(
+                plan["all_records"],
+                root_dir=root_dir,
+                autostart=True,
+            )
+            report["ingest_mode"] = "service"
+        except SearchServiceError:
+            runtime = OmniRuntime(root_dir=root_dir)
+            runtime.replace_core_records(plan["all_records"])
+            report["ingest_mode"] = "direct_fallback"
+    else:
+        runtime = OmniRuntime(root_dir=root_dir)
+        runtime.replace_core_records(plan["all_records"])
+        report["ingest_mode"] = "direct"
 
     report["status"] = "reindexed"
     report["collection_name"] = COLLECTION_NAME
@@ -263,6 +255,8 @@ def print_human_report(report):
         print(f"Source filter: {report['source']}")
     if report.get("backup_output"):
         print(f"Backup export: {report['backup_output']}")
+    if report.get("ingest_mode"):
+        print(f"Ingest mode: {report['ingest_mode']}")
     for group in report.get("rebuilt_groups", []):
         print(
             f"- {group['source']}: {group['original_chunks']} -> {group['rebuilt_chunks']} "
@@ -289,6 +283,11 @@ def main(argv=None):
         "--backup-output",
         help="Write the pre-reindex JSON backup to this path",
     )
+    parser.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the warm local runtime service and rebuild directly in this process",
+    )
     parser.add_argument("--json", action="store_true", help="Output the report as JSON")
     add_version_argument(parser)
     args = parser.parse_args(argv)
@@ -299,6 +298,7 @@ def main(argv=None):
             dry_run=args.dry_run,
             skip_backup=args.skip_backup,
             backup_output=args.backup_output,
+            prefer_service=not args.direct,
         )
     except ReindexError as exc:
         if args.json:
