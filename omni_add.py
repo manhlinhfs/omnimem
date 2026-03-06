@@ -7,6 +7,7 @@ import uuid
 import chromadb
 
 from omni_embeddings import build_embedding_function
+from omni_version import add_version_argument
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 
@@ -29,6 +30,7 @@ if __name__ == "__main__":
     parser.add_argument("text", help="The text content to remember")
     parser.add_argument("--source", default="user_input", help="Source of the information")
     parser.add_argument("--tags", default=None, help="Comma separated tags")
+    add_version_argument(parser)
     args = parser.parse_args()
     try:
         add_memory(args.text, args.source, args.tags)

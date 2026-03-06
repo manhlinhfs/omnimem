@@ -8,6 +8,7 @@ import uuid
 import chromadb
 
 from omni_embeddings import build_embedding_function
+from omni_version import add_version_argument
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 ASYNC_EXTRACTION_TIMEOUT_SECONDS = int(os.getenv("OMNIMEM_ASYNC_EXTRACT_TIMEOUT", "20"))
@@ -95,6 +96,7 @@ if __name__ == "__main__":
         description="OmniMem Advanced Bulk Import (PDF, DOCX, Code, Images)"
     )
     parser.add_argument("file_path", help="Path to the file to import")
+    add_version_argument(parser)
     args = parser.parse_args()
     if os.path.exists(args.file_path):
         try:

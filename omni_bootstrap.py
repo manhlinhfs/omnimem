@@ -2,6 +2,7 @@ import argparse
 import sys
 
 from omni_embeddings import MODEL_REPO_ID, bootstrap_model, get_model_dir
+from omni_version import add_version_argument
 
 
 def main():
@@ -18,6 +19,7 @@ def main():
         action="store_true",
         help="Re-download the model into the local OmniMem directory",
     )
+    add_version_argument(parser)
     args = parser.parse_args()
 
     print(f"[OmniMem] Model repo: {MODEL_REPO_ID}")

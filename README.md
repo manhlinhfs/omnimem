@@ -1,4 +1,4 @@
-# OmniMem - The Universal CLI Brain 🧠
+# OmniMem v1.1.0 - The Universal CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -34,6 +34,13 @@ python3 omni_bootstrap.py
 ```
 Use `--offline-only` to restore from the local Hugging Face cache without hitting the network.
 
+### Inspect runtime health
+```bash
+python3 omni_doctor.py
+python3 omni_doctor.py --deep
+python3 omni_doctor.py --json
+```
+
 ## Offline-safe runtime
 - Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
 - If the local model directory is missing, OmniMem first tries to restore it from the local Hugging Face cache.
@@ -53,6 +60,8 @@ To give your AI Agent the ability to use OmniMem, you MUST inject the following 
 *(Note: Replace `[OMNIMEM_PATH]` with the absolute path to your cloned omnimem directory, e.g., `/root/omnimem` or `C:\omnimem`)*
 
 ## Manual CLI Usage
+- **Show version:** `python3 omni_search.py --version`
+- **Doctor:** `python3 omni_doctor.py`
 - **Bootstrap model:** `python3 omni_bootstrap.py`
 - **Add text:** `python3 omni_add.py "Server password is 123"`
 - **Import file:** `python3 omni_import.py my_design.pdf`

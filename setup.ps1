@@ -1,4 +1,5 @@
-Write-Host "=== OMNIMEM: The Universal RAG Core for CLI ===" -ForegroundColor Cyan
+$version = Get-Content VERSION | Select-Object -First 1
+Write-Host "=== OMNIMEM v$version: The Universal RAG Core for CLI ===" -ForegroundColor Cyan
 Write-Host "Installing dependencies for Windows PowerShell..."
 
 Write-Host "[1/4] Creating Python Virtual Environment (venv)..."
@@ -23,4 +24,5 @@ Write-Host "Copy the 'System Prompt' from the README and paste it into your AI's
 Write-Host "Example usage manually:"
 Write-Host ".\venv\Scripts\python.exe omni_import.py C:\path\to\document.pdf" -ForegroundColor Yellow
 Write-Host ".\venv\Scripts\python.exe omni_bootstrap.py" -ForegroundColor Yellow
+Write-Host ".\venv\Scripts\python.exe omni_doctor.py" -ForegroundColor Yellow
 Write-Host ".\venv\Scripts\python.exe omni_search.py `"my query`" --full" -ForegroundColor Yellow

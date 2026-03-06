@@ -1,4 +1,4 @@
-# OmniMem - Bộ Não Đa Năng Cho Mọi AI 🧠
+# OmniMem v1.1.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -36,6 +36,13 @@ python3 omni_bootstrap.py
 ```
 Dùng `--offline-only` nếu bạn chỉ muốn khôi phục model từ local Hugging Face cache mà không truy cập mạng.
 
+### Kiểm tra sức khỏe runtime
+```bash
+python3 omni_doctor.py
+python3 omni_doctor.py --deep
+python3 omni_doctor.py --json
+```
+
 ## Runtime offline-safe
 - Các lệnh `omni_add.py`, `omni_search.py`, `omni_import.py` giờ mặc định load model từ `.omnimem_models/`.
 - Nếu thiếu thư mục model local, OmniMem sẽ thử khôi phục từ cache local của Hugging Face trước.
@@ -55,6 +62,8 @@ Dùng `--offline-only` nếu bạn chỉ muốn khôi phục model từ local Hu
 *(Lưu ý: Bạn phải thay chữ `[OMNIMEM_PATH]` thành đường dẫn tuyệt đối tới thư mục omnimem trên máy của bạn, ví dụ: `/root/omnimem` hoặc `C:\omnimem`)*
 
 ## Sử dụng thủ công bằng tay (Dành cho con người)
+- **Xem version:** `python3 omni_search.py --version`
+- **Doctor:** `python3 omni_doctor.py`
 - **Bootstrap model:** `python3 omni_bootstrap.py`
 - **Thêm note:** `python3 omni_add.py "Mật khẩu là 123"`
 - **Đọc file:** `python3 omni_import.py tai_lieu.pdf`

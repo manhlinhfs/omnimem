@@ -1,6 +1,7 @@
 #!/bin/bash
 
-echo "=== OMNIMEM: The Universal RAG Core for CLI ==="
+VERSION=$(cat VERSION)
+echo "=== OMNIMEM v$VERSION: The Universal RAG Core for CLI ==="
 echo "Installing dependencies for Linux/macOS..."
 
 # 1. Create Python Virtual Environment
@@ -26,4 +27,5 @@ echo "Copy the 'System Prompt' from the README and paste it into your AI's custo
 echo "Example usage manually:"
 echo "./venv/bin/python3 omni_import.py /path/to/document.pdf"
 echo "./venv/bin/python3 omni_bootstrap.py"
+echo "./venv/bin/python3 omni_doctor.py"
 echo "./venv/bin/python3 omni_search.py "my query" --full"

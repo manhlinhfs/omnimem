@@ -6,6 +6,7 @@ import sys
 import chromadb
 
 from omni_embeddings import build_embedding_function
+from omni_version import add_version_argument
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 
@@ -59,6 +60,7 @@ if __name__ == "__main__":
     parser.add_argument("--n", type=int, default=5, help="Number of results")
     parser.add_argument("--full", action="store_true", help="Print full content without truncating")
     parser.add_argument("--json", action="store_true", help="Output results in JSON format")
+    add_version_argument(parser)
     args = parser.parse_args()
     try:
         search_memory(args.query, args.n, args.full, args.json)

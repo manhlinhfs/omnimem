@@ -2,6 +2,8 @@ import argparse
 import chromadb
 import os
 
+from omni_version import add_version_argument
+
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".omnimem_db")
 
 def delete_memory(doc_id=None, source=None, wipe_all=False):
@@ -34,6 +36,7 @@ if __name__ == "__main__":
     parser.add_argument("--id", help="Delete specific memory by ID")
     parser.add_argument("--source", help="Delete all memories from a specific source file")
     parser.add_argument("--wipe-all", action="store_true", help="Completely wipe the OmniMem core")
+    add_version_argument(parser)
     
     args = parser.parse_args()
     delete_memory(doc_id=args.id, source=args.source, wipe_all=args.wipe_all)
