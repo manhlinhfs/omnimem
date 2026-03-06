@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.1
+- Added a warm local search service in `omni_service.py` so repeated `search` calls can reuse a preloaded embedding model and Chroma client
+- Added `omni_search_core.py` to share the direct search runtime between the CLI path and the service path
+- Updated `omni_search.py` and `omnimem search` to prefer the local service by default while keeping `--direct` as an explicit fallback
+- Added a `serve` unified CLI command plus new search-service runtime settings in `omnimem.json`
+- Reduced `since`/`until` query fan-out by progressively overfetching candidates instead of scanning the whole collection immediately
+- Expanded tests and docs for service-backed search behavior and runtime configuration
+
 ## v1.8.0
 - Added `omni_chunking.py` with structure-aware chunking profiles for prose, code, and OCR-like imports
 - Added chunk size and overlap controls through shared config and environment variables

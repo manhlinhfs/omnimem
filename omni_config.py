@@ -325,6 +325,59 @@ def resolve_runtime_config(
         90,
         config_label,
     )
+    if overrides.get("search_service_enabled") is not None:
+        search_service_enabled = _coerce_bool(overrides["search_service_enabled"])
+        search_service_enabled_setting = _setting(
+            "search_service_enabled",
+            search_service_enabled,
+            "override",
+        )
+    elif os.getenv("OMNIMEM_SEARCH_SERVICE_ENABLED") is not None:
+        search_service_enabled = _coerce_bool(os.getenv("OMNIMEM_SEARCH_SERVICE_ENABLED"))
+        search_service_enabled_setting = _setting(
+            "search_service_enabled",
+            search_service_enabled,
+            "env:OMNIMEM_SEARCH_SERVICE_ENABLED",
+            env_var="OMNIMEM_SEARCH_SERVICE_ENABLED",
+        )
+    elif payload.get("search_service_enabled") is not None:
+        search_service_enabled = _coerce_bool(payload.get("search_service_enabled"))
+        search_service_enabled_setting = _setting(
+            "search_service_enabled",
+            search_service_enabled,
+            config_label,
+        )
+    else:
+        search_service_enabled = True
+        search_service_enabled_setting = _setting(
+            "search_service_enabled",
+            search_service_enabled,
+            "default:true",
+        )
+    search_service_port, search_service_port_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "search_service_port",
+        "OMNIMEM_SEARCH_SERVICE_PORT",
+        41733,
+        config_label,
+    )
+    search_service_startup_timeout_seconds, search_service_startup_timeout_seconds_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "search_service_startup_timeout_seconds",
+        "OMNIMEM_SEARCH_SERVICE_STARTUP_TIMEOUT",
+        20,
+        config_label,
+    )
+    search_service_request_timeout_seconds, search_service_request_timeout_seconds_setting = _resolve_int_setting(
+        overrides,
+        payload,
+        "search_service_request_timeout_seconds",
+        "OMNIMEM_SEARCH_SERVICE_REQUEST_TIMEOUT",
+        10,
+        config_label,
+    )
 
     settings = {
         "home": home_setting,
@@ -338,6 +391,10 @@ def resolve_runtime_config(
         "code_chunk_overlap_tokens": code_chunk_overlap_tokens_setting,
         "ocr_chunk_target_tokens": ocr_chunk_target_tokens_setting,
         "ocr_chunk_overlap_tokens": ocr_chunk_overlap_tokens_setting,
+        "search_service_enabled": search_service_enabled_setting,
+        "search_service_port": search_service_port_setting,
+        "search_service_startup_timeout_seconds": search_service_startup_timeout_seconds_setting,
+        "search_service_request_timeout_seconds": search_service_request_timeout_seconds_setting,
     }
 
     return {
@@ -382,6 +439,16 @@ def get_chunk_settings_for_profile(profile, root_dir=SOURCE_ROOT):
     if profile == "ocr":
         return int(values["ocr_chunk_target_tokens"]), int(values["ocr_chunk_overlap_tokens"])
     return int(values["chunk_target_tokens"]), int(values["chunk_overlap_tokens"])
+
+
+def get_search_service_settings(root_dir=SOURCE_ROOT):
+    values = resolve_runtime_config(root_dir=root_dir)["values"]
+    return {
+        "enabled": bool(values["search_service_enabled"]),
+        "port": int(values["search_service_port"]),
+        "startup_timeout_seconds": int(values["search_service_startup_timeout_seconds"]),
+        "request_timeout_seconds": int(values["search_service_request_timeout_seconds"]),
+    }
 
 
 if __name__ == "__main__":

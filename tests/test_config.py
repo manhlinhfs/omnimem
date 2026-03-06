@@ -29,6 +29,8 @@ class TestOmniConfig(unittest.TestCase):
                         "async_extract_timeout_seconds": 33,
                         "chunk_target_tokens": 444,
                         "chunk_overlap_tokens": 77,
+                        "search_service_enabled": False,
+                        "search_service_port": 43123,
                     }
                 ),
                 encoding="utf-8",
@@ -45,6 +47,8 @@ class TestOmniConfig(unittest.TestCase):
             self.assertEqual(report["values"]["async_extract_timeout_seconds"], 33)
             self.assertEqual(report["values"]["chunk_target_tokens"], 444)
             self.assertEqual(report["values"]["chunk_overlap_tokens"], 77)
+            self.assertFalse(report["values"]["search_service_enabled"])
+            self.assertEqual(report["values"]["search_service_port"], 43123)
 
     def test_environment_variables_override_config_values(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -72,11 +76,13 @@ class TestOmniConfig(unittest.TestCase):
             with self._clean_env(
                 OMNIMEM_CHUNK_TARGET_TOKENS="512",
                 OMNIMEM_CODE_CHUNK_OVERLAP_TOKENS="55",
+                OMNIMEM_SEARCH_SERVICE_PORT="49000",
             ):
                 report = resolve_runtime_config(root_dir=root)
 
             self.assertEqual(report["values"]["chunk_target_tokens"], 512)
             self.assertEqual(report["values"]["code_chunk_overlap_tokens"], 55)
+            self.assertEqual(report["values"]["search_service_port"], 49000)
 
     def test_package_install_prefers_user_config_path(self):
         with tempfile.TemporaryDirectory() as temp_dir:

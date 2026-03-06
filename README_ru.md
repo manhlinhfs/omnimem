@@ -1,4 +1,4 @@
-# OmniMem v1.8.0 - CLI-Мозг, Настроенный Под Retrieval 🧠
+# OmniMem v1.8.1 - CLI-Мозг, Настроенный Под Retrieval 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -87,6 +87,14 @@ python3 omni_update.py
 ```
 Это предназначено для пользователей, которые импортировали документы в старых версиях OmniMem и хотят перестроить DB под новую стратегию chunking.
 
+### Локальный warm search service
+```bash
+./omnimem serve --status
+./omnimem search "release notes" --full
+./omnimem search "release notes" --direct
+```
+Теперь `search` предпочитает локальный сервис, который держит embedding model и Chroma client в памяти между повторными запросами. Первый запрос через сервис все еще прогревает модель один раз, но последующие запросы уже обходят большую часть прежней startup-стоимости.
+
 ## Offline-safe runtime
 - Команды `omni_add.py`, `omni_search.py`, `omni_import.py` теперь по умолчанию загружают модель из `.omnimem_models/`.
 - Если локальная директория модели отсутствует, OmniMem сначала пытается восстановить ее из локального Hugging Face cache.
@@ -121,10 +129,12 @@ python3 omni_update.py
 - **Export memories:** `./omnimem export`
 - **Restore runtime:** `./omnimem restore /path/to/file`
 - **Reindex импортов:** `./omnimem reindex`
+- **Проверить search service:** `./omnimem serve --status`
 - **Добавить текст:** `./omnimem add "Пароль сервера 123"`
 - **Импортировать файл:** `./omnimem import my_design.pdf`
 - **Поиск:** `./omnimem search "пароль" --full`
 - **Поиск с фильтрами:** `./omnimem search "release" --source omnimem --since 2026-03-06`
+- **Обойти warm service для отладки:** `./omnimem search "пароль" --direct`
 - **Искать только импортированные PDF:** `./omnimem search "invoice" --mime-type application/pdf`
 - **Удалить всё:** `./omnimem delete --wipe-all`
 
@@ -132,6 +142,7 @@ python3 omni_update.py
 - `python3 omni_add.py "Пароль сервера 123"`
 - `python3 omni_import.py my_design.pdf`
 - `python3 omni_search.py "пароль" --full`
+- `python3 omni_search.py "пароль" --direct`
 - `python3 omni_del.py --wipe-all`
 - `python3 omni_doctor.py`
 - `python3 omni_ops.py backup`
@@ -152,4 +163,5 @@ python3 omni_update.py
 - **Прочитать docs по chunking:** `docs/chunking.md`
 - **Прочитать docs по reindexing:** `docs/reindexing.md`
 - **Прочитать docs по search filters:** `docs/search-filters.md`
+- **Прочитать docs по search service:** `docs/search-service.md`
 - **Следовать release checklist:** `docs/release-checklist.md`

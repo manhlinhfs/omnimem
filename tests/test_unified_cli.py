@@ -18,6 +18,7 @@ SUBCOMMANDS = (
     "export",
     "restore",
     "reindex",
+    "serve",
     "version",
 )
 
@@ -52,6 +53,7 @@ class TestUnifiedCli(unittest.TestCase):
         self.assertIn("--since", result.stdout)
         self.assertIn("--until", result.stdout)
         self.assertIn("--mime-type", result.stdout)
+        self.assertIn("--direct", result.stdout)
 
     def test_cross_platform_launchers_exist(self):
         self.assertTrue((ROOT_DIR / "omnimem").exists())

@@ -23,10 +23,14 @@ class FakeCollection:
     def query(self, **kwargs):
         self.query_kwargs = kwargs
         return {
-            "documents": [["release note"]],
-            "metadatas": [[{"source": "omnimem", "timestamp": "2026-03-06T12:00:00.000000"}]],
-            "distances": [[0.1]],
-            "ids": [["memory-1"]],
+            "documents": [["release note", "release recap", "release checklist"]],
+            "metadatas": [[
+                {"source": "omnimem", "timestamp": "2026-03-06T12:00:00.000000"},
+                {"source": "omnimem", "timestamp": "2026-03-06T13:00:00.000000"},
+                {"source": "omnimem", "timestamp": "2026-03-06T14:00:00.000000"},
+            ]],
+            "distances": [[0.1, 0.2, 0.3]],
+            "ids": [["memory-1", "memory-2", "memory-3"]],
         }
 
 
@@ -54,6 +58,7 @@ class TestSearchFilters(unittest.TestCase):
         self.assertIn("--since", result.stdout)
         self.assertIn("--until", result.stdout)
         self.assertIn("--mime-type", result.stdout)
+        self.assertIn("--direct", result.stdout)
 
     def _run_search(self, **kwargs):
         fake_chromadb = types.SimpleNamespace(PersistentClient=FakePersistentClient)
@@ -79,7 +84,7 @@ class TestSearchFilters(unittest.TestCase):
             ),
         )
         self.assertIn("Filters: source=omnimem, since=2026-03-06, mime_type=application/pdf", output)
-        self.assertEqual(query_kwargs["n_results"], 25)
+        self.assertEqual(query_kwargs["n_results"], 20)
 
     def test_search_omits_where_clause_without_filters(self):
         _, query_kwargs = self._run_search(n_results=2)

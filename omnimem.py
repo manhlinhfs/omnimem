@@ -26,6 +26,7 @@ def handle_search(args):
         since=args.since,
         until=args.until,
         mime_type=args.mime_type,
+        prefer_service=not args.direct,
     )
     return 0
 
@@ -195,6 +196,15 @@ def handle_version(_args):
     return 0
 
 
+def handle_serve(args):
+    from omni_service import handle_serve as run_service
+    from omni_service import handle_status as show_service_status
+
+    if args.status:
+        return show_service_status(args)
+    return run_service(args)
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         description="Unified OmniMem CLI for add/search/import/doctor/update/operations/reindex workflows"
@@ -236,6 +246,11 @@ def build_parser():
     search_parser.add_argument(
         "--mime-type",
         help="Only search imported memories with the exact MIME type",
+    )
+    search_parser.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the local warm search service and run the one-shot path directly",
     )
     search_parser.set_defaults(handler=handle_search)
 
@@ -397,6 +412,36 @@ def build_parser():
         help="Output the reindex report as JSON",
     )
     reindex_parser.set_defaults(handler=handle_reindex)
+
+    serve_parser = subparsers.add_parser(
+        "serve",
+        help="Run or inspect the local warm search service",
+    )
+    serve_parser.add_argument(
+        "--host",
+        help="Bind host for the local search service",
+    )
+    serve_parser.add_argument(
+        "--port",
+        type=int,
+        help="Bind port for the local search service",
+    )
+    serve_parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress HTTP access logs while serving",
+    )
+    serve_parser.add_argument(
+        "--status",
+        action="store_true",
+        help="Report whether the local search service is reachable instead of serving",
+    )
+    serve_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit service status as JSON when used with --status",
+    )
+    serve_parser.set_defaults(handler=handle_serve)
 
     version_parser = subparsers.add_parser("version", help="Print the OmniMem version")
     version_parser.set_defaults(handler=handle_version)

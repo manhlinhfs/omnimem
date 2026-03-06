@@ -38,6 +38,8 @@ py-modules = [
   "omni_paths",
   "omni_reindex",
   "omni_search",
+  "omni_search_core",
+  "omni_service",
   "omni_update",
   "omni_version",
 ]

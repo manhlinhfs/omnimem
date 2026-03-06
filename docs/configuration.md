@@ -1,6 +1,6 @@
 # Configuration
 
-OmniMem v1.7.0 adds a shared JSON config layer so users can move runtime paths without editing code.
+OmniMem adds a shared JSON config layer so users can move runtime paths and tune runtime behavior without editing code.
 
 ## Supported settings
 
@@ -16,7 +16,11 @@ OmniMem v1.7.0 adds a shared JSON config layer so users can move runtime paths w
   "code_chunk_target_tokens": 260,
   "code_chunk_overlap_tokens": 40,
   "ocr_chunk_target_tokens": 320,
-  "ocr_chunk_overlap_tokens": 90
+  "ocr_chunk_overlap_tokens": 90,
+  "search_service_enabled": true,
+  "search_service_port": 41733,
+  "search_service_startup_timeout_seconds": 20,
+  "search_service_request_timeout_seconds": 10
 }
 ```
 
@@ -59,6 +63,19 @@ Default user config paths:
 - `OMNIMEM_CODE_CHUNK_OVERLAP_TOKENS`
 - `OMNIMEM_OCR_CHUNK_TARGET_TOKENS`
 - `OMNIMEM_OCR_CHUNK_OVERLAP_TOKENS`
+- `OMNIMEM_SEARCH_SERVICE_ENABLED`
+- `OMNIMEM_SEARCH_SERVICE_PORT`
+- `OMNIMEM_SEARCH_SERVICE_STARTUP_TIMEOUT`
+- `OMNIMEM_SEARCH_SERVICE_REQUEST_TIMEOUT`
+
+## Search service settings
+
+- `search_service_enabled`: turn the warm local search service on or off
+- `search_service_port`: TCP port bound on `127.0.0.1` by the local search service
+- `search_service_startup_timeout_seconds`: how long `search` waits for a newly spawned service to become ready
+- `search_service_request_timeout_seconds`: timeout for `/health` and `/search` requests
+
+If `search_service_enabled` is true, CLI `search` commands prefer the local warm service automatically. Use `./omnimem search --direct ...` when you need to bypass it.
 
 ## Inspect effective config
 

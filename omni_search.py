@@ -1,15 +1,10 @@
 import argparse
-import json
 import sys
 
-from omni_metadata import (
-    build_search_where,
-    build_time_bounds,
-    describe_search_filters,
-    metadata_matches_time_bounds,
-)
-from omni_paths import get_db_dir
+from omni_paths import SOURCE_ROOT
+from omni_search_core import SearchRuntime, render_search_results
 from omni_version import add_version_argument
+
 
 def search_memory(
     query,
@@ -20,95 +15,49 @@ def search_memory(
     since=None,
     until=None,
     mime_type=None,
+    prefer_service=False,
 ):
-    where = build_search_where(source=source, mime_type=mime_type)
-    lower_bound, upper_bound = build_time_bounds(since=since, until=until)
+    records = None
+    if prefer_service:
+        try:
+            from omni_service import SearchServiceError, search_via_service
 
-    import chromadb
+            records = search_via_service(
+                query,
+                n_results=n_results,
+                source=source,
+                since=since,
+                until=until,
+                mime_type=mime_type,
+                root_dir=SOURCE_ROOT,
+                autostart=True,
+            )
+        except SearchServiceError:
+            records = None
 
-    from omni_embeddings import build_embedding_function
+    if records is None:
+        runtime = SearchRuntime()
+        records = runtime.search_records(
+            query,
+            n_results=n_results,
+            source=source,
+            since=since,
+            until=until,
+            mime_type=mime_type,
+        )
 
-    client = chromadb.PersistentClient(path=str(get_db_dir()))
-    ef = build_embedding_function()
-    collection = client.get_or_create_collection(name="omnimem_core", embedding_function=ef)
-    
-    query_n_results = n_results
-    if lower_bound is not None or upper_bound is not None:
-        query_n_results = max(n_results, collection.count())
-
-    query_kwargs = {"query_texts": [query], "n_results": query_n_results}
-    if where is not None:
-        query_kwargs["where"] = where
-    results = collection.query(**query_kwargs)
-
-    if lower_bound is not None or upper_bound is not None:
-        filtered_documents = []
-        filtered_metadatas = []
-        filtered_distances = []
-        filtered_ids = []
-        documents = results.get("documents", [[]])[0]
-        metadatas = results.get("metadatas", [[]])[0]
-        distances = results.get("distances", [[]])[0]
-        ids = results.get("ids", [[]])[0]
-
-        for index, metadata in enumerate(metadatas):
-            if metadata_matches_time_bounds(metadata or {}, lower_bound, upper_bound):
-                filtered_documents.append(documents[index])
-                filtered_metadatas.append(metadata)
-                if distances:
-                    filtered_distances.append(distances[index])
-                if ids:
-                    filtered_ids.append(ids[index])
-
-        results["documents"] = [filtered_documents[:n_results]]
-        results["metadatas"] = [filtered_metadatas[:n_results]]
-        results["distances"] = [filtered_distances[:n_results]]
-        results["ids"] = [filtered_ids[:n_results]]
-    
-    if not results['documents'] or not results['documents'][0]:
-        if as_json:
-            print(json.dumps([]))
-        else:
-            print("No results found in OmniMem.")
-        return
-
-    documents = results['documents'][0]
-    metadatas = results['metadatas'][0]
-    distances = results['distances'][0]
-    ids = results['ids'][0]
-    
-    if as_json:
-        out_data = []
-        for i, doc in enumerate(documents):
-            out_data.append({
-                "id": ids[i],
-                "distance": distances[i] if distances else 0.0,
-                "content": doc,
-                "metadata": metadatas[i] if metadatas else {}
-            })
-        print(json.dumps(out_data, ensure_ascii=False, indent=2))
-        return
-
-    print(f"""
-[OmniMem Search]: '{query}'""")
-    filter_parts = describe_search_filters(
+    render_search_results(
+        query,
+        records,
+        full=full,
+        as_json=as_json,
         source=source,
         since=since,
         until=until,
         mime_type=mime_type,
     )
-    if filter_parts:
-        print(f"Filters: {', '.join(filter_parts)}")
-    print("""
---- FOUND MEMORIES ---""")
-    for i, doc in enumerate(documents):
-        meta = metadatas[i] if metadatas else {}
-        dist = distances[i] if distances else 0.0
-        print(f"[{i+1}] ID: {ids[i]} (Distance: {dist:.4f})")
-        print(f"""Content:
-{doc}""" if full else f"Content: {doc[:200]}..." if len(doc) > 200 else f"Content: {doc}")
-        print(f"""Source: {meta.get('source', 'N/A')} | Time: {meta.get('timestamp', 'N/A')}
-""" + "-"*30)
+    return records
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Search OmniMem's knowledge base")
@@ -120,6 +69,11 @@ if __name__ == "__main__":
     parser.add_argument("--since", help="Only search memories at or after YYYY-MM-DD or ISO-8601 datetime")
     parser.add_argument("--until", help="Only search memories at or before YYYY-MM-DD or ISO-8601 datetime")
     parser.add_argument("--mime-type", help="Only search imported memories with the exact MIME type")
+    parser.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the local warm search service and run the one-shot search path directly",
+    )
     add_version_argument(parser)
     args = parser.parse_args()
     try:
@@ -132,6 +86,7 @@ if __name__ == "__main__":
             since=args.since,
             until=args.until,
             mime_type=args.mime_type,
+            prefer_service=not args.direct,
         )
     except RuntimeError as exc:
         print(f"Error: {exc}")

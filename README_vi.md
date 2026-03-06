@@ -1,4 +1,4 @@
-# OmniMem v1.8.0 - Bộ Não CLI Tối Ưu Cho Retrieval 🧠
+# OmniMem v1.8.1 - Bộ Não CLI Tối Ưu Cho Retrieval 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -87,6 +87,14 @@ Với package install, `omnimem update` không được hỗ trợ; hãy update 
 ```
 Phần này dành cho người dùng đã import tài liệu từ các phiên bản cũ và muốn rebuild DB theo chiến lược chunking mới.
 
+### Search service local giữ nóng model
+```bash
+./omnimem serve --status
+./omnimem search "release notes" --full
+./omnimem search "release notes" --direct
+```
+`search` giờ ưu tiên một local service giữ nóng embedding model và Chroma client giữa các lần tìm kiếm. Lần tìm đầu tiên vẫn phải warm model một lần; các lần sau sẽ tránh phần lớn chi phí startup trước đây.
+
 ## Runtime offline-safe
 - Các lệnh `omni_add.py`, `omni_search.py`, `omni_import.py` giờ mặc định load model từ `.omnimem_models/`.
 - Nếu thiếu thư mục model local, OmniMem sẽ thử khôi phục từ cache local của Hugging Face trước.
@@ -121,10 +129,12 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - **Export memories:** `./omnimem export`
 - **Restore runtime:** `./omnimem restore /path/to/file`
 - **Reindex tài liệu đã import:** `./omnimem reindex`
+- **Kiểm tra search service:** `./omnimem serve --status`
 - **Thêm note:** `./omnimem add "Mật khẩu là 123"`
 - **Đọc file:** `./omnimem import tai_lieu.pdf`
 - **Tìm kiếm:** `./omnimem search "mật khẩu" --full`
 - **Tìm kiếm có filter:** `./omnimem search "release" --source omnimem --since 2026-03-06`
+- **Bypass search service để debug:** `./omnimem search "mật khẩu" --direct`
 - **Chỉ tìm PDF đã import:** `./omnimem search "invoice" --mime-type application/pdf`
 - **Dọn dẹp DB:** `./omnimem delete --wipe-all`
 
@@ -132,6 +142,7 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - `python3 omni_add.py "Mật khẩu là 123"`
 - `python3 omni_import.py tai_lieu.pdf`
 - `python3 omni_search.py "mật khẩu" --full`
+- `python3 omni_search.py "mật khẩu" --direct`
 - `python3 omni_del.py --wipe-all`
 - `python3 omni_doctor.py`
 - `python3 omni_ops.py backup`
@@ -152,4 +163,5 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - **Xem tài liệu chunking:** `docs/chunking.md`
 - **Xem tài liệu reindex:** `docs/reindexing.md`
 - **Xem tài liệu search filter:** `docs/search-filters.md`
+- **Xem tài liệu search service:** `docs/search-service.md`
 - **Theo checklist release:** `docs/release-checklist.md`

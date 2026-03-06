@@ -14,6 +14,7 @@ SCRIPTS = (
     "omni_bootstrap.py",
     "omni_ops.py",
     "omni_reindex.py",
+    "omni_service.py",
     "omni_doctor.py",
     "omni_update.py",
 )

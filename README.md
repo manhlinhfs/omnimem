@@ -1,4 +1,4 @@
-# OmniMem v1.8.0 - The Retrieval-Tuned CLI Brain 🧠
+# OmniMem v1.8.1 - The Retrieval-Tuned CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -85,6 +85,14 @@ Package installs do not support `omnimem update`; reinstall or upgrade them with
 ```
 This is intended for users who imported files on older OmniMem releases and want to rebuild their DB with the current chunking strategy.
 
+### Warm local search service
+```bash
+./omnimem serve --status
+./omnimem search "release notes" --full
+./omnimem search "release notes" --direct
+```
+`search` now prefers a local service that keeps the embedding model and Chroma client warm across repeated searches. The first service-backed search still warms the model once; subsequent searches reuse it and avoid most of the previous startup cost.
+
 ## Offline-safe runtime
 - Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
 - If the local model directory is missing, OmniMem first tries to restore it from the local Hugging Face cache.
@@ -119,10 +127,12 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - **Export memories:** `./omnimem export`
 - **Restore runtime:** `./omnimem restore /path/to/file`
 - **Reindex imported docs:** `./omnimem reindex`
+- **Search service status:** `./omnimem serve --status`
 - **Add text:** `./omnimem add "Server password is 123"`
 - **Import file:** `./omnimem import my_design.pdf`
 - **Search:** `./omnimem search "password" --full`
 - **Search with filters:** `./omnimem search "release" --source omnimem --since 2026-03-06`
+- **Bypass the warm service for debugging:** `./omnimem search "password" --direct`
 - **Search imported PDFs only:** `./omnimem search "invoice" --mime-type application/pdf`
 - **Delete:** `./omnimem delete --wipe-all`
 
@@ -130,6 +140,7 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - `python3 omni_add.py "Server password is 123"`
 - `python3 omni_import.py my_design.pdf`
 - `python3 omni_search.py "password" --full`
+- `python3 omni_search.py "password" --direct`
 - `python3 omni_del.py --wipe-all`
 - `python3 omni_doctor.py`
 - `python3 omni_ops.py backup`
@@ -150,4 +161,5 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - **Read chunking docs:** `docs/chunking.md`
 - **Read reindexing docs:** `docs/reindexing.md`
 - **Read search filter docs:** `docs/search-filters.md`
+- **Read search service docs:** `docs/search-service.md`
 - **Follow release gates:** `docs/release-checklist.md`
