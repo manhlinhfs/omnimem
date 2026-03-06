@@ -22,9 +22,10 @@ Write-Host ""
 Write-Host "🔥 OmniMem is ready. To use it with your CLI AI (Claude, Gemini, Cursor):"
 Write-Host "Copy the 'System Prompt' from the README and paste it into your AI's custom instructions."
 Write-Host "Example usage manually:"
-Write-Host ".\venv\Scripts\python.exe omni_import.py C:\path\to\document.pdf" -ForegroundColor Yellow
-Write-Host ".\venv\Scripts\python.exe omni_bootstrap.py" -ForegroundColor Yellow
-Write-Host ".\venv\Scripts\python.exe omni_doctor.py" -ForegroundColor Yellow
-Write-Host ".\venv\Scripts\python.exe omni_update.py --check" -ForegroundColor Yellow
-Write-Host ".\venv\Scripts\python.exe omni_update.py" -ForegroundColor Yellow
-Write-Host ".\venv\Scripts\python.exe omni_search.py `"my query`" --full" -ForegroundColor Yellow
+Write-Host ".\omnimem.ps1 import C:\path\to\document.pdf" -ForegroundColor Yellow
+Write-Host ".\omnimem.ps1 bootstrap" -ForegroundColor Yellow
+Write-Host ".\omnimem.ps1 doctor" -ForegroundColor Yellow
+Write-Host ".\omnimem.ps1 update --check" -ForegroundColor Yellow
+Write-Host ".\omnimem.ps1 update" -ForegroundColor Yellow
+Write-Host ".\omnimem.ps1 search `"my query`" --full" -ForegroundColor Yellow
+Write-Host "Legacy scripts still work under .\venv\Scripts\python.exe as before." -ForegroundColor DarkYellow

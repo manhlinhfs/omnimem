@@ -1,4 +1,4 @@
-# OmniMem v1.3.0 - The Universal CLI Brain 🧠
+# OmniMem v1.4.0 - The Universal CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -66,16 +66,27 @@ To give your AI Agent the ability to use OmniMem, you MUST inject the following 
 ```
 *(Note: Replace `[OMNIMEM_PATH]` with the absolute path to your cloned omnimem directory, e.g., `/root/omnimem` or `C:\omnimem`)*
 
-## Manual CLI Usage
-- **Show version:** `python3 omni_search.py --version`
-- **Doctor:** `python3 omni_doctor.py`
-- **Check for updates:** `python3 omni_update.py --check`
-- **Update this clone:** `python3 omni_update.py`
-- **Bootstrap model:** `python3 omni_bootstrap.py`
-- **Add text:** `python3 omni_add.py "Server password is 123"`
-- **Import file:** `python3 omni_import.py my_design.pdf`
-- **Search:** `python3 omni_search.py "password" --full`
-- **Delete:** `python3 omni_del.py --wipe-all`
+## Unified CLI Usage
+Use the repo launchers for normal operation because they prefer the local `venv` automatically. On Windows, use `.\omnimem.ps1` or `.\omnimem.bat` from the repo root.
+
+- **Show version:** `python3 omnimem.py --version`
+- **Show version via launcher:** `./omnimem --version`
+- **Doctor:** `./omnimem doctor`
+- **Check for updates:** `./omnimem update --check`
+- **Update this clone:** `./omnimem update`
+- **Bootstrap model:** `./omnimem bootstrap`
+- **Add text:** `./omnimem add "Server password is 123"`
+- **Import file:** `./omnimem import my_design.pdf`
+- **Search:** `./omnimem search "password" --full`
+- **Delete:** `./omnimem delete --wipe-all`
+
+## Legacy standalone scripts
+- `python3 omni_add.py "Server password is 123"`
+- `python3 omni_import.py my_design.pdf`
+- `python3 omni_search.py "password" --full`
+- `python3 omni_del.py --wipe-all`
+- `python3 omni_doctor.py`
+- `python3 omni_update.py --check`
 
 ## Development
 - **Run tests:** `python3 -m unittest discover -s tests -v`

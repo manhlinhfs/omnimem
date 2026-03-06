@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 EXPECTED_BANNER = f"OmniMem v{(ROOT_DIR / 'VERSION').read_text(encoding='utf-8').strip()}"
 SCRIPTS = (
+    "omnimem.py",
     "omni_add.py",
     "omni_search.py",
     "omni_import.py",

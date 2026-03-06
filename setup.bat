@@ -23,10 +23,11 @@ echo.
 echo 🔥 OmniMem is ready. To use it with your CLI AI (Claude, Gemini, Cursor):
 echo Copy the 'System Prompt' from the README and paste it into your AI's custom instructions.
 echo Example usage manually:
-echo .\venv\Scripts\python.exe omni_import.py C:\path\to\document.pdf
-echo .\venv\Scripts\python.exe omni_bootstrap.py
-echo .\venv\Scripts\python.exe omni_doctor.py
-echo .\venv\Scripts\python.exe omni_update.py --check
-echo .\venv\Scripts\python.exe omni_update.py
-echo .\venv\Scripts\python.exe omni_search.py "my query" --full
+echo .\omnimem.bat import C:\path\to\document.pdf
+echo .\omnimem.bat bootstrap
+echo .\omnimem.bat doctor
+echo .\omnimem.bat update --check
+echo .\omnimem.bat update
+echo .\omnimem.bat search "my query" --full
+echo Legacy scripts still work under .\venv\Scripts\python.exe as before.
 pause

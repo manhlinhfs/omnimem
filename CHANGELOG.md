@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.0
+- Added `omnimem.py` as a unified OmniMem CLI with `add`, `search`, `import`, `delete`, `doctor`, `bootstrap`, `update`, and `version` subcommands
+- Added cross-platform repo launchers: `omnimem`, `omnimem.ps1`, and `omnimem.bat`
+- Kept the legacy standalone `omni_*.py` scripts working for backward compatibility
+- Added CLI coverage for the new unified command and launcher metadata
+
 ## v1.3.0
 - Added a stdlib-based test suite under `tests/`
 - Added GitHub Actions CI for compile, shell, and unittest quality gates

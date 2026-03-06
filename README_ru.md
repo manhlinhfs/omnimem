@@ -1,4 +1,4 @@
-# OmniMem v1.3.0 - Универсальный CLI-Мозг 🧠
+# OmniMem v1.4.0 - Универсальный CLI-Мозг 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -68,16 +68,27 @@ python3 omni_update.py
 ```
 *(Примечание: Замените `[OMNIMEM_PATH]` на абсолютный путь к вашей директории omnimem, например `/root/omnimem` или `C:\omnimem`)*
 
-## Использование вручную
-- **Показать версию:** `python3 omni_search.py --version`
-- **Doctor:** `python3 omni_doctor.py`
-- **Проверить обновления:** `python3 omni_update.py --check`
-- **Обновить этот клон:** `python3 omni_update.py`
-- **Bootstrap model:** `python3 omni_bootstrap.py`
-- **Добавить текст:** `python3 omni_add.py "Пароль сервера 123"`
-- **Импортировать файл:** `python3 omni_import.py my_design.pdf`
-- **Поиск:** `python3 omni_search.py "пароль" --full`
-- **Удалить всё:** `python3 omni_del.py --wipe-all`
+## Единый CLI (рекомендуется)
+Для обычной работы используйте launcher-скрипты из репозитория: они автоматически предпочитают локальный `venv`. На Windows используйте `.\omnimem.ps1` или `.\omnimem.bat` из корня репозитория.
+
+- **Показать версию:** `python3 omnimem.py --version`
+- **Показать версию через launcher:** `./omnimem --version`
+- **Doctor:** `./omnimem doctor`
+- **Проверить обновления:** `./omnimem update --check`
+- **Обновить этот клон:** `./omnimem update`
+- **Bootstrap model:** `./omnimem bootstrap`
+- **Добавить текст:** `./omnimem add "Пароль сервера 123"`
+- **Импортировать файл:** `./omnimem import my_design.pdf`
+- **Поиск:** `./omnimem search "пароль" --full`
+- **Удалить всё:** `./omnimem delete --wipe-all`
+
+## Старые standalone-скрипты все еще работают
+- `python3 omni_add.py "Пароль сервера 123"`
+- `python3 omni_import.py my_design.pdf`
+- `python3 omni_search.py "пароль" --full`
+- `python3 omni_del.py --wipe-all`
+- `python3 omni_doctor.py`
+- `python3 omni_update.py --check`
 
 ## Для разработки
 - **Запустить тесты:** `python3 -m unittest discover -s tests -v`

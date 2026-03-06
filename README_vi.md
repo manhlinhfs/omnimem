@@ -1,4 +1,4 @@
-# OmniMem v1.3.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
+# OmniMem v1.4.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -68,16 +68,27 @@ python3 omni_update.py
 ```
 *(Lưu ý: Bạn phải thay chữ `[OMNIMEM_PATH]` thành đường dẫn tuyệt đối tới thư mục omnimem trên máy của bạn, ví dụ: `/root/omnimem` hoặc `C:\omnimem`)*
 
-## Sử dụng thủ công bằng tay (Dành cho con người)
-- **Xem version:** `python3 omni_search.py --version`
-- **Doctor:** `python3 omni_doctor.py`
-- **Kiểm tra update:** `python3 omni_update.py --check`
-- **Update clone này:** `python3 omni_update.py`
-- **Bootstrap model:** `python3 omni_bootstrap.py`
-- **Thêm note:** `python3 omni_add.py "Mật khẩu là 123"`
-- **Đọc file:** `python3 omni_import.py tai_lieu.pdf`
-- **Tìm kiếm:** `python3 omni_search.py "mật khẩu" --full`
-- **Dọn dẹp DB:** `python3 omni_del.py --wipe-all`
+## CLI thống nhất (khuyến nghị)
+Hãy ưu tiên launcher của repo khi dùng hằng ngày vì nó tự chọn `venv` local. Trên Windows, dùng `.\omnimem.ps1` hoặc `.\omnimem.bat` từ thư mục repo.
+
+- **Xem version:** `python3 omnimem.py --version`
+- **Xem version qua launcher:** `./omnimem --version`
+- **Doctor:** `./omnimem doctor`
+- **Kiểm tra update:** `./omnimem update --check`
+- **Update clone này:** `./omnimem update`
+- **Bootstrap model:** `./omnimem bootstrap`
+- **Thêm note:** `./omnimem add "Mật khẩu là 123"`
+- **Đọc file:** `./omnimem import tai_lieu.pdf`
+- **Tìm kiếm:** `./omnimem search "mật khẩu" --full`
+- **Dọn dẹp DB:** `./omnimem delete --wipe-all`
+
+## Script cũ vẫn dùng được
+- `python3 omni_add.py "Mật khẩu là 123"`
+- `python3 omni_import.py tai_lieu.pdf`
+- `python3 omni_search.py "mật khẩu" --full`
+- `python3 omni_del.py --wipe-all`
+- `python3 omni_doctor.py`
+- `python3 omni_update.py --check`
 
 ## Dành cho phát triển
 - **Chạy test:** `python3 -m unittest discover -s tests -v`
