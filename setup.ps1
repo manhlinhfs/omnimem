@@ -25,4 +25,6 @@ Write-Host "Example usage manually:"
 Write-Host ".\venv\Scripts\python.exe omni_import.py C:\path\to\document.pdf" -ForegroundColor Yellow
 Write-Host ".\venv\Scripts\python.exe omni_bootstrap.py" -ForegroundColor Yellow
 Write-Host ".\venv\Scripts\python.exe omni_doctor.py" -ForegroundColor Yellow
+Write-Host ".\venv\Scripts\python.exe omni_update.py --check" -ForegroundColor Yellow
+Write-Host ".\venv\Scripts\python.exe omni_update.py" -ForegroundColor Yellow
 Write-Host ".\venv\Scripts\python.exe omni_search.py `"my query`" --full" -ForegroundColor Yellow

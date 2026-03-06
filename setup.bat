@@ -26,5 +26,7 @@ echo Example usage manually:
 echo .\venv\Scripts\python.exe omni_import.py C:\path\to\document.pdf
 echo .\venv\Scripts\python.exe omni_bootstrap.py
 echo .\venv\Scripts\python.exe omni_doctor.py
+echo .\venv\Scripts\python.exe omni_update.py --check
+echo .\venv\Scripts\python.exe omni_update.py
 echo .\venv\Scripts\python.exe omni_search.py "my query" --full
 pause

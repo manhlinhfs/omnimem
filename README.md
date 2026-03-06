@@ -1,4 +1,4 @@
-# OmniMem v1.1.0 - The Universal CLI Brain 🧠
+# OmniMem v1.2.0 - The Universal CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -41,6 +41,13 @@ python3 omni_doctor.py --deep
 python3 omni_doctor.py --json
 ```
 
+### Update an existing clone
+```bash
+python3 omni_update.py --check
+python3 omni_update.py
+```
+`omni_update.py` updates the current tracked branch with fast-forward only semantics, refuses to overwrite a dirty worktree, reinstalls dependencies when `requirements.txt` changes, and refreshes the local model bootstrap state.
+
 ## Offline-safe runtime
 - Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
 - If the local model directory is missing, OmniMem first tries to restore it from the local Hugging Face cache.
@@ -62,6 +69,8 @@ To give your AI Agent the ability to use OmniMem, you MUST inject the following 
 ## Manual CLI Usage
 - **Show version:** `python3 omni_search.py --version`
 - **Doctor:** `python3 omni_doctor.py`
+- **Check for updates:** `python3 omni_update.py --check`
+- **Update this clone:** `python3 omni_update.py`
 - **Bootstrap model:** `python3 omni_bootstrap.py`
 - **Add text:** `python3 omni_add.py "Server password is 123"`
 - **Import file:** `python3 omni_import.py my_design.pdf`

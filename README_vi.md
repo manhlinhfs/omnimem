@@ -1,4 +1,4 @@
-# OmniMem v1.1.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
+# OmniMem v1.2.0 - Bộ Não Đa Năng Cho Mọi AI 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -43,6 +43,13 @@ python3 omni_doctor.py --deep
 python3 omni_doctor.py --json
 ```
 
+### Update clone hiện tại
+```bash
+python3 omni_update.py --check
+python3 omni_update.py
+```
+`omni_update.py` sẽ cập nhật branch đang track upstream theo chế độ fast-forward only, từ chối ghi đè worktree đang bẩn, cài lại dependencies nếu `requirements.txt` đổi, và refresh trạng thái bootstrap model local.
+
 ## Runtime offline-safe
 - Các lệnh `omni_add.py`, `omni_search.py`, `omni_import.py` giờ mặc định load model từ `.omnimem_models/`.
 - Nếu thiếu thư mục model local, OmniMem sẽ thử khôi phục từ cache local của Hugging Face trước.
@@ -64,6 +71,8 @@ python3 omni_doctor.py --json
 ## Sử dụng thủ công bằng tay (Dành cho con người)
 - **Xem version:** `python3 omni_search.py --version`
 - **Doctor:** `python3 omni_doctor.py`
+- **Kiểm tra update:** `python3 omni_update.py --check`
+- **Update clone này:** `python3 omni_update.py`
 - **Bootstrap model:** `python3 omni_bootstrap.py`
 - **Thêm note:** `python3 omni_add.py "Mật khẩu là 123"`
 - **Đọc file:** `python3 omni_import.py tai_lieu.pdf`

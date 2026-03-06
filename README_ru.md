@@ -1,4 +1,4 @@
-# OmniMem v1.1.0 - Универсальный CLI-Мозг 🧠
+# OmniMem v1.2.0 - Универсальный CLI-Мозг 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -43,6 +43,13 @@ python3 omni_doctor.py --deep
 python3 omni_doctor.py --json
 ```
 
+### Обновление текущего клона
+```bash
+python3 omni_update.py --check
+python3 omni_update.py
+```
+`omni_update.py` обновляет текущую ветку с fast-forward only семантикой, отказывается перезаписывать грязный worktree, переустанавливает зависимости при изменении `requirements.txt` и обновляет локальное состояние bootstrap модели.
+
 ## Offline-safe runtime
 - Команды `omni_add.py`, `omni_search.py`, `omni_import.py` теперь по умолчанию загружают модель из `.omnimem_models/`.
 - Если локальная директория модели отсутствует, OmniMem сначала пытается восстановить ее из локального Hugging Face cache.
@@ -64,6 +71,8 @@ python3 omni_doctor.py --json
 ## Использование вручную
 - **Показать версию:** `python3 omni_search.py --version`
 - **Doctor:** `python3 omni_doctor.py`
+- **Проверить обновления:** `python3 omni_update.py --check`
+- **Обновить этот клон:** `python3 omni_update.py`
 - **Bootstrap model:** `python3 omni_bootstrap.py`
 - **Добавить текст:** `python3 omni_add.py "Пароль сервера 123"`
 - **Импортировать файл:** `python3 omni_import.py my_design.pdf`
