@@ -1,4 +1,4 @@
-# OmniMem v1.8.2 - Bộ Não CLI Tối Ưu Cho Retrieval 🧠
+# OmniMem v1.8.3 - Bộ Não CLI Tối Ưu Cho Retrieval 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -139,7 +139,7 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - **Bypass search service để debug:** `./omnimem search "mật khẩu" --direct`
 - **Reindex theo direct path:** `./omnimem reindex --direct`
 - **Chỉ tìm PDF đã import:** `./omnimem search "invoice" --mime-type application/pdf`
-- **Dọn dẹp DB:** `./omnimem delete --wipe-all`
+- **Xóa sạch DB:** `./omnimem delete --wipe-all --force`
 
 ## Script cũ vẫn dùng được
 - `python3 omni_add.py "Mật khẩu là 123"`
@@ -148,7 +148,7 @@ Hãy ưu tiên launcher của repo khi dùng clone mode vì nó tự chọn `ven
 - `python3 omni_import.py tai_lieu.pdf --direct`
 - `python3 omni_search.py "mật khẩu" --full`
 - `python3 omni_search.py "mật khẩu" --direct`
-- `python3 omni_del.py --wipe-all`
+- `python3 omni_del.py --wipe-all --force`
 - `python3 omni_doctor.py`
 - `python3 omni_ops.py backup`
 - `python3 omni_ops.py export`

@@ -171,6 +171,11 @@ class TestWriteService(unittest.TestCase):
 
             def _fake_replace(records, **kwargs):
                 captured["records"] = records
+                FakePersistentClient.stores[db_path]["omnimem_core"] = FakeCollection(
+                    FakePersistentClient(db_path),
+                    "omnimem_core",
+                    list(records),
+                )
                 return {"status": "ok", "replaced": len(records)}
 
             fake_service = types.SimpleNamespace(

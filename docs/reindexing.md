@@ -29,6 +29,7 @@ Behavior:
 - each group is reconstructed and rechunked using the current strategy
 - non-import memories are preserved as-is
 - a JSON export backup is created automatically before mutation unless you disable it
+- after writing, OmniMem verifies the rebuilt collection before reporting success
 
 ## Backup behavior
 

@@ -1,6 +1,6 @@
 # Warm Runtime Service
 
-OmniMem v1.8.2 uses a local warm runtime service so repeated `search`, `add`, `import`, and `reindex` commands do not need to rebuild the embedding model on every invocation.
+OmniMem v1.8.3 uses a local warm runtime service so repeated `search`, `add`, `import`, and `reindex` commands do not need to rebuild the embedding model on every invocation.
 
 ## Why it exists
 
@@ -17,6 +17,8 @@ If the service is not already running, OmniMem will:
 3. Send the runtime request over HTTP
 
 If the service cannot be reached, OmniMem falls back to the one-shot direct path so the command still works.
+
+If a service is already running but is bound to a different runtime than the current CLI invocation, OmniMem now refuses to reuse it and falls back to the direct path. This avoids accidental cross-runtime writes when `OMNIMEM_HOME` or DB paths differ.
 
 ## Commands
 
@@ -47,3 +49,4 @@ If the service cannot be reached, OmniMem falls back to the one-shot direct path
 - The first service-backed command still pays the warmup cost once.
 - Subsequent search/add/import/reindex calls reuse the already-loaded model and are much faster.
 - `--direct` is useful for debugging or benchmarking the old per-process path.
+- The health endpoint now includes runtime identity metadata so clients can detect service/DB mismatches.

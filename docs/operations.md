@@ -45,6 +45,21 @@ Behavior:
 - export restore recreates the Chroma collection and re-adds documents with their saved metadata and ids
 - `--force` is required when the target already contains data
 
+## Delete
+
+Delete specific records, whole sources, or wipe the collection:
+
+```bash
+./omnimem delete --id <memory-id>
+./omnimem delete --source notes.md
+./omnimem delete --wipe-all --force
+```
+
+Notes:
+
+- `--wipe-all` now requires either interactive confirmation or `--force`
+- non-interactive runs fail cleanly instead of crashing when confirmation is unavailable
+
 ## Standalone script
 
 The same operations are available through:

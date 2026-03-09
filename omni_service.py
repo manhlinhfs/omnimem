@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib import error, request
 
 from omni_config import get_search_service_settings as get_config_search_service_settings
-from omni_paths import SOURCE_ROOT, get_runtime_home
+from omni_paths import SOURCE_ROOT, get_db_dir, get_models_root, get_runtime_home
 from omni_search_core import OmniRuntime
 from omni_version import add_version_argument, get_version_banner
 
@@ -60,6 +60,7 @@ class _SearchServiceHandler(BaseHTTPRequestHandler):
                 "version": get_version_banner(),
                 "host": getattr(self.server, "service_host", DEFAULT_SERVICE_HOST),
                 "port": getattr(self.server, "service_port", DEFAULT_SERVICE_PORT),
+                "runtime": getattr(self.server, "runtime_signature", {}),
             }
         )
 
@@ -160,6 +161,25 @@ def _build_service_url(host, port, path):
     return f"http://{host}:{port}{path}"
 
 
+def _get_runtime_signature(root_dir=SOURCE_ROOT):
+    resolved_root = Path(root_dir).expanduser().resolve()
+    return {
+        "root_dir": str(resolved_root),
+        "runtime_home": str(get_runtime_home(root_dir=resolved_root)),
+        "db_dir": str(get_db_dir(root_dir=resolved_root)),
+        "models_dir": str(get_models_root(root_dir=resolved_root)),
+    }
+
+
+def _runtime_signature_matches(expected, actual):
+    if not actual:
+        return False
+    for key, value in expected.items():
+        if str(actual.get(key, "")) != str(value):
+            return False
+    return True
+
+
 def _request_json(method, url, payload=None, timeout_seconds=DEFAULT_REQUEST_TIMEOUT_SECONDS):
     body = None
     headers = {}
@@ -240,6 +260,7 @@ def ensure_search_service(root_dir=SOURCE_ROOT, host=None, port=None):
 
     host = host or settings["host"]
     port = int(port or settings["port"])
+    expected_runtime = _get_runtime_signature(root_dir=root_dir)
     status = inspect_search_service(
         host=host,
         port=port,
@@ -247,6 +268,14 @@ def ensure_search_service(root_dir=SOURCE_ROOT, host=None, port=None):
         root_dir=root_dir,
     )
     if status["reachable"]:
+        actual_runtime = (status.get("detail") or {}).get("runtime") or {}
+        if not _runtime_signature_matches(expected_runtime, actual_runtime):
+            raise SearchServiceUnavailable(
+                "Search service runtime mismatch: "
+                f"expected db_dir={expected_runtime['db_dir']}, "
+                f"got db_dir={actual_runtime.get('db_dir', 'unknown')}. "
+                "Restart the service for this runtime or use --direct."
+            )
         return {
             "status": "ready",
             "host": host,
@@ -387,6 +416,7 @@ def run_search_service(host=None, port=None, quiet=False, root_dir=SOURCE_ROOT):
     runtime = OmniRuntime(root_dir=root_dir)
     server = _SearchServiceServer((host, port), _SearchServiceHandler)
     server.runtime = runtime
+    server.runtime_signature = _get_runtime_signature(root_dir=root_dir)
     server.quiet = quiet
     server.service_host = host
     server.service_port = port

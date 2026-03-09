@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from omni_reindex import reindex_collection
+from omni_reindex import ReindexError, reindex_collection
 
 
 class FakeCollection:
@@ -174,6 +174,64 @@ class TestOmniReindex(unittest.TestCase):
 
             self.assertEqual(report["status"], "dry_run")
             self.assertEqual(FakePersistentClient.stores[db_path]["omnimem_core"].items[0]["id"], "import-1")
+
+    def test_reindex_fails_when_post_write_verification_detects_mismatch(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "repo"
+            root.mkdir()
+            (root / ".git").mkdir()
+            db_path = str(root / ".omnimem_db")
+            collection = FakeCollection(
+                None,
+                "omnimem_core",
+                [
+                    {
+                        "id": "note-1",
+                        "document": "plain note",
+                        "metadata": {
+                            "source": "user_input",
+                            "timestamp": "2026-03-06T12:00:00.000000",
+                            "record_kind": "note",
+                        },
+                    },
+                    {
+                        "id": "import-1",
+                        "document": "Paragraph one.",
+                        "metadata": {
+                            "source": "guide.md",
+                            "timestamp": "2026-03-06T12:00:01.000000",
+                            "record_kind": "import_chunk",
+                            "chunk_index": 0,
+                            "mime_type": "text/markdown",
+                        },
+                    },
+                ],
+            )
+            FakePersistentClient.stores[db_path] = {"omnimem_core": collection}
+            collection._client = FakePersistentClient(db_path)
+            fake_chromadb = types.SimpleNamespace(PersistentClient=FakePersistentClient)
+            fake_embeddings = types.SimpleNamespace(build_embedding_function=lambda: "ef")
+
+            class CorruptingRuntime:
+                def __init__(self, root_dir):
+                    self.root_dir = root_dir
+
+                def replace_core_records(self, records, batch_size=100):
+                    broken = list(records) + [
+                        {
+                            "id": "unexpected-extra",
+                            "document": "extra record",
+                            "metadata": {"record_kind": "import_chunk", "source": "guide.md"},
+                        }
+                    ]
+                    broken_collection = FakeCollection(FakePersistentClient(db_path), "omnimem_core", broken)
+                    FakePersistentClient.stores[db_path]["omnimem_core"] = broken_collection
+                    return {"replaced": len(records)}
+
+            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_embeddings": fake_embeddings}):
+                with patch("omni_reindex.OmniRuntime", CorruptingRuntime):
+                    with self.assertRaises(ReindexError):
+                        reindex_collection(root_dir=root, skip_backup=True)
 
 
 if __name__ == "__main__":

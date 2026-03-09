@@ -1,4 +1,4 @@
-# OmniMem v1.8.2 - The Retrieval-Tuned CLI Brain 🧠
+# OmniMem v1.8.3 - The Retrieval-Tuned CLI Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -137,7 +137,7 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - **Bypass the warm service for debugging:** `./omnimem search "password" --direct`
 - **Reindex directly without the warm service:** `./omnimem reindex --direct`
 - **Search imported PDFs only:** `./omnimem search "invoice" --mime-type application/pdf`
-- **Delete:** `./omnimem delete --wipe-all`
+- **Delete everything:** `./omnimem delete --wipe-all --force`
 
 ## Legacy standalone scripts
 - `python3 omni_add.py "Server password is 123"`
@@ -146,7 +146,7 @@ Use the repo launchers for clone mode because they prefer the local `venv` autom
 - `python3 omni_import.py my_design.pdf --direct`
 - `python3 omni_search.py "password" --full`
 - `python3 omni_search.py "password" --direct`
-- `python3 omni_del.py --wipe-all`
+- `python3 omni_del.py --wipe-all --force`
 - `python3 omni_doctor.py`
 - `python3 omni_ops.py backup`
 - `python3 omni_ops.py export`

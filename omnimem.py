@@ -45,8 +45,7 @@ def handle_import(args):
 def handle_delete(args):
     from omni_del import delete_memory
 
-    delete_memory(doc_id=args.id, source=args.source, wipe_all=args.wipe_all)
-    return 0
+    return delete_memory(doc_id=args.id, source=args.source, wipe_all=args.wipe_all, force=args.force)
 
 
 def handle_doctor(args):
@@ -280,6 +279,11 @@ def build_parser():
         "--wipe-all",
         action="store_true",
         help="Completely wipe the OmniMem core",
+    )
+    delete_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Skip confirmation for destructive actions",
     )
     delete_parser.set_defaults(handler=handle_delete)
 

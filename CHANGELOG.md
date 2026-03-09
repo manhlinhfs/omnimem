@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.8.3
+- Added safe `--force` handling for `delete --wipe-all` so non-interactive automation fails cleanly instead of crashing on `EOFError`
+- Added post-write reindex verification so `reindex` now validates the rebuilt collection state before reporting success
+- Hardened the warm local service health check with runtime identity metadata so commands no longer reuse a service bound to a different `OMNIMEM_HOME` / DB runtime
+- Expanded tests for destructive delete safety, reindex verification mismatches, and service runtime isolation
+
 ## v1.8.2
 - Extended the warm local runtime service so `add`, `import`, and `reindex` can reuse the already-loaded embedding model instead of rebuilding it in each CLI process
 - Updated `omni_add.py`, `omni_import.py`, and `omni_reindex.py` plus the unified CLI to prefer the service-backed path by default while keeping `--direct` escape hatches

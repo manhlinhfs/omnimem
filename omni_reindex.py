@@ -1,4 +1,5 @@
 import argparse
+from collections import Counter
 import datetime
 import json
 import sys
@@ -169,6 +170,31 @@ def plan_reindex(items, source=None):
     }
 
 
+def _verify_collection_state(root_dir, expected_records):
+    import chromadb
+
+    client = chromadb.PersistentClient(path=str(get_db_dir(root_dir=root_dir)))
+    try:
+        collection = client.get_collection(name=COLLECTION_NAME)
+    except Exception as exc:
+        if _is_missing_collection_error(exc):
+            raise ReindexError("Post-reindex verification failed: collection is missing after replace.") from exc
+        raise
+
+    actual_items = _read_collection_items(collection)
+    expected_ids = [str(record["id"]) for record in expected_records]
+    actual_ids = [str(item["id"]) for item in actual_items]
+    if Counter(actual_ids) != Counter(expected_ids):
+        missing_ids = list((Counter(expected_ids) - Counter(actual_ids)).elements())
+        unexpected_ids = list((Counter(actual_ids) - Counter(expected_ids)).elements())
+        raise ReindexError(
+            "Post-reindex verification failed: "
+            f"expected {len(expected_ids)} records but found {len(actual_ids)}. "
+            f"Missing IDs: {missing_ids[:5]}. Unexpected IDs: {unexpected_ids[:5]}."
+        )
+    return {"verified_records_after": len(actual_items)}
+
+
 def reindex_collection(
     source=None,
     dry_run=False,
@@ -239,6 +265,7 @@ def reindex_collection(
         runtime.replace_core_records(plan["all_records"])
         report["ingest_mode"] = "direct"
 
+    report.update(_verify_collection_state(root_dir=root_dir, expected_records=plan["all_records"]))
     report["status"] = "reindexed"
     report["collection_name"] = COLLECTION_NAME
     return report
@@ -251,6 +278,8 @@ def print_human_report(report):
     print(f"Matched import chunks: {report['matched_import_chunks']}")
     print(f"Records before: {report['total_records_before']}")
     print(f"Records after: {report['total_records_after']}")
+    if report.get("verified_records_after") is not None:
+        print(f"Verified records after: {report['verified_records_after']}")
     if report.get("source"):
         print(f"Source filter: {report['source']}")
     if report.get("backup_output"):
