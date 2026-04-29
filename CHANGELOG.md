@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.1 - Adoption And Onboarding
+
+A docs and UX patch on top of v1.2.0; no breaking changes, no runtime semantics changed.
+
+- Added `QUICKSTART.md` (top-level, focused on the 60-second path) and `TROUBLESHOOTING.md` (common failures + fixes)
+- Added `docs/faq.md` covering "is this offline?", "how does this differ from Mem0 / Basic Memory / MemPalace?", "note vs document?", and friends
+- Added `omni_quickstart.py` and the `omnimem quickstart` CLI subcommand: an interactive wizard that detects installed agent CLIs, installs the rule block + MCP registration + lifecycle hooks, seeds a welcome note, and prints concrete next steps. Pass `--yes` for non-interactive runs (e.g. from `install.sh`)
+- Added `install.sh` one-line installer that clones the repo, runs `setup.sh`, and points users at `omnimem quickstart`
+- Added `CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/{bug_report,feature_request,question}.md`
+- README rewritten so the Quickstart block sits at the very top
+- Tests: `tests/test_quickstart.py` (7 cases) covering agent detection, init plumbing, welcome-note seeding, and the no-detected-agent path
+
 ## v1.2.0 - Initial Public Release
 
 OmniMem 1.2.0 is the first public release of the offline-first second-brain CLI for AI coding agents.

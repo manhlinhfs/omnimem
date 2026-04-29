@@ -1,6 +1,14 @@
-# OmniMem v1.2.0 - The CLI Second Brain 🧠
+# OmniMem v1.2.1 - The CLI Second Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
+
+> **Quickstart in 60 seconds.** [`QUICKSTART.md`](QUICKSTART.md) shows the fastest path for Claude Code / Codex CLI / Gemini CLI / Cursor users.
+>
+> ```bash
+> git clone https://github.com/manhlinhfs/omnimem.git && cd omnimem
+> ./setup.sh
+> ./omnimem quickstart        # interactive: detect agents, install, seed welcome note
+> ```
 
 OmniMem is an LLM-agnostic, multimodal second brain running purely in the terminal. It gives any AI coding agent (Claude Code, Codex CLI, Gemini CLI, Cursor, Cline, OpenClaw) six things in one CLI:
 

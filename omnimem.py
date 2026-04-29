@@ -458,6 +458,29 @@ def handle_init(args):
         return 1
 
 
+def handle_quickstart(args):
+    from omni_quickstart import run as run_quickstart
+
+    as_json = getattr(args, "json", False)
+    report = run_quickstart(
+        assume_yes=args.yes,
+        install_hooks=not args.skip_hooks,
+        seed_note=not args.skip_seed,
+    )
+    if as_json:
+        import copy
+
+        printable = copy.deepcopy(report)
+        if printable.get("welcome_note"):
+            printable["welcome_note"] = {
+                "slug": printable["welcome_note"].get("slug"),
+                "id": printable["welcome_note"].get("id"),
+                "path": printable["welcome_note"].get("path"),
+            }
+        print(json.dumps(printable, ensure_ascii=False, indent=2))
+    return 0
+
+
 def handle_redact(args):
     from omni_redact import detect_secrets, redact
 
@@ -1029,6 +1052,28 @@ def build_parser():
     hook_parser.add_argument("--dry-run", action="store_true")
     hook_parser.add_argument("--json", action="store_true")
     hook_parser.set_defaults(handler=handle_hook)
+
+    quickstart_parser = subparsers.add_parser(
+        "quickstart",
+        help="Interactive wizard to wire OmniMem into your agent CLIs",
+    )
+    quickstart_parser.add_argument(
+        "--yes",
+        action="store_true",
+        help="Accept every default; install for every supported agent without prompting",
+    )
+    quickstart_parser.add_argument(
+        "--skip-hooks",
+        action="store_true",
+        help="Don't install Claude/Codex lifecycle hooks",
+    )
+    quickstart_parser.add_argument(
+        "--skip-seed",
+        action="store_true",
+        help="Don't create a welcome note in the vault",
+    )
+    quickstart_parser.add_argument("--json", action="store_true", help="Emit a machine-readable report")
+    quickstart_parser.set_defaults(handler=handle_quickstart)
 
     redact_parser = subparsers.add_parser(
         "redact",
