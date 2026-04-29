@@ -1,4 +1,4 @@
-# OmniMem v1.2.1 - The CLI Second Brain 🧠
+# OmniMem v1.2.2 - The CLI Second Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 

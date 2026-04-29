@@ -4,6 +4,11 @@ This roadmap is intentionally conservative: each minor release should have one m
 
 ## Completed
 
+### v1.2.2 - Benchmark Isolation Fix And Translated Docs
+- `benchmarks.common.isolated_omnimem_home` now writes a tmp `omnimem.json` and exports `OMNIMEM_CONFIG` so benchmarks never touch the user's real ChromaDB / models / vault
+- `tests/test_bench_isolation.py` regression suite (5 cases)
+- `README_vi.md` and `README_ru.md` rewritten from v1.8.3 stubs to mirror the v1.2.x English README
+
 ### v1.2.1 - Adoption And Onboarding
 - `QUICKSTART.md`, `TROUBLESHOOTING.md`, `docs/faq.md`
 - `omnimem quickstart` interactive wizard with `--yes` non-interactive mode
