@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.2 - Benchmark Isolation Fix And Translated Docs
+
+A patch release. No CLI surface changes; user-visible behavior is unchanged.
+
+- Fixed `benchmarks.common.isolated_omnimem_home`: the context manager now also writes a fresh `omnimem.json` into the tmp directory and exports `OMNIMEM_CONFIG`, so a benchmark with the user's repo-local `omnimem.json` no longer falls back to the user's real ChromaDB / models / vault. Pre-fix, the env var override only neutralised `OMNIMEM_HOME` and any pinned `db_dir` in the config file slipped through; benchmarks could write into the user's real notes collection.
+- Added `tests/test_bench_isolation.py` (5 cases) as a regression guard for the isolation contract: env vars overridden, temp config file created, runtime helpers resolve to the tmp paths, env vars restored on exit, tmpdir removed on exit.
+- Rewrote `README_vi.md` (Vietnamese) and `README_ru.md` (Russian) — they had been left at v1.8.3. They now mirror the v1.2.x English README structure: Quickstart block, six features, core architecture, install modes (clone, package, one-line installer), per-CLI integration cheat sheet, common commands, vault layout, and full docs index.
+- README headline bumped to v1.2.2.
+
 ## v1.2.1 - Adoption And Onboarding
 
 A docs and UX patch on top of v1.2.0; no breaking changes, no runtime semantics changed.

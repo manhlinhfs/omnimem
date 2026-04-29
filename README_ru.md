@@ -1,173 +1,149 @@
-# OmniMem v1.8.3 - CLI-Мозг, Настроенный Под Retrieval 🧠
+# OmniMem v1.2.1 - CLI «Второй Мозг» 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
-OmniMem — это мультимодальная система RAG (Retrieval-Augmented Generation), независимая от конкретных LLM, работающая полностью в терминале. Она действует как «Второй Мозг» (Second Brain) для любого AI-агента или помощника программиста (Claude Code, Gemini CLI, Cursor, Cline, OpenClaw).
+> **Установка за 60 секунд.** [`QUICKSTART.md`](QUICKSTART.md) показывает самый быстрый путь для пользователей Claude Code / Codex CLI / Gemini CLI / Cursor.
+>
+> ```bash
+> git clone https://github.com/manhlinhfs/omnimem.git && cd omnimem
+> ./setup.sh
+> ./omnimem quickstart        # интерактивно: обнаружить агенты, установить, создать welcome-заметку
+> ```
 
-Она позволяет вашему ИИ читать, извлекать и запоминать контекст из сложных форматов, таких как PDF, документы Word, исходный код и даже изображения (OCR).
+OmniMem — это мультимодальный «второй мозг», LLM-агностик, работающий полностью в терминале. Даёт любому AI-помощнику программиста (Claude Code, Codex CLI, Gemini CLI, Cursor, Cline, OpenClaw) **6 возможностей в одном CLI**:
 
-## Базовые Технологии
-- **Kreuzberg (Rust Core):** Быстрое извлечение Markdown и метаданных из более чем 56 форматов.
-- **ChromaDB:** Локальная векторная база данных, работающая полностью автономно (offline).
-- **SentenceTransformers:** Использует локальную bootstrapped-копию `all-MiniLM-L6-v2` для генерации эмбеддингов во время работы.
+1. **Document RAG** — ингестит PDF, Word, исходный код и OCR-картинки через Kreuzberg + ChromaDB.
+2. **Структурированные заметки** — заметки в стиле Zettelkasten в переносимом Markdown-хранилище с двунаправленными wiki-ссылками.
+3. **Codemap** — `omnimem codemap build` обходит репозиторий и пишет структурную карту для каждого исходного файла. Поддерживает Python (stdlib `ast`), JavaScript, TypeScript, Go и Rust через реестр парсеров, с записями отдельных символов в ChromaDB.
+4. **Интеграция одной командой** — `omnimem init --agent claude|codex|gemini|cursor|all` прописывает правило в файл инструкций агента + регистрирует MCP-сервер; `omnimem hook install --agent claude|codex|all` добавляет lifecycle-хуки для Claude Code и Codex CLI.
+5. **Объединённый поиск + временные запросы** — `omnimem search --all` ранжирует результаты из документов, заметок и codemap-символов вместе. `--at-date YYYY-MM-DD` восстанавливает состояние хранилища на конкретный день.
+6. **Canvas-экспорт + редакция секретов** — `omnimem note canvas` экспортирует граф заметок в формате Obsidian Canvas JSON. `omnimem redact` сканирует текст на токены AWS / GitHub / OpenAI / Anthropic, PEM-блоки, JWT и типичные шаблоны учётных данных.
+
+## Базовая архитектура
+
+- **Kreuzberg (Rust Core):** извлекает чистый Markdown и метаданные из 56+ форматов.
+- **ChromaDB:** локальная персистентная векторная БД, работающая полностью офлайн (коллекции `omnimem_core` для документов, `omnimem_notes` для заметок, `omnimem_codemap` для карт исходного кода).
+- **SentenceTransformers:** локальная копия `all-MiniLM-L6-v2`, забутстрапленная на диск, для embedding-ов в рантайме.
+- **MCP-сервер:** stdio Model Context Protocol сервер с шестью инспектируемыми инструментами.
+- **Markdown-хранилище:** переносимое дерево `vault/` под `OMNIMEM_HOME`, читаемое человеком и Obsidian-ом.
 
 ## Установка
 
 ### Linux / macOS
+
 ```bash
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
 chmod +x setup.sh
 ./setup.sh
+./omnimem quickstart
 ```
-`setup.sh` теперь ставит зависимости и загружает модель эмбеддингов в `.omnimem_models/`, чтобы runtime не зависел от сети.
+
+`setup.sh` устанавливает зависимости и скачивает embedding-модель в `.omnimem_models/`. `omnimem quickstart` — интерактивный мастер для подключения OmniMem к установленным CLI агентов.
 
 ### Windows (PowerShell)
+
 ```powershell
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
 .\setup.ps1
+.\omnimem quickstart
 ```
-`setup.ps1` выполняет тот же шаг bootstrap для Windows.
 
-### Режим package install
-```bash
-python3 -m pip install .
-omnimem --version
-```
-В режиме package install OmniMem хранит runtime-данные в user data directory, а не внутри `site-packages`, и предоставляет команду `omnimem` прямо в PATH.
+### Установка как пакет
 
-### Установка напрямую с GitHub
 ```bash
 python3 -m pip install "git+https://github.com/manhlinhfs/omnimem.git@main"
 omnimem --version
+omnimem quickstart
 ```
 
-### Ручной bootstrap модели
+### Однострочный установщик (Linux / macOS)
+
 ```bash
-python3 omni_bootstrap.py
+curl -fsSL https://raw.githubusercontent.com/manhlinhfs/omnimem/main/install.sh | bash
+~/.omnimem-cli/omnimem quickstart
 ```
-Используйте `--offline-only`, если нужно восстановить модель только из локального Hugging Face cache без доступа к сети.
 
-### Проверка состояния runtime
+## Интеграция с CLI агентов
+
+Для каждого агента — одна строка. Мастер `omnimem quickstart` делает всё сам, или вручную:
+
+| Агент | Команда |
+|---|---|
+| Claude Code | `./omnimem init --agent claude && ./omnimem hook install --agent claude` |
+| Codex CLI | `./omnimem init --agent codex && ./omnimem hook install --agent codex` |
+| Gemini CLI | `./omnimem init --agent gemini` |
+| Cursor | `./omnimem init --agent cursor` |
+| Все сразу | `./omnimem init --agent all && ./omnimem hook install --agent all` |
+
+Установщик **идемпотентен и обратим**:
+
 ```bash
-python3 omni_doctor.py
-python3 omni_doctor.py --deep
-python3 omni_doctor.py --json
+./omnimem init --status                          # посмотреть, что уже установлено
+./omnimem init --uninstall --agent claude        # удалить только размеченный блок
 ```
 
-### Настройка runtime-путей
+Подробности по каждому CLI — в [`docs/integrations/`](docs/integrations/).
+
+## Часто используемые команды
+
 ```bash
-cp omnimem.example.json omnimem.json
-./omnimem doctor
+# Заметки
+./omnimem note new "Почему выбрали FastAPI" --type decision --tags auth,backend
+./omnimem note search "fastapi"
+./omnimem note canvas vault.canvas               # экспорт графа заметок в Obsidian Canvas
+
+# Документы
+./omnimem import path/to/spec.pdf
+./omnimem search "rate limit" --all              # поиск через 3 коллекции сразу
+
+# Codemap
+./omnimem codemap build .
+./omnimem codemap query "TokenManager"
+
+# Безопасность
+echo "AKIA... ghp_..." | ./omnimem redact -      # обнаружить + замазать секреты
+
+# Эксплуатация
+./omnimem doctor                                  # health-check всего рантайма
+./omnimem backup                                  # снимок vault + DB + модели
+./omnimem hook --status                           # какие хуки сейчас установлены
 ```
-Изменяйте `omnimem.json`, чтобы перенести DB, model directory и операционные настройки без правки кода.
 
-### Обновление текущего клона
-```bash
-python3 omni_update.py --check
-python3 omni_update.py
+## Где живут файлы
+
 ```
-`omni_update.py` обновляет текущую ветку с fast-forward only семантикой, отказывается перезаписывать грязный worktree, переустанавливает зависимости при изменении `requirements.txt` и обновляет локальное состояние bootstrap модели.
-
-Для package install `omnimem update` не поддерживается; обновляйте через `pip`.
-
-### Backup, export и restore
-```bash
-./omnimem backup
-./omnimem export
-./omnimem restore /path/to/omnimem-backup.tar.gz
-./omnimem restore /path/to/omnimem-export.json --force
+$OMNIMEM_HOME/
+├── chroma/                 # векторная БД (офлайн)
+├── .omnimem_models/        # embedding-модель (забутстрапленная)
+└── vault/
+    ├── notes/              # Zettelkasten-markdown — совместимо с Obsidian
+    ├── conversations/      # импортированные транскрипты
+    ├── attachments/        # вспомогательные файлы
+    └── codemap/<repo>/     # структурные карты исходного кода
 ```
 
-### Reindex старых импортов новым chunker-ом
-```bash
-./omnimem reindex --dry-run
-./omnimem reindex
-```
-Это предназначено для пользователей, которые импортировали документы в старых версиях OmniMem и хотят перестроить DB под новую стратегию chunking.
+Значение `OMNIMEM_HOME` по умолчанию:
+- Linux: `~/.local/share/omnimem`
+- macOS: `~/Library/Application Support/omnimem`
+- Windows: `%LOCALAPPDATA%\omnimem`
 
-### Локальный warm search service
-```bash
-./omnimem serve --status
-./omnimem search "release notes" --full
-./omnimem search "release notes" --direct
-```
-Теперь `search`, `add`, `import` и `reindex` предпочитают локальный сервис, который держит embedding model и Chroma client в памяти между повторными командами. Первая команда через сервис все еще прогревает модель один раз, но последующие запросы уже обходят большую часть прежней startup-стоимости.
+Переопределить через переменную окружения `OMNIMEM_HOME` или в `omnimem.json`.
 
-## Offline-safe runtime
-- Команды `omni_add.py`, `omni_search.py`, `omni_import.py` теперь по умолчанию загружают модель из `.omnimem_models/`.
-- Если локальная директория модели отсутствует, OmniMem сначала пытается восстановить ее из локального Hugging Face cache.
-- Если модели все еще нет, OmniMem выводит явную инструкцию запустить `python3 omni_bootstrap.py` вместо непонятного traceback.
-- Устанавливайте `OMNIMEM_ALLOW_MODEL_DOWNLOAD=1` только если вы явно хотите разрешить runtime скачивать модель по требованию.
+## Документация
 
-## Как интегрировать с ИИ (Обязательный шаг)
+- [`QUICKSTART.md`](QUICKSTART.md) — самый быстрый путь для нового пользователя
+- [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) — типичные ошибки и решения
+- [`docs/notes.md`](docs/notes.md) — справочник CLI для модуля заметок
+- [`docs/codemap.md`](docs/codemap.md) — использование codemap и реестр парсеров
+- [`docs/hooks.md`](docs/hooks.md) — lifecycle-хуки для Claude Code + Codex CLI
+- [`docs/redact.md`](docs/redact.md) — таблица паттернов и применение redaction
+- [`docs/benchmarks.md`](docs/benchmarks.md) — числа по retrieval / latency / parser accuracy
+- [`docs/faq.md`](docs/faq.md) — офлайн?, vs Mem0?, заметка или документ?, и др.
+- [`docs/integrations/`](docs/integrations/) — детальная настройка для каждого CLI агента
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — как контрибьютить в проект
 
-Чтобы ваш ИИ-агент (например, Claude или Cursor) научился использовать эту память, вы ОБЯЗАТЕЛЬНО должны вставить следующие правила в его **Custom Instructions** (пользовательские инструкции) или файл System Prompt:
+## Лицензия
 
-```markdown
-## Протокол OmniMem (Second Brain)
-1. **ВСЕГДА ИСКАТЬ СНАЧАЛА:** Прежде чем писать код или решать сложную задачу, ВЫ ОБЯЗАНЫ выполнить: `[OMNIMEM_PATH]/omnimem search "ваш запрос" --full`, чтобы найти контекст. Обязательно используйте флаг `--full` для чтения всего текста. Вы также можете использовать `--json` для вывода в формате JSON.
-2. **ВСЕГДА ИМПОРТИРОВАТЬ ДОКУМЕНТЫ:** Когда пользователь просит вас прочитать или запомнить сложный файл (PDF, DOCX, код, изображение), выполните: `[OMNIMEM_PATH]/omnimem import <путь_к_файлу>` для извлечения данных через Kreuzberg.
-3. **СОХРАНЯТЬ ЭТАПЫ:** После устранения критической ошибки или завершения этапа выполните: `[OMNIMEM_PATH]/omnimem add "краткое резюме"`, чтобы сохранить контекст для будущих сессий.
-```
-*(Примечание: Замените `[OMNIMEM_PATH]` на абсолютный путь к вашей директории omnimem, например `/root/omnimem` или `C:\omnimem`)*
-Если OmniMem установлен как package и `omnimem` уже доступен в PATH, можно использовать просто `omnimem` вместо `[OMNIMEM_PATH]/omnimem`.
-Старые скрипты `omni_*.py` по-прежнему доступны при необходимости.
-
-## Единый CLI (рекомендуется)
-Для clone mode используйте launcher-скрипты из репозитория: они автоматически предпочитают локальный `venv`. На Windows используйте `.\omnimem.ps1` или `.\omnimem.bat` из корня репозитория. В package mode используйте установленную команду `omnimem`.
-
-- **Показать версию:** `python3 omnimem.py --version`
-- **Показать версию через launcher:** `./omnimem --version`
-- **Показать версию через установленный package:** `omnimem --version`
-- **Doctor:** `./omnimem doctor`
-- **Проверить обновления:** `./omnimem update --check`
-- **Обновить этот клон:** `./omnimem update`
-- **Bootstrap model:** `./omnimem bootstrap`
-- **Backup runtime:** `./omnimem backup`
-- **Export memories:** `./omnimem export`
-- **Restore runtime:** `./omnimem restore /path/to/file`
-- **Reindex импортов:** `./omnimem reindex`
-- **Проверить search service:** `./omnimem serve --status`
-- **Добавить текст:** `./omnimem add "Пароль сервера 123"`
-- **Добавить текст по direct path:** `./omnimem add "Пароль сервера 123" --direct`
-- **Импортировать файл:** `./omnimem import my_design.pdf`
-- **Импортировать файл по direct path:** `./omnimem import my_design.pdf --direct`
-- **Поиск:** `./omnimem search "пароль" --full`
-- **Поиск с фильтрами:** `./omnimem search "release" --source omnimem --since 2026-03-06`
-- **Обойти warm service для отладки:** `./omnimem search "пароль" --direct`
-- **Reindex по direct path:** `./omnimem reindex --direct`
-- **Искать только импортированные PDF:** `./omnimem search "invoice" --mime-type application/pdf`
-- **Удалить всё:** `./omnimem delete --wipe-all --force`
-
-## Старые standalone-скрипты все еще работают
-- `python3 omni_add.py "Пароль сервера 123"`
-- `python3 omni_add.py "Пароль сервера 123" --direct`
-- `python3 omni_import.py my_design.pdf`
-- `python3 omni_import.py my_design.pdf --direct`
-- `python3 omni_search.py "пароль" --full`
-- `python3 omni_search.py "пароль" --direct`
-- `python3 omni_del.py --wipe-all --force`
-- `python3 omni_doctor.py`
-- `python3 omni_ops.py backup`
-- `python3 omni_ops.py export`
-- `python3 omni_ops.py restore /path/to/file`
-- `python3 omni_reindex.py --dry-run`
-- `python3 omni_reindex.py`
-- `python3 omni_reindex.py --direct`
-- `python3 omni_update.py --check`
-
-## Для разработки
-- **Запустить тесты:** `python3 -m unittest discover -s tests -v`
-- **Собрать package:** `python3 -m build`
-- **Посмотреть release notes:** `CHANGELOG.md`
-- **Посмотреть roadmap:** `ROADMAP.md`
-- **Прочитать docs по install modes:** `docs/install-modes.md`
-- **Прочитать docs по configuration:** `docs/configuration.md`
-- **Прочитать docs по operations:** `docs/operations.md`
-- **Прочитать docs по chunking:** `docs/chunking.md`
-- **Прочитать docs по reindexing:** `docs/reindexing.md`
-- **Прочитать docs по search filters:** `docs/search-filters.md`
-- **Прочитать docs по search service:** `docs/search-service.md`
-- **Следовать release checklist:** `docs/release-checklist.md`
+MIT.
