@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.3 - Windows Hook Path Quoting Fix
+
+A patch release for a Windows-specific bug discovered on the live install.
+
+- **Bug**: hook commands stored in `~/.claude/settings.json` (and the equivalent Codex / MCP entries) used `sys.executable` directly. On Windows that returns a backslash path like `C:\Users\foo\venv\Scripts\python.exe`. JSON serialization preserves the backslashes, but Claude Code passes the command string through `bash -c`, where each backslash is interpreted as a shell escape and silently consumed — so the path becomes `C:Usersfoovenv...` and the Stop hook fails with `command not found`.
+- **Fix**: `omni_hooks._omnimem_command()` and `omni_init._detect_omnimem_command()` now emit POSIX-style forward slashes. Python on Windows accepts forward-slash paths natively, and bash leaves them alone.
+- **Cleanup**: re-running `omnimem init --agent <agent>` and `omnimem hook install --agent <agent>` rewrites the existing entries in place. Anyone hit by the bug just needs to re-run the install commands.
+- Added `tests/test_hook_path_quoting.py` (5 cases): `_omnimem_command()` rewrites Windows backslashes, leaves POSIX paths untouched, falls back to `python` when `sys.executable` is empty; `_detect_omnimem_command()` does the same; `install_claude_hooks()` end-to-end never lets a backslash leak into the python part of the command string.
+
 ## v1.2.2 - Benchmark Isolation Fix And Translated Docs
 
 A patch release. No CLI surface changes; user-visible behavior is unchanged.

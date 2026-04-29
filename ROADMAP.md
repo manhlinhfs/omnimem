@@ -4,6 +4,10 @@ This roadmap is intentionally conservative: each minor release should have one m
 
 ## Completed
 
+### v1.2.3 - Windows Hook Path Quoting Fix
+- `omni_hooks._omnimem_command()` and `omni_init._detect_omnimem_command()` emit POSIX forward slashes so hook commands survive `bash -c` on Windows
+- `tests/test_hook_path_quoting.py` regression suite (5 cases)
+
 ### v1.2.2 - Benchmark Isolation Fix And Translated Docs
 - `benchmarks.common.isolated_omnimem_home` now writes a tmp `omnimem.json` and exports `OMNIMEM_CONFIG` so benchmarks never touch the user's real ChromaDB / models / vault
 - `tests/test_bench_isolation.py` regression suite (5 cases)
