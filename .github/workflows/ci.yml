@@ -42,6 +42,7 @@ jobs:
             omni_hooks.py \
             omni_canvas.py \
             omni_redact.py \
+            omni_quickstart.py \
             benchmarks/__init__.py \
             benchmarks/common.py \
             benchmarks/bench_codemap_accuracy.py \

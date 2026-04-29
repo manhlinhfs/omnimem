@@ -4,6 +4,12 @@ This roadmap is intentionally conservative: each minor release should have one m
 
 ## Completed
 
+### v1.2.1 - Adoption And Onboarding
+- `QUICKSTART.md`, `TROUBLESHOOTING.md`, `docs/faq.md`
+- `omnimem quickstart` interactive wizard with `--yes` non-interactive mode
+- `install.sh` one-line installer
+- `CONTRIBUTING.md` and GitHub issue templates
+
 ### v1.2.0 - Initial Public Release
 - Document RAG (`omnimem add` / `import` / `search`)
 - Structured notes module with Markdown vault and `omnimem_notes` ChromaDB collection
@@ -17,11 +23,10 @@ This roadmap is intentionally conservative: each minor release should have one m
 
 ## Planned
 
-### v1.3.0 - Adoption And Quality (tentative)
-- README rewritten as a landing page with quick install, demo GIF, and 30-second value prop
-- `omnimem doctor --quickstart` interactive first-run guide
-- Issue templates and `CONTRIBUTING.md` so external contributors can land changes
+### v1.3.0 - Adoption stretch goals (tentative)
+- Demo GIF / animated walkthrough embedded in README
 - Automated end-to-end harness that drives Claude Code in CI to verify `init` + `hook install` flows actually result in tool calls
+- Publish to PyPI so `pipx install omnimem` works
 
 ### v1.4.0 - Retrieval Quality
 - Hybrid search (BM25 + vector) so recall@1 stops being chance-level on duplicate-topic corpora
