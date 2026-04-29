@@ -4,6 +4,11 @@ This roadmap is intentionally conservative: each minor release should have one m
 
 ## Completed
 
+### v1.2.4 - README Cleanup For v1.2.x Surface
+- README sections from "Core Architecture" downward rewritten so they describe the v1.2.x CLI accurately (note / codemap / init / hook / mcp / quickstart / redact / federated `--all` / `--at-date` / `note canvas`)
+- Outdated "How to integrate with AI Agents" manual prompt-injection section replaced with a one-command-install flow keyed on `omnimem quickstart` / `omnimem init` / `omnimem hook install`
+- "Documentation" section added covering QUICKSTART / TROUBLESHOOTING / FAQ / per-feature docs / per-CLI integrations / CONTRIBUTING
+
 ### v1.2.3 - Windows Hook Path Quoting Fix
 - `omni_hooks._omnimem_command()` and `omni_init._detect_omnimem_command()` emit POSIX forward slashes so hook commands survive `bash -c` on Windows
 - `tests/test_hook_path_quoting.py` regression suite (5 cases)

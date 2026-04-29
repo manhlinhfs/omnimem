@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.2.4 - README Cleanup For v1.2.x Surface
+
+A documentation patch — no runtime code changes.
+
+The README from "Core Architecture" downward was last touched in the v1.8.x era and had drifted significantly from the v1.2.x CLI surface. v1.2.4 rewrites the affected sections so the README documents what the binary actually does today.
+
+- **Replaced** `## How to integrate with AI Agents (Crucial Step)` (manual prompt-injection of three rules) with `## How to wire OmniMem into your agent CLI` documenting `omnimem quickstart`, `omnimem init --agent ...`, and `omnimem hook install`. The injected protocol now correctly describes MCP-tools-first, CLI-fallback, and references `note_search` / `note_new` / `search_all` / etc.
+- **Rewrote** `## Unified CLI Usage` from a 14-bullet flat list into a topic-grouped reference covering all 20 subcommands: setup/diagnostics, documents (with `--all` and `--at-date` examples), notes (12 verbs + canvas), codemap, init, hook, mcp, redact, vault round-trip, and config. Replaced the unfortunate `"Server password is 123"` example with a non-credential one.
+- **Replaced** `## Legacy standalone scripts` flat bullet list with a code-block reference plus a clear note that note / codemap / init / hook / mcp / quickstart / redact are unified-CLI-only.
+- **Renamed** `## Development` to split into `## Documentation` (user-facing + contributor-facing index across QUICKSTART / TROUBLESHOOTING / FAQ / notes / codemap / hooks / redact / benchmarks / integrations / CONTRIBUTING) and `## Development` (test / benchmark / build commands plus reference docs).
+- **Clarified** the `Installation` section: added the one-line installer block, made the `omnimem quickstart` follow-up explicit in every install mode, and documented that `<OMNIMEM_HOME>/.omnimem_models/` is in the OS user-data dir (not inside the repo).
+- **Clarified** `## Offline-safe runtime`: model dir lives in `OMNIMEM_HOME`, not the repo; HF cache fallback behavior; `OMNIMEM_ALLOW_MODEL_DOWNLOAD` semantics.
+- README headline bumped to v1.2.4.
+
 ## v1.2.3 - Windows Hook Path Quoting Fix
 
 A patch release for a Windows-specific bug discovered on the live install.
