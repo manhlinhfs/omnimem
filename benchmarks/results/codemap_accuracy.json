@@ -1,0 +1,116 @@
+{
+  "tool": "omnimem-bench-codemap-accuracy",
+  "languages": {
+    "python": {
+      "expected": [
+        "Gamma",
+        "Gamma.__init__",
+        "Gamma.emit",
+        "alpha",
+        "beta"
+      ],
+      "captured": [
+        "Gamma",
+        "Gamma.__init__",
+        "Gamma.emit",
+        "alpha",
+        "beta"
+      ],
+      "true_positive": 5,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "javascript": {
+      "expected": [
+        "Widget",
+        "arrow",
+        "helper"
+      ],
+      "captured": [
+        "Widget",
+        "arrow",
+        "helper"
+      ],
+      "true_positive": 3,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "typescript": {
+      "expected": [
+        "Callback",
+        "Color",
+        "Service",
+        "User",
+        "login"
+      ],
+      "captured": [
+        "Callback",
+        "Color",
+        "Service",
+        "User",
+        "login"
+      ],
+      "true_positive": 5,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "go": {
+      "expected": [
+        "Handler",
+        "Handler.ServeHTTP",
+        "Logger",
+        "New"
+      ],
+      "captured": [
+        "Handler",
+        "Handler.ServeHTTP",
+        "Logger",
+        "New"
+      ],
+      "true_positive": 4,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "rust": {
+      "expected": [
+        "Config",
+        "Renderer",
+        "Status",
+        "new",
+        "render",
+        "run"
+      ],
+      "captured": [
+        "Config",
+        "Renderer",
+        "Status",
+        "new",
+        "render",
+        "run"
+      ],
+      "true_positive": 6,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  },
+  "aggregate": {
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "macro_f1": 1.0
+  }
+}

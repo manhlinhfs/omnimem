@@ -1,0 +1,8 @@
+include CHANGELOG.md
+include ROADMAP.md
+include README.md
+include README_vi.md
+include README_ru.md
+include omnimem.example.json
+recursive-include docs *.md
+recursive-include tests *.py

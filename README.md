@@ -1,0 +1,180 @@
+# OmniMem v1.2.0 - The CLI Second Brain 🧠
+
+[Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
+
+OmniMem is an LLM-agnostic, multimodal second brain running purely in the terminal. It gives any AI coding agent (Claude Code, Codex CLI, Gemini CLI, Cursor, Cline, OpenClaw) six things in one CLI:
+
+1. **Document RAG** — ingest PDFs, Word files, source code, and OCR images via Kreuzberg + ChromaDB.
+2. **Structured notes** — Zettelkasten-style notes in a portable Markdown vault with bi-directional wikilinks.
+3. **Codemap** — `omnimem codemap build` walks a repo and writes a structural map per source file. Supports Python (stdlib `ast`), JavaScript, TypeScript, Go, and Rust via the parser registry, with per-symbol records in ChromaDB.
+4. **One-command integration** — `omnimem init --agent claude|codex|gemini|cursor|all` wires OmniMem into each agent's instructions file and MCP config; `omnimem hook install --agent claude|codex|all` adds lifecycle hooks for both Claude Code and Codex CLI.
+5. **Federated search + temporal queries** — `omnimem search --all` ranks results from imported documents, structured notes, and codemap symbols together. `--at-date YYYY-MM-DD` reconstructs the state of the vault as of a given day.
+6. **Canvas export + secret redaction** — `omnimem note canvas` exports the note graph as Obsidian Canvas JSON. `omnimem redact` scans text for AWS / GitHub / OpenAI / Anthropic tokens, PEM blocks, JWTs, and the obvious credential shapes.
+
+## Core Architecture
+- **Kreuzberg (Rust Core):** Ingests and extracts clean Markdown and metadata from 56+ file formats.
+- **ChromaDB:** A persistent, local Vector Database running entirely offline on your hard drive (collections: `omnimem_core` for documents, `omnimem_notes` for structured notes, `omnimem_codemap` for source maps).
+- **SentenceTransformers:** Uses a bootstrapped local copy of `all-MiniLM-L6-v2` for generating embeddings at runtime.
+- **MCP server:** Stdio Model Context Protocol server with six introspectable tools.
+- **Markdown vault:** A portable `vault/` tree under `OMNIMEM_HOME` that any human can read/edit (Obsidian-friendly).
+
+## Installation
+
+### Linux / macOS
+```bash
+git clone https://github.com/manhlinhfs/omnimem.git
+cd omnimem
+chmod +x setup.sh
+./setup.sh
+```
+`setup.sh` now installs dependencies and downloads the embedding model into `.omnimem_models/` so runtime stays offline-safe.
+
+### Windows (PowerShell)
+```powershell
+git clone https://github.com/manhlinhfs/omnimem.git
+cd omnimem
+.\setup.ps1
+```
+`setup.ps1` performs the same bootstrap step for Windows users.
+
+### Package install mode
+```bash
+python3 -m pip install .
+omnimem --version
+```
+Package installs place runtime data in a user data directory instead of `site-packages`, and they expose `omnimem` directly on your PATH.
+
+### Install directly from GitHub
+```bash
+python3 -m pip install "git+https://github.com/manhlinhfs/omnimem.git@main"
+omnimem --version
+```
+
+### Bootstrap the embedding model manually
+```bash
+python3 omni_bootstrap.py
+```
+Use `--offline-only` to restore from the local Hugging Face cache without hitting the network.
+
+### Inspect runtime health
+```bash
+python3 omni_doctor.py
+python3 omni_doctor.py --deep
+python3 omni_doctor.py --json
+```
+
+### Configure runtime paths and behavior
+```bash
+cp omnimem.example.json omnimem.json
+./omnimem doctor
+```
+Edit `omnimem.json` to move the DB/model directories or change operational settings without editing code.
+
+### Update an existing clone
+```bash
+python3 omni_update.py --check
+python3 omni_update.py
+```
+`omni_update.py` updates the current tracked branch with fast-forward only semantics, refuses to overwrite a dirty worktree, reinstalls dependencies when `requirements.txt` changes, and refreshes the local model bootstrap state.
+
+Package installs do not support `omnimem update`; reinstall or upgrade them with `pip` instead.
+
+### Backup, export, and restore
+```bash
+./omnimem backup
+./omnimem export
+./omnimem restore /path/to/omnimem-backup.tar.gz
+./omnimem restore /path/to/omnimem-export.json --force
+```
+
+### Reindex older imports with the new chunker
+```bash
+./omnimem reindex --dry-run
+./omnimem reindex
+```
+This is intended for users who imported files on older OmniMem releases and want to rebuild their DB with the current chunking strategy.
+
+### Warm local search service
+```bash
+./omnimem serve --status
+./omnimem search "release notes" --full
+./omnimem search "release notes" --direct
+```
+`search`, `add`, `import`, and `reindex` now prefer a local service that keeps the embedding model and Chroma client warm across repeated commands. The first service-backed command still warms the model once; subsequent commands reuse it and avoid most of the previous startup cost.
+
+## Offline-safe runtime
+- Runtime commands (`omni_add.py`, `omni_search.py`, `omni_import.py`) now load embeddings from `.omnimem_models/` by default.
+- If the local model directory is missing, OmniMem first tries to restore it from the local Hugging Face cache.
+- If the model is still missing, OmniMem fails with a direct instruction to run `python3 omni_bootstrap.py` instead of crashing in the middle of a request.
+- Set `OMNIMEM_ALLOW_MODEL_DOWNLOAD=1` only if you explicitly want runtime to download the model on demand.
+
+## How to integrate with AI Agents (Crucial Step)
+
+To give your AI Agent the ability to use OmniMem, you MUST inject the following rules into their **Custom Instructions** or **System Prompt** (e.g., in `.gemini/GEMINI.md`, or Claude's `.claude/settings.json`, or Cursor's Rules for AI):
+
+```markdown
+## OmniMem Protocol (Second Brain)
+1. **ALWAYS Search First:** Before answering complex project questions, you MUST run the command: `[OMNIMEM_PATH]/omnimem search "your query" --full` to fetch context. Use `--full` to read the entire text without truncation. You can also use `--json` for structured data parsing.
+2. **ALWAYS Import Docs:** When the user asks you to read or remember a complex file (PDF, DOCX, Image, Code), run: `[OMNIMEM_PATH]/omnimem import <file_path>` to ingest it via Kreuzberg.
+3. **Save Milestones:** After resolving a major issue, run: `[OMNIMEM_PATH]/omnimem add "brief summary"` to save the context for your future sessions.
+```
+*(Note: Replace `[OMNIMEM_PATH]` with the absolute path to your cloned omnimem directory, e.g., `/root/omnimem` or `C:\omnimem`)*
+If you installed OmniMem as a package and `omnimem` is already on your PATH, you can use plain `omnimem` instead of `[OMNIMEM_PATH]/omnimem`.
+Legacy `omni_*.py` scripts remain available when you need them.
+
+## Unified CLI Usage
+Use the repo launchers for clone mode because they prefer the local `venv` automatically. On Windows, use `.\omnimem.ps1` or `.\omnimem.bat` from the repo root. In package mode, use the installed `omnimem` command directly.
+
+- **Show version:** `python3 omnimem.py --version`
+- **Show version via launcher:** `./omnimem --version`
+- **Show version via installed package:** `omnimem --version`
+- **Doctor:** `./omnimem doctor`
+- **Check for updates:** `./omnimem update --check`
+- **Update this clone:** `./omnimem update`
+- **Bootstrap model:** `./omnimem bootstrap`
+- **Backup runtime:** `./omnimem backup`
+- **Export memories:** `./omnimem export`
+- **Restore runtime:** `./omnimem restore /path/to/file`
+- **Reindex imported docs:** `./omnimem reindex`
+- **Search service status:** `./omnimem serve --status`
+- **Add text:** `./omnimem add "Server password is 123"`
+- **Add text directly without the warm service:** `./omnimem add "Server password is 123" --direct`
+- **Import file:** `./omnimem import my_design.pdf`
+- **Import file directly without the warm service:** `./omnimem import my_design.pdf --direct`
+- **Search:** `./omnimem search "password" --full`
+- **Search with filters:** `./omnimem search "release" --source omnimem --since 2026-03-06`
+- **Bypass the warm service for debugging:** `./omnimem search "password" --direct`
+- **Reindex directly without the warm service:** `./omnimem reindex --direct`
+- **Search imported PDFs only:** `./omnimem search "invoice" --mime-type application/pdf`
+- **Delete everything:** `./omnimem delete --wipe-all --force`
+
+## Legacy standalone scripts
+- `python3 omni_add.py "Server password is 123"`
+- `python3 omni_add.py "Server password is 123" --direct`
+- `python3 omni_import.py my_design.pdf`
+- `python3 omni_import.py my_design.pdf --direct`
+- `python3 omni_search.py "password" --full`
+- `python3 omni_search.py "password" --direct`
+- `python3 omni_del.py --wipe-all --force`
+- `python3 omni_doctor.py`
+- `python3 omni_ops.py backup`
+- `python3 omni_ops.py export`
+- `python3 omni_ops.py restore /path/to/file`
+- `python3 omni_reindex.py --dry-run`
+- `python3 omni_reindex.py`
+- `python3 omni_reindex.py --direct`
+- `python3 omni_update.py --check`
+
+## Development
+- **Run tests:** `python3 -m unittest discover -s tests -v`
+- **Build package:** `python3 -m build`
+- **Read release notes:** `CHANGELOG.md`
+- **Read the roadmap:** `ROADMAP.md`
+- **Read install mode docs:** `docs/install-modes.md`
+- **Read configuration docs:** `docs/configuration.md`
+- **Read operations docs:** `docs/operations.md`
+- **Read chunking docs:** `docs/chunking.md`
+- **Read reindexing docs:** `docs/reindexing.md`
+- **Read search filter docs:** `docs/search-filters.md`
+- **Read search service docs:** `docs/search-service.md`
+- **Follow release gates:** `docs/release-checklist.md`

@@ -1,0 +1,17 @@
+{
+  "home": "/absolute/path/to/omnimem-runtime",
+  "db_dir": "/absolute/path/to/omnimem-db",
+  "models_dir": "/absolute/path/to/omnimem-models",
+  "allow_model_download": false,
+  "async_extract_timeout_seconds": 20,
+  "chunk_target_tokens": 420,
+  "chunk_overlap_tokens": 70,
+  "code_chunk_target_tokens": 260,
+  "code_chunk_overlap_tokens": 40,
+  "ocr_chunk_target_tokens": 320,
+  "ocr_chunk_overlap_tokens": 90,
+  "search_service_enabled": true,
+  "search_service_port": 41733,
+  "search_service_startup_timeout_seconds": 20,
+  "search_service_request_timeout_seconds": 10
+}
