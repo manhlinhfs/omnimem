@@ -189,9 +189,17 @@ def uninstall_mcp_config(agent, scope=DEFAULT_SCOPE, base_home=None, base_cwd=No
 
 
 def _detect_omnimem_command():
-    """Return command + args needed to launch the OmniMem MCP server."""
+    """Return command + args needed to launch the OmniMem MCP server.
+
+    Always emit POSIX-style forward slashes in the path so the entry survives
+    JSON / TOML round-tripping. Some agent CLIs invoke MCP servers via a shell
+    on Windows; bash interprets backslashes as escapes and silently strips
+    them, turning `C:\\Users\\foo\\python.exe` into `C:Usersfoopython.exe`.
+    Python on Windows accepts forward slashes natively, so this is safe.
+    """
+    raw = sys.executable or "python"
     return {
-        "command": sys.executable or "python",
+        "command": raw.replace("\\", "/"),
         "args": ["-m", "omnimem", "mcp", "serve"],
     }
 

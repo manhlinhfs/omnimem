@@ -28,7 +28,16 @@ def _home():
 
 
 def _omnimem_command():
-    return sys.executable or "python"
+    """Return the Python interpreter path in a shell-safe form.
+
+    Hook commands are stored in JSON config files. Claude Code and Codex CLI
+    on Windows pass them through `bash -c`, which interprets backslashes as
+    escape characters and silently strips them. So `C:\\Users\\foo\\python.exe`
+    becomes `C:Usersfoopython.exe`. We always emit POSIX-style forward slashes
+    — Python on Windows accepts them natively, and bash leaves them alone.
+    """
+    raw = sys.executable or "python"
+    return raw.replace("\\", "/")
 
 
 def _omnimem_args(*extra):
