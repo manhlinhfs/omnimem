@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.2.6 - Stdin UTF-8 And Hook Docs Sync
+
+A small follow-up patch covering two Windows-hygiene issues that surfaced
+when using v1.2.5 from a fresh shell.
+
+### Fixed
+
+- **`note new --body -` crashed on non-ASCII heredoc input on Windows**
+  (`UnicodeEncodeError: '\\udc8d' surrogates not allowed`). v1.2.5
+  reconfigured stdout/stderr to UTF-8 but missed stdin, so heredoc bytes
+  still hit the cp1252 + `surrogateescape` decoder and produced
+  surrogates that `Path.write_text(encoding="utf-8")` then refused.
+  `_force_utf8_streams` now reconfigures all three standard streams.
+- **Docs referenced an `install` subcommand that doesn't exist.** Every
+  README / QUICKSTART / docs page wrote `omnimem hook install --agent
+  claude`; the CLI has no positional `install` (installation is the
+  default behavior of the `hook` subcommand). Users following the docs
+  hit `argparse: unrecognized arguments: install`. Replaced across
+  README (3 langs), QUICKSTART, docs/{hooks,codemap,benchmarks,faq}.md,
+  one argparse help string, and the `omni_hooks` / `omni_quickstart`
+  comments. CHANGELOG + ROADMAP historical entries were left as-is.
+
+### CI
+
+- Multi-OS matrix now lives on `main`. Every push / PR runs
+  `ubuntu-latest` × `windows-latest` × `macos-latest` × Python `3.10` /
+  `3.11` / `3.12`. v1.2.6 is the first release verified across all 9
+  cells before being tagged.
+
+### Internal
+
+- New `tests/test_stdin_utf8.py` (3 cases) pins the stdin / stdout /
+  stderr UTF-8 reconfigure contract — all three streams, plus the
+  no-reconfigure-method and reconfigure-failure escape paths.
+
 ## v1.2.5 - Cross-Platform Defaults, Warm-Service Coverage, MCP Performance
 
 A maintenance release that lands seven weeks of fixes covering correctness on
