@@ -1,6 +1,6 @@
 # OmniMem Lifecycle Hooks
 
-`omnimem hook install` wires OmniMem into an agent CLI's lifecycle so the agent doesn't have to remember to call OmniMem on every turn. v1.2 supports Claude Code (`~/.claude/settings.json`) and Codex CLI (`~/.codex/config.toml`).
+`omnimem hook` wires OmniMem into an agent CLI's lifecycle so the agent doesn't have to remember to call OmniMem on every turn. v1.2 supports Claude Code (`~/.claude/settings.json`) and Codex CLI (`~/.codex/config.toml`).
 
 ## Supported events (Claude Code)
 
@@ -15,7 +15,7 @@ Each entry is tagged with `"tag": "omnimem-v1"` inside the hook so reinstalling 
 ## Install
 
 ```bash
-omnimem hook install --agent claude
+omnimem hook --agent claude
 ```
 
 This writes (or updates) `~/.claude/settings.json` `hooks` section with all default events.
@@ -23,13 +23,13 @@ This writes (or updates) `~/.claude/settings.json` `hooks` section with all defa
 To install only a subset:
 
 ```bash
-omnimem hook install --agent claude --event SessionStart --event Stop
+omnimem hook --agent claude --event SessionStart --event Stop
 ```
 
 To install for the current project only:
 
 ```bash
-omnimem hook install --agent claude --scope project
+omnimem hook --agent claude --scope project
 ```
 
 ## Status
@@ -83,7 +83,7 @@ command = "..."
 Install / uninstall with:
 
 ```bash
-omnimem hook install --agent codex
+omnimem hook --agent codex
 omnimem hook --uninstall --agent codex
 ```
 
@@ -92,7 +92,7 @@ If your Codex version expects different hook section names or schema, edit the b
 ## Install for both agents
 
 ```bash
-omnimem hook install --agent all
+omnimem hook --agent all
 omnimem hook --status
 omnimem hook --uninstall --agent all
 ```

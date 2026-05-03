@@ -190,9 +190,9 @@ def run(
                     )
                     out.write(f"  {_tick(out)} Installed hooks for {len(hook_results)} agent(s).\n")
                 except Exception as exc:
-                    out.write(f"  {_cross(out)} hook install failed: {exc}\n")
+                    out.write(f"  {_cross(out)} hook installation failed: {exc}\n")
             else:
-                out.write("Skipped hook install.\n")
+                out.write("Skipped hook installation.\n")
 
     welcome_record = None
     if seed_note:

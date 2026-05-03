@@ -15,7 +15,7 @@ OmniMem là "bộ não thứ hai" multimodal, LLM-agnostic, chạy hoàn toàn t
 1. **Document RAG** — ingest PDF, Word, source code và ảnh OCR qua Kreuzberg + ChromaDB.
 2. **Note có cấu trúc** — note kiểu Zettelkasten trong vault Markdown portable, có wikilink hai chiều.
 3. **Codemap** — `omnimem codemap build` quét repo, viết structural map cho từng source file. Hỗ trợ Python (stdlib `ast`), JavaScript, TypeScript, Go và Rust qua parser registry, có per-symbol record trong ChromaDB.
-4. **Tích hợp một lệnh** — `omnimem init --agent claude|codex|gemini|cursor|all` ghi rule vào instructions file của từng agent + đăng ký MCP server; `omnimem hook install --agent claude|codex|all` thêm lifecycle hook cho Claude Code và Codex CLI.
+4. **Tích hợp một lệnh** — `omnimem init --agent claude|codex|gemini|cursor|all` ghi rule vào instructions file của từng agent + đăng ký MCP server; `omnimem hook --agent claude|codex|all` thêm lifecycle hook cho Claude Code và Codex CLI.
 5. **Federated search + truy vấn theo thời gian** — `omnimem search --all` xếp hạng kết quả từ documents, structured notes, và codemap symbols cùng nhau. `--at-date YYYY-MM-DD` tái dựng trạng thái vault tại một ngày cụ thể.
 6. **Canvas export + redact secret** — `omnimem note canvas` xuất note graph dạng Obsidian Canvas JSON. `omnimem redact` quét text tìm AWS / GitHub / OpenAI / Anthropic token, PEM key, JWT, và các chuỗi credential phổ biến.
 
@@ -71,11 +71,11 @@ Mỗi agent một dòng. Wizard `omnimem quickstart` lo hết, hoặc làm tay:
 
 | Agent | Lệnh |
 |---|---|
-| Claude Code | `./omnimem init --agent claude && ./omnimem hook install --agent claude` |
-| Codex CLI | `./omnimem init --agent codex && ./omnimem hook install --agent codex` |
+| Claude Code | `./omnimem init --agent claude && ./omnimem hook --agent claude` |
+| Codex CLI | `./omnimem init --agent codex && ./omnimem hook --agent codex` |
 | Gemini CLI | `./omnimem init --agent gemini` |
 | Cursor | `./omnimem init --agent cursor` |
-| Cài hết một lượt | `./omnimem init --agent all && ./omnimem hook install --agent all` |
+| Cài hết một lượt | `./omnimem init --agent all && ./omnimem hook --agent all` |
 
 Installer **idempotent và reversible**:
 

@@ -20,7 +20,7 @@ If you'd rather wire one specific CLI by hand:
 
 ```bash
 ./omnimem init --agent claude
-./omnimem hook install --agent claude
+./omnimem hook --agent claude
 # Restart Claude Code. The omnimem_* tools should appear in `/mcp`.
 ```
 
@@ -28,7 +28,7 @@ If you'd rather wire one specific CLI by hand:
 
 ```bash
 ./omnimem init --agent codex
-./omnimem hook install --agent codex
+./omnimem hook --agent codex
 # Restart Codex. AGENTS.md is read on session start.
 ```
 
@@ -50,7 +50,7 @@ If you'd rather wire one specific CLI by hand:
 
 ```bash
 ./omnimem init --agent all
-./omnimem hook install --agent all
+./omnimem hook --agent all
 ```
 
 The installer is **idempotent and reversible**:

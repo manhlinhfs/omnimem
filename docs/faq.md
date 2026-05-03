@@ -2,7 +2,7 @@
 
 ## Is this really offline?
 
-Yes. After `setup.sh` bootstraps the embedding model, every command (`add`, `import`, `note`, `search`, `codemap`, `mcp serve`, `init`, `hook install`) runs without network access. ChromaDB lives on your disk, the embedding model lives in `$OMNIMEM_HOME/.omnimem_models/`, and Kreuzberg parses files locally.
+Yes. After `setup.sh` bootstraps the embedding model, every command (`add`, `import`, `note`, `search`, `codemap`, `mcp serve`, `init`, `hook`) runs without network access. ChromaDB lives on your disk, the embedding model lives in `$OMNIMEM_HOME/.omnimem_models/`, and Kreuzberg parses files locally.
 
 The only network step is the initial model download (~22MB for `all-MiniLM-L6-v2`). After that, you can `unplug` the network and OmniMem still works.
 

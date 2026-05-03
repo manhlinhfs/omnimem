@@ -15,7 +15,7 @@ OmniMem is an LLM-agnostic, multimodal second brain running purely in the termin
 1. **Document RAG** — ingest PDFs, Word files, source code, and OCR images via Kreuzberg + ChromaDB.
 2. **Structured notes** — Zettelkasten-style notes in a portable Markdown vault with bi-directional wikilinks.
 3. **Codemap** — `omnimem codemap build` walks a repo and writes a structural map per source file. Supports Python (stdlib `ast`), JavaScript, TypeScript, Go, and Rust via the parser registry, with per-symbol records in ChromaDB.
-4. **One-command integration** — `omnimem init --agent claude|codex|gemini|cursor|all` wires OmniMem into each agent's instructions file and MCP config; `omnimem hook install --agent claude|codex|all` adds lifecycle hooks for both Claude Code and Codex CLI.
+4. **One-command integration** — `omnimem init --agent claude|codex|gemini|cursor|all` wires OmniMem into each agent's instructions file and MCP config; `omnimem hook --agent claude|codex|all` adds lifecycle hooks for both Claude Code and Codex CLI.
 5. **Federated search + temporal queries** — `omnimem search --all` ranks results from imported documents, structured notes, and codemap symbols together. `--at-date YYYY-MM-DD` reconstructs the state of the vault as of a given day.
 6. **Canvas export + secret redaction** — `omnimem note canvas` exports the note graph as Obsidian Canvas JSON. `omnimem redact` scans text for AWS / GitHub / OpenAI / Anthropic tokens, PEM blocks, JWTs, and the obvious credential shapes.
 
@@ -131,7 +131,7 @@ This is intended for users who imported files on older OmniMem releases and want
 
 ## How to wire OmniMem into your agent CLI
 
-**Prefer the one-command install** — `omnimem init` writes the rule block, registers the MCP server, and (with `omnimem hook install`) sets up lifecycle hooks. No manual prompt editing required.
+**Prefer the one-command install** — `omnimem init` writes the rule block, registers the MCP server, and (with `omnimem hook`) sets up lifecycle hooks. No manual prompt editing required.
 
 ### Recommended: interactive wizard
 
@@ -144,18 +144,18 @@ This is intended for users who imported files on older OmniMem releases and want
 
 | Agent | Command |
 |---|---|
-| Claude Code | `./omnimem init --agent claude && ./omnimem hook install --agent claude` |
-| Codex CLI | `./omnimem init --agent codex && ./omnimem hook install --agent codex` |
+| Claude Code | `./omnimem init --agent claude && ./omnimem hook --agent claude` |
+| Codex CLI | `./omnimem init --agent codex && ./omnimem hook --agent codex` |
 | Gemini CLI | `./omnimem init --agent gemini` |
 | Cursor | `./omnimem init --agent cursor` |
-| All four | `./omnimem init --agent all && ./omnimem hook install --agent all` |
+| All four | `./omnimem init --agent all && ./omnimem hook --agent all` |
 
 What `init` does:
 - Writes a marked rule block (`<!-- OMNIMEM:START v1.2 -->` ... `<!-- OMNIMEM:END -->`) into the agent's instructions file (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, or `.cursor/rules/omnimem.mdc`). Existing content is preserved.
 - Registers the OmniMem MCP server in the agent's MCP config (`mcp.json` for Claude Code / Cursor, `settings.json` for Gemini, `config.toml` for Codex).
 - Idempotent: re-running replaces only the marked block. Reversible: `./omnimem init --uninstall --agent <agent>` strips it cleanly.
 
-What `hook install` does (Claude Code + Codex CLI only):
+What `omnimem hook` does (Claude Code + Codex CLI only):
 - `SessionStart` → injects the most recent notes so the agent has fresh project context.
 - `Stop` → lists today's notes so the agent reflects on what was just completed.
 - `PostToolUse` (Edit / Write / MultiEdit) → triggers `omnimem note reindex` so any edited markdown re-syncs into ChromaDB.
