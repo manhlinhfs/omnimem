@@ -45,7 +45,7 @@ chmod +x setup.sh
 ./setup.sh
 ./omnimem quickstart
 ```
-`setup.sh` installs dependencies and downloads the embedding model. The model lives at `<OMNIMEM_HOME>/.omnimem_models/` (default `~/.local/share/omnimem/.omnimem_models/` on Linux, `~/Library/Application Support/omnimem/.omnimem_models/` on macOS) — **not inside the repo**.
+`setup.sh` installs dependencies and downloads the embedding model. The model lives at `<OMNIMEM_HOME>/.omnimem_models/` (default `~/.omnimem/.omnimem_models/`) — **not inside the repo**.
 
 ### Windows (PowerShell)
 ```powershell
@@ -54,7 +54,7 @@ cd omnimem
 .\setup.ps1
 .\omnimem quickstart
 ```
-`setup.ps1` performs the same bootstrap on Windows. Runtime data lives at `%LOCALAPPDATA%\omnimem\` by default. The launcher `.\omnimem.bat` works from `cmd.exe` too.
+`setup.ps1` performs the same bootstrap on Windows. Runtime data lives at `~/.omnimem/` by default (same as Linux/macOS). The launcher `.\omnimem.bat` works from `cmd.exe` too.
 
 ### Package install mode
 ```bash

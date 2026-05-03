@@ -208,12 +208,19 @@ def resolve_runtime_config(
         home = _coerce_path(payload.get("home"))
         home_setting = _setting("home", home, config_label)
     else:
-        if install_mode_report["mode"] == "package_install":
-            home = Path(user_data_root).expanduser() if user_data_root is not None else get_default_user_data_root()
-            source = "default:package_install"
-        else:
+        if install_mode_report["mode"] == "source_tree":
+            # Source-tree without git metadata: keep data inside the checkout
+            # so unusual embedded / vendored deployments behave predictably.
+            # All other install modes (git_clone, package_install) share the
+            # same neutral user-data location.
             home = Path(root_dir).expanduser().resolve()
-            source = f"default:{install_mode_report['mode']}"
+        else:
+            home = (
+                Path(user_data_root).expanduser()
+                if user_data_root is not None
+                else get_default_user_data_root()
+            )
+        source = f"default:{install_mode_report['mode']}"
         home_setting = _setting("home", home, source)
 
     if overrides.get("db_dir") is not None:

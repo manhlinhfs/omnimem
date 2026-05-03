@@ -42,11 +42,7 @@ OmniMem checks config files in this order:
 2. `omnimem.json` in the repo root for git-clone or source-tree installs
 3. The user config file for package installs or shared user config
 
-Default user config paths:
-
-- Linux: `~/.config/omnimem/config.json`
-- macOS: `~/Library/Application Support/omnimem/config.json`
-- Windows: `%APPDATA%\\omnimem\\config.json`
+Default user config path: `~/.omnimem/config.json` on every OS. Override the location with `OMNIMEM_CONFIG_HOME` (directory) or `OMNIMEM_CONFIG` (full path).
 
 ## Environment variables
 

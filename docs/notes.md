@@ -14,7 +14,7 @@ $OMNIMEM_HOME/
     └── attachments/          # binary files referenced by notes
 ```
 
-`$OMNIMEM_HOME` defaults to `~/.local/share/omnimem` on Linux, `~/Library/Application Support/omnimem` on macOS, or `%LOCALAPPDATA%\omnimem` on Windows. Override with the `OMNIMEM_HOME` environment variable or in `omnimem.json`.
+`$OMNIMEM_HOME` defaults to `~/.omnimem` on every OS. Override with the `OMNIMEM_HOME` environment variable or in `omnimem.json`.
 
 ## Frontmatter schema
 
