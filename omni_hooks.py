@@ -11,6 +11,8 @@ import re
 import sys
 from pathlib import Path
 
+from omni_paths import SOURCE_ROOT
+
 OMNIMEM_HOOK_TAG = "omnimem-v1"
 SUPPORTED_AGENTS = ("claude", "codex")
 DEFAULT_EVENTS = ("SessionStart", "Stop", "PostToolUse")
@@ -82,7 +84,7 @@ def _hook_recipe(event):
             "hooks": [
                 {
                     "type": "command",
-                    "command": _format_command(_omnimem_args("note", "reindex")),
+                    "command": _format_command(_omnimem_args("hook", "--gated-reindex")),
                     "tag": OMNIMEM_HOOK_TAG,
                 }
             ],
@@ -218,7 +220,7 @@ def _codex_recipe(events):
     """
     args = " ".join(_quote(part) for part in [_omnimem_command(), *_omnimem_args("note", "list", "--limit", "5", "--json")])
     reindex_args = " ".join(
-        _quote(part) for part in [_omnimem_command(), *_omnimem_args("note", "reindex")]
+        _quote(part) for part in [_omnimem_command(), *_omnimem_args("hook", "--gated-reindex")]
     )
 
     block_lines = [CODEX_BLOCK_START]
@@ -385,3 +387,74 @@ def _normalize_codex_event(event):
         "PostToolUse": "post_tool_use",
     }
     return mapping.get(event, event)
+
+
+def _extract_file_path(payload):
+    """Best-effort: pull a file path out of a hook payload from Claude or Codex."""
+    if not isinstance(payload, dict):
+        return None
+    tool_input = payload.get("tool_input")
+    if isinstance(tool_input, dict):
+        path = tool_input.get("file_path") or tool_input.get("path")
+        if path:
+            return path
+    data = payload.get("data")
+    if isinstance(data, dict):
+        path = data.get("file_path") or data.get("path")
+        if path:
+            return path
+    return payload.get("file_path") or payload.get("path")
+
+
+def _path_is_inside(child, parent):
+    try:
+        Path(child).expanduser().resolve().relative_to(
+            Path(parent).expanduser().resolve()
+        )
+    except (ValueError, OSError):
+        return False
+    return True
+
+
+def gated_reindex_from_stdin(stdin=None, root_dir=SOURCE_ROOT):
+    """Read a PostToolUse payload from stdin and reindex only when a vault
+    file was touched.
+
+    Without this gate, every Edit/Write/MultiEdit on any file in the agent's
+    working directory triggers a full notes reindex — which loads the
+    embedding model and rebuilds the whole `omnimem_notes` collection. On a
+    coding session that edits dozens of files, the cumulative latency is
+    measured in tens of seconds.
+
+    Returns a status dict so the caller can print/log it. Failures (no
+    payload, bad json, no file path, file outside the vault) are NOT errors
+    — they just mean "skip reindex".
+    """
+    stream = stdin if stdin is not None else sys.stdin
+    try:
+        raw = stream.read() if hasattr(stream, "read") else ""
+    except Exception as exc:
+        return {"acted": False, "reason": f"stdin error: {exc}"}
+
+    if not (raw or "").strip():
+        return {"acted": False, "reason": "empty stdin"}
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        return {"acted": False, "reason": f"invalid json: {exc}"}
+
+    file_path = _extract_file_path(payload)
+    if not file_path:
+        return {"acted": False, "reason": "no file_path in payload"}
+
+    from omni_vault import get_vault_root
+
+    vault_root = get_vault_root(root_dir=root_dir)
+    if not _path_is_inside(file_path, vault_root):
+        return {"acted": False, "reason": "file outside vault"}
+
+    from omni_note_index import reindex_all_notes
+
+    result = reindex_all_notes(root_dir=root_dir)
+    return {"acted": True, "file_path": str(file_path), "result": result}

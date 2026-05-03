@@ -575,10 +575,14 @@ def handle_codemap(args):
 
 
 def handle_hook(args):
-    from omni_hooks import HookError, install, status, uninstall
+    from omni_hooks import HookError, gated_reindex_from_stdin, install, status, uninstall
 
     as_json = getattr(args, "json", False)
     try:
+        if getattr(args, "gated_reindex", False):
+            report = gated_reindex_from_stdin()
+            _print(report, as_json)
+            return 0
         if args.status:
             _print(status(), as_json)
             return 0
@@ -1051,6 +1055,15 @@ def build_parser():
     hook_parser.add_argument("--status", action="store_true")
     hook_parser.add_argument("--dry-run", action="store_true")
     hook_parser.add_argument("--json", action="store_true")
+    hook_parser.add_argument(
+        "--gated-reindex",
+        action="store_true",
+        help=(
+            "Internal: read a PostToolUse hook payload from stdin and only "
+            "reindex notes when the touched file lives inside the vault. "
+            "Used by `hook install`'s recipe."
+        ),
+    )
     hook_parser.set_defaults(handler=handle_hook)
 
     quickstart_parser = subparsers.add_parser(
