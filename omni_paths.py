@@ -73,40 +73,17 @@ def get_default_user_data_root():
     override = os.getenv("OMNIMEM_HOME")
     if override:
         return Path(override).expanduser()
-
-    if os.name == "nt":
-        base = os.getenv("LOCALAPPDATA") or os.getenv("APPDATA")
-        if base:
-            return Path(base).expanduser() / "omnimem"
-        return Path.home() / "AppData" / "Local" / "omnimem"
-
-    if sys.platform == "darwin":
-        return Path.home() / "Library" / "Application Support" / "omnimem"
-
-    xdg_data_home = os.getenv("XDG_DATA_HOME")
-    if xdg_data_home:
-        return Path(xdg_data_home).expanduser() / "omnimem"
-    return Path.home() / ".local" / "share" / "omnimem"
+    # Single neutral location across all OSes. Trades XDG / AppData / Library
+    # convention for portability and ease of discovery — users find their
+    # vault, db, and models in one obvious place regardless of platform.
+    return Path.home() / ".omnimem"
 
 
 def get_default_user_config_root():
     override = os.getenv("OMNIMEM_CONFIG_HOME")
     if override:
         return Path(override).expanduser()
-
-    if os.name == "nt":
-        base = os.getenv("APPDATA") or os.getenv("LOCALAPPDATA")
-        if base:
-            return Path(base).expanduser() / "omnimem"
-        return Path.home() / "AppData" / "Roaming" / "omnimem"
-
-    if sys.platform == "darwin":
-        return Path.home() / "Library" / "Application Support" / "omnimem"
-
-    xdg_config_home = os.getenv("XDG_CONFIG_HOME")
-    if xdg_config_home:
-        return Path(xdg_config_home).expanduser() / "omnimem"
-    return Path.home() / ".config" / "omnimem"
+    return Path.home() / ".omnimem"
 
 
 def _resolve_runtime_config(root_dir=SOURCE_ROOT, site_roots=None, user_data_root=None):

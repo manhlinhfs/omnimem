@@ -124,12 +124,7 @@ $OMNIMEM_HOME/
     └── codemap/<repo>/     # structural map của source code
 ```
 
-Mặc định `OMNIMEM_HOME`:
-- Linux: `~/.local/share/omnimem`
-- macOS: `~/Library/Application Support/omnimem`
-- Windows: `%LOCALAPPDATA%\omnimem`
-
-Đè bằng env var `OMNIMEM_HOME` hoặc trong `omnimem.json`.
+Mặc định `OMNIMEM_HOME` = `~/.omnimem` trên mọi OS (Linux, macOS, Windows). Đè bằng env var `OMNIMEM_HOME` hoặc trong `omnimem.json`.
 
 ## Tài liệu
 

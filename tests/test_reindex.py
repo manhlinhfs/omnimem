@@ -125,6 +125,7 @@ class TestOmniReindex(unittest.TestCase):
             fake_chromadb = types.SimpleNamespace(PersistentClient=FakePersistentClient)
             fake_embeddings = types.SimpleNamespace(build_embedding_function=lambda: "ef")
             env = {
+                "OMNIMEM_HOME": str(root),
                 "OMNIMEM_CHUNK_TARGET_TOKENS": "12",
                 "OMNIMEM_CHUNK_OVERLAP_TOKENS": "4",
             }
@@ -172,7 +173,8 @@ class TestOmniReindex(unittest.TestCase):
             fake_embeddings = types.SimpleNamespace(build_embedding_function=lambda: "ef")
 
             with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_embeddings": fake_embeddings}):
-                report = reindex_collection(root_dir=root, dry_run=True, skip_backup=True)
+                with patch.dict(os.environ, {**os.environ, "OMNIMEM_HOME": str(root)}):
+                    report = reindex_collection(root_dir=root, dry_run=True, skip_backup=True)
 
             self.assertEqual(report["status"], "dry_run")
             self.assertEqual(FakePersistentClient.stores[db_path]["omnimem_core"].items[0]["id"], "import-1")
@@ -233,8 +235,9 @@ class TestOmniReindex(unittest.TestCase):
 
             with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_embeddings": fake_embeddings}):
                 with patch("omni_reindex.OmniRuntime", CorruptingRuntime):
-                    with self.assertRaises(ReindexError):
-                        reindex_collection(root_dir=root, skip_backup=True)
+                    with patch.dict(os.environ, {**os.environ, "OMNIMEM_HOME": str(root)}):
+                        with self.assertRaises(ReindexError):
+                            reindex_collection(root_dir=root, skip_backup=True)
 
 
 if __name__ == "__main__":

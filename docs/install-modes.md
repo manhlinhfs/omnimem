@@ -36,10 +36,7 @@ Characteristics:
 - The command is available as `omnimem`
 - `omnimem update` is not supported because installed packages are not tracked git clones
 
-Default runtime data locations for package installs:
-- Linux: `~/.local/share/omnimem/`
-- macOS: `~/Library/Application Support/omnimem/`
-- Windows: `%LOCALAPPDATA%\omnimem\`
+Default runtime data location: `~/.omnimem/` on every OS (Linux, macOS, Windows). Inside it you'll find `vault/`, `.omnimem_db/`, `.omnimem_models/`, and `config.json`.
 
 ## Environment overrides
 

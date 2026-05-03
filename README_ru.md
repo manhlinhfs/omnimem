@@ -124,12 +124,7 @@ $OMNIMEM_HOME/
     └── codemap/<repo>/     # структурные карты исходного кода
 ```
 
-Значение `OMNIMEM_HOME` по умолчанию:
-- Linux: `~/.local/share/omnimem`
-- macOS: `~/Library/Application Support/omnimem`
-- Windows: `%LOCALAPPDATA%\omnimem`
-
-Переопределить через переменную окружения `OMNIMEM_HOME` или в `omnimem.json`.
+Значение `OMNIMEM_HOME` по умолчанию: `~/.omnimem` на всех ОС (Linux, macOS, Windows). Переопределить через переменную окружения `OMNIMEM_HOME` или в `omnimem.json`.
 
 ## Документация
 

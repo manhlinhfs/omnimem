@@ -1,5 +1,6 @@
 import asyncio
 import io
+import os
 import sys
 import tempfile
 import types
@@ -185,7 +186,8 @@ class TestWriteService(unittest.TestCase):
             )
 
             with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_service": fake_service}):
-                report = reindex_collection(root_dir=root, skip_backup=True, prefer_service=True)
+                with patch.dict(os.environ, {**os.environ, "OMNIMEM_HOME": str(root)}):
+                    report = reindex_collection(root_dir=root, skip_backup=True, prefer_service=True)
 
         self.assertEqual(report["status"], "reindexed")
         self.assertEqual(report["ingest_mode"], "service")

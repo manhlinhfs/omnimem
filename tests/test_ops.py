@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import tempfile
 import types
@@ -65,6 +66,7 @@ class TestOmniOps(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "repo"
             root.mkdir()
+            root = root.resolve()
             (root / ".git").mkdir()
             db_file = root / ".omnimem_db" / "chroma.sqlite3"
             model_file = root / ".omnimem_models" / "all-MiniLM-L6-v2" / "config.json"
@@ -73,19 +75,35 @@ class TestOmniOps(unittest.TestCase):
             model_file.parent.mkdir(parents=True)
             db_file.write_text("db", encoding="utf-8")
             model_file.write_text("model", encoding="utf-8")
-            config_file.write_text(json.dumps({"db_dir": str(root / ".omnimem_db")}), encoding="utf-8")
+            config_file.write_text(
+                json.dumps(
+                    {
+                        "home": str(root),
+                        "db_dir": str(root / ".omnimem_db"),
+                        "models_dir": str(root / ".omnimem_models"),
+                    }
+                ),
+                encoding="utf-8",
+            )
 
-            report = create_backup(output_path=root / "snapshot.tar.gz", root_dir=root)
-            self.assertEqual(report["status"], "pass")
+            # Pin OMNIMEM_HOME so restore_backup, which runs after config_file
+            # is deleted below, still resolves db/models back into `root`
+            # rather than falling back to the user-data default.
+            with patch.dict(
+                os.environ,
+                {**os.environ, "OMNIMEM_HOME": str(root)},
+            ):
+                report = create_backup(output_path=root / "snapshot.tar.gz", root_dir=root)
+                self.assertEqual(report["status"], "pass")
 
-            db_file.unlink()
-            model_file.unlink()
-            config_file.unlink()
-            db_file.parent.rmdir()
-            model_file.parent.rmdir()
-            model_file.parent.parent.rmdir()
+                db_file.unlink()
+                model_file.unlink()
+                config_file.unlink()
+                db_file.parent.rmdir()
+                model_file.parent.rmdir()
+                model_file.parent.parent.rmdir()
 
-            restore_report = restore_backup(root / "snapshot.tar.gz", force=False, root_dir=root)
+                restore_report = restore_backup(root / "snapshot.tar.gz", force=False, root_dir=root)
             self.assertEqual(restore_report["restore_kind"], "backup")
             self.assertTrue(db_file.exists())
             self.assertTrue(model_file.exists())
@@ -101,6 +119,14 @@ class TestOmniOps(unittest.TestCase):
             restore_root = restore_root.resolve()
             (source_root / ".git").mkdir()
             (restore_root / ".git").mkdir()
+            # Pin home in each root's local config so resolve_runtime_config
+            # uses these tmp dirs instead of the user-data default.
+            (source_root / "omnimem.json").write_text(
+                json.dumps({"home": str(source_root)}), encoding="utf-8"
+            )
+            (restore_root / "omnimem.json").write_text(
+                json.dumps({"home": str(restore_root)}), encoding="utf-8"
+            )
             source_db = str(source_root / ".omnimem_db")
             FakePersistentClient.stores[source_db] = {
                 "omnimem_core": FakeCollection(
