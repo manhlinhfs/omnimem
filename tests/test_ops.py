@@ -97,6 +97,8 @@ class TestOmniOps(unittest.TestCase):
             restore_root = Path(temp_dir) / "restore"
             source_root.mkdir()
             restore_root.mkdir()
+            source_root = source_root.resolve()
+            restore_root = restore_root.resolve()
             (source_root / ".git").mkdir()
             (restore_root / ".git").mkdir()
             source_db = str(source_root / ".omnimem_db")

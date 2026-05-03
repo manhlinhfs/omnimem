@@ -16,8 +16,9 @@ class TestOmniConfig(unittest.TestCase):
 
     def test_repo_local_config_is_loaded_for_git_clone(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            root = Path(temp_dir) / "repo"
+            root = (Path(temp_dir) / "repo")
             root.mkdir()
+            root = root.resolve()
             (root / ".git").mkdir()
             config_path = root / "omnimem.json"
             config_path.write_text(
@@ -86,14 +87,15 @@ class TestOmniConfig(unittest.TestCase):
 
     def test_package_install_prefers_user_config_path(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            site_root = Path(temp_dir) / "site-packages"
+            temp_root = Path(temp_dir).resolve()
+            site_root = temp_root / "site-packages"
             package_root = site_root / "omnimem"
-            config_root = Path(temp_dir) / "config-home"
+            config_root = temp_root / "config-home"
             config_file = config_root / "config.json"
             package_root.mkdir(parents=True)
             config_root.mkdir(parents=True)
             config_file.write_text(
-                json.dumps({"home": str(Path(temp_dir) / "runtime-home")}),
+                json.dumps({"home": str(temp_root / "runtime-home")}),
                 encoding="utf-8",
             )
 
@@ -103,7 +105,7 @@ class TestOmniConfig(unittest.TestCase):
 
             self.assertEqual(preferred, config_file)
             self.assertEqual(report["config"]["selected_path"], str(config_file))
-            self.assertEqual(report["values"]["home"], Path(temp_dir) / "runtime-home")
+            self.assertEqual(report["values"]["home"], temp_root / "runtime-home")
 
     def test_serialize_runtime_config_converts_paths_to_strings(self):
         with tempfile.TemporaryDirectory() as temp_dir:
