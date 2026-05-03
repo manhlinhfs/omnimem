@@ -1,5 +1,80 @@
 # Changelog
 
+## v1.2.5 - Cross-Platform Defaults, Warm-Service Coverage, MCP Performance
+
+A maintenance release that lands seven weeks of fixes covering correctness on
+Windows, performance for long-lived agent sessions, portability of the runtime
+home, and quality-of-life on the note CLI.
+
+### Breaking changes (read first)
+
+- **Default `OMNIMEM_HOME` is now `~/.omnimem/` on every OS** (Linux, macOS,
+  Windows). Previously the default was `%LOCALAPPDATA%\omnimem\` on Windows,
+  `~/.local/share/omnimem` on Linux, `~/Library/Application Support/omnimem`
+  on macOS. Existing users with no `OMNIMEM_HOME` set should migrate their
+  data: `mv ~/.local/share/omnimem ~/.omnimem` (Linux), or the equivalent on
+  your platform. Existing users with a local `omnimem.json` are unaffected
+  because the file pin wins over the default.
+- **Default `home` for `git_clone` install mode no longer points at the repo
+  root.** Fresh `git clone && setup.sh` installs now write the vault, db,
+  and models to `~/.omnimem/` instead of inside the checkout. Devs who want
+  repo-local data should add a local `omnimem.json` with `{"home": "."}`.
+- **`omnimem.json` is no longer tracked by the repo.** The dev file shipped
+  with v1.2.0..v1.2.4 leaked the maintainer's username into every clone.
+  `omnimem.example.json` remains as a template; copy it to `omnimem.json`
+  locally and the gitignore will keep your edits private.
+
+### Fixed
+
+- **Windows cp1252 UnicodeEncodeError** crashed `note search` / `note show`
+  on vaults containing Vietnamese (or any non-ASCII) content. `main()` now
+  reconfigures stdout/stderr to UTF-8 so the CLI no longer requires
+  `PYTHONIOENCODING=utf-8` as a workaround.
+- **Windows test suite is now hermetic.** Six pre-existing failures (8.3
+  short-name vs resolved long-name path mismatch in tempfile, missing
+  `CodemapRuntime` mock in federation tests) are fixed. 230+ tests pass on
+  Windows; 0 regressions on Linux CI.
+- **PostToolUse reindex no longer fires for every Edit/Write/MultiEdit.**
+  Previously, every Claude Code or Codex CLI tool use triggered a full notes
+  reindex, which loads the embedding model and rebuilds the
+  `omnimem_notes` collection. Now `omnimem hook --gated-reindex` reads the
+  hook payload from stdin and reindexes only when the touched file lives
+  inside the vault. Re-run `omnimem hook install --agent claude|codex` to
+  refresh the recipe.
+- **`omnimem note ... --json` flag was a no-op** — every note CLI verb
+  emitted indented JSON regardless of the flag. The non-JSON path now
+  renders `key=value` summary lines, list counts, and indented multi-line
+  bodies; `--json` still produces machine-readable JSON.
+- **`omni_search.federate_with_notes`** logs federation failures to stderr
+  instead of swallowing them silently.
+- Replaced deprecated `datetime.utcnow()` with timezone-aware UTC across
+  `omni_metadata`, `omni_add`, `omni_ops`, `omni_reindex` (output strings
+  byte-for-byte identical).
+
+### Performance
+
+- **MCP server caches `OmniRuntime` and `NoteRuntime`** per `root_dir`
+  across `tools/call` requests. A long-running Claude Desktop / Copilot
+  session no longer reloads the embedding model on every tool invocation
+  (~1-2 s saved per call). MCP `import_file` now prefers the warm search
+  service.
+- **Warm search service hosts notes and codemap collections** in addition
+  to `omnimem_core`. CLI `note search` and `codemap query` now try the
+  service first and fall back to the in-process path on
+  `SearchServiceUnavailable`. Use `--direct` to bypass. Same effect as MCP
+  caching but for terminal users running CLI commands across multiple
+  shells.
+
+### Internal
+
+- `omni_note_index.search_notes` accepts an optional `runtime=` kwarg so
+  cached callers (MCP, warm service) don't re-construct on every call.
+- New tests: `test_mcp_runtime_cache.py` (5), `test_hook_gated_reindex.py`
+  (7), `test_print_human.py` (9), `test_service_notes_codemap.py` (8).
+- Default user-data and user-config helpers in `omni_paths.py` now return a
+  single `~/.omnimem/` location across OSes (`get_default_user_data_root`,
+  `get_default_user_config_root`).
+
 ## v1.2.4 - README Cleanup For v1.2.x Surface
 
 A documentation patch — no runtime code changes.
