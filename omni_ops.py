@@ -24,7 +24,7 @@ def _is_missing_collection_error(exc):
 
 
 def _utc_timestamp():
-    return datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def _ensure_output_path(output_path, default_dir, prefix, suffix, overwrite):
@@ -52,7 +52,7 @@ def _write_tar_json(tar_handle, arcname, payload):
     body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
     info = tarfile.TarInfo(name=arcname)
     info.size = len(body)
-    info.mtime = int(datetime.datetime.utcnow().timestamp())
+    info.mtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
     tar_handle.addfile(info, io.BytesIO(body))
 
 
@@ -83,7 +83,10 @@ def create_backup(
     manifest = {
         "tool": "omni_backup",
         "version": get_version(),
-        "created_at": datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "created_at": datetime.datetime.now(datetime.timezone.utc)
+        .replace(tzinfo=None)
+        .isoformat(timespec="seconds")
+        + "Z",
         "install_mode": runtime_config["install_mode"],
         "runtime_home": str(runtime_home),
         "db_dir": str(db_dir),
@@ -148,7 +151,10 @@ def export_memories(output_path=None, overwrite=False, root_dir=SOURCE_ROOT):
     export_payload = {
         "tool": "omni_export",
         "version": get_version(),
-        "exported_at": datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "exported_at": datetime.datetime.now(datetime.timezone.utc)
+        .replace(tzinfo=None)
+        .isoformat(timespec="seconds")
+        + "Z",
         "collection_name": COLLECTION_NAME,
         "record_count": len(items),
         "items": items,

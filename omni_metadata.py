@@ -2,7 +2,11 @@ import datetime
 
 
 def current_timestamp():
-    return datetime.datetime.utcnow().isoformat(timespec="microseconds")
+    return (
+        datetime.datetime.now(datetime.timezone.utc)
+        .replace(tzinfo=None)
+        .isoformat(timespec="microseconds")
+    )
 
 
 def _normalize_datetime(parsed_datetime):
