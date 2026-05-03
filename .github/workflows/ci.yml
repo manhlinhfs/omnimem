@@ -90,17 +90,19 @@ jobs:
         run: |
           python -m venv .pkg-smoke
           if [ -f .pkg-smoke/bin/python ]; then
-            VENV_PY=.pkg-smoke/bin/python
-            VENV_OMNIMEM=.pkg-smoke/bin/omnimem
+            VENV_BIN=$(cd .pkg-smoke/bin && pwd)
           else
-            VENV_PY=.pkg-smoke/Scripts/python.exe
-            VENV_OMNIMEM=.pkg-smoke/Scripts/omnimem.exe
+            VENV_BIN=$(cd .pkg-smoke/Scripts && pwd)
           fi
-          "$VENV_PY" -m pip install --upgrade pip
+          # Put the venv on PATH so the heredoc's `omnimem` lookup hits the
+          # newly-installed entry point (we never `source activate` because
+          # that script differs between bash / pwsh / cmd).
+          export PATH="$VENV_BIN:$PATH"
+          python -m pip install --upgrade pip
           WHEEL=$(ls dist/*.whl | head -n 1)
-          "$VENV_PY" -m pip install --no-deps "$WHEEL"
-          "$VENV_OMNIMEM" --version
-          "$VENV_PY" - <<'PY'
+          python -m pip install --no-deps "$WHEEL"
+          omnimem --version
+          python - <<'PY'
           import json
           import subprocess
 
