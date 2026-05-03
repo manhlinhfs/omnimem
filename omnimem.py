@@ -406,12 +406,30 @@ def handle_note(args):
         if action == "search":
             at_date = getattr(args, "at_date", None)
             at_date_eod = _at_date_eod(at_date)
-            records = search_notes(
-                args.query,
-                n_results=(args.limit or 5) * (3 if at_date_eod else 1),
-                note_type=args.type,
-                tag=args.tag,
-            )
+            requested_n = (args.limit or 5) * (3 if at_date_eod else 1)
+            records = None
+            if not getattr(args, "direct", False):
+                try:
+                    from omni_service import (
+                        SearchServiceError,
+                        search_notes_via_service,
+                    )
+
+                    records = search_notes_via_service(
+                        args.query,
+                        n_results=requested_n,
+                        note_type=args.type,
+                        tag=args.tag,
+                    )
+                except SearchServiceError:
+                    records = None
+            if records is None:
+                records = search_notes(
+                    args.query,
+                    n_results=requested_n,
+                    note_type=args.type,
+                    tag=args.tag,
+                )
             if at_date_eod:
                 records = [
                     record
@@ -638,11 +656,24 @@ def handle_codemap(args):
         if args.codemap_command == "query":
             local_results = query_local_index(args.query, limit=args.limit or 20)
             semantic_results = []
-            try:
-                runtime = CodemapRuntime()
-                semantic_results = runtime.query(args.query, n_results=args.limit or 5)
-            except Exception:
-                semantic_results = []
+            if not getattr(args, "direct", False):
+                try:
+                    from omni_service import (
+                        SearchServiceError,
+                        query_codemap_via_service,
+                    )
+
+                    semantic_results = query_codemap_via_service(
+                        args.query, n_results=args.limit or 5
+                    )
+                except SearchServiceError:
+                    semantic_results = []
+            if not semantic_results:
+                try:
+                    runtime = CodemapRuntime()
+                    semantic_results = runtime.query(args.query, n_results=args.limit or 5)
+                except Exception:
+                    semantic_results = []
             _print({"local": local_results, "semantic": semantic_results}, as_json)
             return 0
         if args.codemap_command == "rm":
@@ -1036,6 +1067,11 @@ def build_parser():
     note_search.add_argument("--at-date", dest="at_date", help="Filter to notes created at or before this YYYY-MM-DD")
     note_search.add_argument("--limit", type=int)
     note_search.add_argument("--full", action="store_true")
+    note_search.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the warm search service and run the one-shot path directly",
+    )
     note_search.add_argument("--json", action="store_true")
 
     note_link = note_subparsers.add_parser("link", help="Add a wikilink between notes")
@@ -1114,6 +1150,11 @@ def build_parser():
     codemap_query.add_argument("query")
     codemap_query.add_argument("--limit", type=int)
     codemap_query.add_argument("--json", action="store_true")
+    codemap_query.add_argument(
+        "--direct",
+        action="store_true",
+        help="Bypass the warm search service and run the one-shot path directly",
+    )
 
     codemap_rm = codemap_subparsers.add_parser("rm", help="Delete the codemap for a repo")
     codemap_rm.add_argument("repo_name")
