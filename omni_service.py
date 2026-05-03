@@ -70,6 +70,10 @@ class _SearchServiceHandler(BaseHTTPRequestHandler):
                 return self._handle_add_records()
             if self.path == "/replace-core-records":
                 return self._handle_replace_core_records()
+            if self.path == "/notes/search":
+                return self._handle_notes_search()
+            if self.path == "/codemap/query":
+                return self._handle_codemap_query()
             self._send_json({"status": "not_found"}, status=404)
             return
 
@@ -132,10 +136,69 @@ class _SearchServiceHandler(BaseHTTPRequestHandler):
             return
         self._send_json({"status": "ok", **report})
 
+    def _handle_notes_search(self):
+        payload = self._read_json_payload()
+        if payload is None:
+            return
+        try:
+            runtime = _get_note_runtime_for_server(self.server)
+            records = runtime.search(
+                payload.get("query", ""),
+                n_results=int(payload.get("n_results", 5) or 5),
+                note_type=payload.get("note_type"),
+                tag=payload.get("tag"),
+                since=payload.get("since"),
+                until=payload.get("until"),
+            )
+        except Exception as exc:
+            self._send_json({"status": "fail", "detail": str(exc)}, status=500)
+            return
+        self._send_json({"status": "ok", "records": records})
+
+    def _handle_codemap_query(self):
+        payload = self._read_json_payload()
+        if payload is None:
+            return
+        try:
+            runtime = _get_codemap_runtime_for_server(self.server)
+            records = runtime.query(
+                payload.get("query", ""),
+                n_results=int(payload.get("n_results", 5) or 5),
+                kinds=payload.get("kinds"),
+            )
+        except Exception as exc:
+            self._send_json({"status": "fail", "detail": str(exc)}, status=500)
+            return
+        self._send_json({"status": "ok", "records": records})
+
     def log_message(self, fmt, *args):
         if getattr(self.server, "quiet", False):
             return
         super().log_message(fmt, *args)
+
+
+def _get_note_runtime_for_server(server):
+    """Lazily attach a NoteRuntime to the running service so the embedding
+    model is loaded once per process (not once per request)."""
+    runtime = getattr(server, "note_runtime", None)
+    if runtime is not None:
+        return runtime
+    from omni_note_index import NoteRuntime
+
+    server.note_runtime = NoteRuntime(root_dir=getattr(server, "root_dir", SOURCE_ROOT))
+    return server.note_runtime
+
+
+def _get_codemap_runtime_for_server(server):
+    runtime = getattr(server, "codemap_runtime", None)
+    if runtime is not None:
+        return runtime
+    from omni_codemap import CodemapRuntime
+
+    server.codemap_runtime = CodemapRuntime(
+        root_dir=getattr(server, "root_dir", SOURCE_ROOT)
+    )
+    return server.codemap_runtime
 
 
 def get_search_service_settings(root_dir=SOURCE_ROOT):
@@ -383,6 +446,74 @@ def add_records_via_service(
     return payload
 
 
+def search_notes_via_service(
+    query,
+    n_results=5,
+    note_type=None,
+    tag=None,
+    since=None,
+    until=None,
+    root_dir=SOURCE_ROOT,
+    autostart=True,
+):
+    settings = get_search_service_settings(root_dir=root_dir)
+    host = settings["host"]
+    port = settings["port"]
+    if not settings["enabled"]:
+        raise SearchServiceUnavailable("Search service is disabled by configuration")
+    if autostart:
+        ensure_search_service(root_dir=root_dir, host=host, port=port)
+    payload = _request_json(
+        "POST",
+        _build_service_url(host, port, "/notes/search"),
+        payload={
+            "query": query,
+            "n_results": n_results,
+            "note_type": note_type,
+            "tag": tag,
+            "since": since,
+            "until": until,
+        },
+        timeout_seconds=settings["request_timeout_seconds"],
+    )
+    if payload.get("status") != "ok":
+        raise SearchServiceProtocolError(
+            payload.get("detail") or "Unexpected /notes/search response"
+        )
+    return payload.get("records") or []
+
+
+def query_codemap_via_service(
+    query,
+    n_results=5,
+    kinds=None,
+    root_dir=SOURCE_ROOT,
+    autostart=True,
+):
+    settings = get_search_service_settings(root_dir=root_dir)
+    host = settings["host"]
+    port = settings["port"]
+    if not settings["enabled"]:
+        raise SearchServiceUnavailable("Search service is disabled by configuration")
+    if autostart:
+        ensure_search_service(root_dir=root_dir, host=host, port=port)
+    payload = _request_json(
+        "POST",
+        _build_service_url(host, port, "/codemap/query"),
+        payload={
+            "query": query,
+            "n_results": n_results,
+            "kinds": kinds,
+        },
+        timeout_seconds=settings["request_timeout_seconds"],
+    )
+    if payload.get("status") != "ok":
+        raise SearchServiceProtocolError(
+            payload.get("detail") or "Unexpected /codemap/query response"
+        )
+    return payload.get("records") or []
+
+
 def replace_core_records_via_service(
     records,
     root_dir=SOURCE_ROOT,
@@ -415,6 +546,7 @@ def run_search_service(host=None, port=None, quiet=False, root_dir=SOURCE_ROOT):
 
     runtime = OmniRuntime(root_dir=root_dir)
     server = _SearchServiceServer((host, port), _SearchServiceHandler)
+    server.root_dir = root_dir
     server.runtime = runtime
     server.runtime_signature = _get_runtime_signature(root_dir=root_dir)
     server.quiet = quiet
