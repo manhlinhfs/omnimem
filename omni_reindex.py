@@ -22,7 +22,7 @@ def _is_missing_collection_error(exc):
 
 
 def _utc_stamp():
-    return datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def _normalize_source_filter(source):

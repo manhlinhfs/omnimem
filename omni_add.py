@@ -10,7 +10,11 @@ from omni_version import add_version_argument
 
 def add_memory(text, source="user_input", tags=None, prefer_service=False):
     doc_id = str(uuid.uuid4())
-    timestamp = datetime.datetime.utcnow().isoformat(timespec="microseconds")
+    timestamp = (
+        datetime.datetime.now(datetime.timezone.utc)
+        .replace(tzinfo=None)
+        .isoformat(timespec="microseconds")
+    )
     metadata = build_base_metadata(
         source=source,
         timestamp=timestamp,

@@ -1103,7 +1103,18 @@ def build_parser():
     return parser
 
 
+def _force_utf8_streams():
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            try:
+                reconfigure(encoding="utf-8")
+            except (ValueError, OSError):
+                pass
+
+
 def main(argv=None):
+    _force_utf8_streams()
     parser = build_parser()
     args = parser.parse_args(argv)
 

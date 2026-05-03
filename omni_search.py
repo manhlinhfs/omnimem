@@ -81,7 +81,8 @@ def federate_with_notes(query, core_records, n_results=5):
         from omni_note_index import search_notes
 
         note_records = search_notes(query, n_results=n_results)
-    except Exception:
+    except Exception as exc:
+        print(f"warn: notes federation skipped: {exc}", file=sys.stderr)
         note_records = []
 
     for record in note_records:
@@ -101,7 +102,8 @@ def federate_with_notes(query, core_records, n_results=5):
 
         codemap_runtime = CodemapRuntime()
         codemap_records = codemap_runtime.query(query, n_results=n_results)
-    except Exception:
+    except Exception as exc:
+        print(f"warn: codemap federation skipped: {exc}", file=sys.stderr)
         codemap_records = []
 
     for record in codemap_records:
