@@ -205,8 +205,93 @@ def handle_version(_args):
 def _print(payload, as_json):
     if as_json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
-    else:
-        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return
+    _render_human(payload)
+
+
+_SUMMARY_KEYS = ("slug", "title", "id", "name", "path", "score", "from", "to")
+
+
+def _format_scalar(value):
+    if isinstance(value, float):
+        return f"{value:.3f}"
+    if value is None:
+        return ""
+    return str(value)
+
+
+def _summary_line(item):
+    if not isinstance(item, dict):
+        return None
+    parts = []
+    for key in _SUMMARY_KEYS:
+        if key not in item:
+            continue
+        value = item[key]
+        if value in (None, ""):
+            continue
+        parts.append(f"{key}={_format_scalar(value)}")
+        if len(parts) >= 4:
+            break
+    return " ".join(parts) if parts else None
+
+
+def _render_human(payload, indent=0):
+    pad = "  " * indent
+    if payload is None:
+        print(f"{pad}(none)")
+        return
+    if isinstance(payload, dict):
+        if not payload:
+            print(f"{pad}(empty)")
+            return
+        for key, value in payload.items():
+            _render_field(key, value, indent)
+        return
+    if isinstance(payload, list):
+        if not payload:
+            print(f"{pad}(empty)")
+            return
+        for index, item in enumerate(payload, 1):
+            _render_item(index, item, indent)
+        return
+    print(f"{pad}{_format_scalar(payload)}")
+
+
+def _render_field(key, value, indent):
+    pad = "  " * indent
+    if isinstance(value, str) and "\n" in value:
+        print(f"{pad}{key}:")
+        for line in value.splitlines():
+            print(f"{pad}  {line}")
+        return
+    if isinstance(value, list):
+        print(f"{pad}{key} ({len(value)}):")
+        for index, item in enumerate(value, 1):
+            _render_item(index, item, indent + 1)
+        return
+    if isinstance(value, dict):
+        summary = _summary_line(value)
+        if summary:
+            print(f"{pad}{key}: {summary}")
+            return
+        print(f"{pad}{key}:")
+        _render_human(value, indent + 1)
+        return
+    print(f"{pad}{key}: {_format_scalar(value)}")
+
+
+def _render_item(index, item, indent):
+    pad = "  " * indent
+    if isinstance(item, dict):
+        summary = _summary_line(item)
+        if summary:
+            print(f"{pad}{index}. {summary}")
+            return
+        print(f"{pad}{index}.")
+        _render_human(item, indent + 1)
+        return
+    print(f"{pad}{index}. {_format_scalar(item)}")
 
 
 def _at_date_eod(at_date):
