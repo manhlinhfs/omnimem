@@ -142,6 +142,7 @@ class TestWriteService(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "repo"
             root.mkdir()
+            root = root.resolve()
             (root / ".git").mkdir()
             db_path = str(root / ".omnimem_db")
             FakePersistentClient.stores = {

@@ -79,6 +79,7 @@ class TestOmniReindex(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "repo"
             root.mkdir()
+            root = root.resolve()
             (root / ".git").mkdir()
             db_path = str(root / ".omnimem_db")
             FakePersistentClient.stores[db_path] = {
@@ -145,6 +146,7 @@ class TestOmniReindex(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "repo"
             root.mkdir()
+            root = root.resolve()
             (root / ".git").mkdir()
             db_path = str(root / ".omnimem_db")
             collection = FakeCollection(
@@ -179,6 +181,7 @@ class TestOmniReindex(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "repo"
             root.mkdir()
+            root = root.resolve()
             (root / ".git").mkdir()
             db_path = str(root / ".omnimem_db")
             collection = FakeCollection(
