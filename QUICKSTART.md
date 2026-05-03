@@ -77,7 +77,7 @@ Once an agent CLI is wired, ask it any project-specific question. The agent will
 
 ```
 $OMNIMEM_HOME/
-├── chroma/                 # vector DB (offline)
+├── .omnimem_db/            # ChromaDB vector store (offline)
 ├── .omnimem_models/        # bootstrapped embedding model
 └── vault/
     ├── notes/              # zettelkasten markdown — Obsidian-friendly
@@ -86,12 +86,7 @@ $OMNIMEM_HOME/
     └── codemap/<repo>/     # source structural maps
 ```
 
-`OMNIMEM_HOME` defaults to:
-- Linux: `~/.local/share/omnimem`
-- macOS: `~/Library/Application Support/omnimem`
-- Windows: `%LOCALAPPDATA%\omnimem`
-
-Override with the `OMNIMEM_HOME` environment variable or in `omnimem.json`.
+`OMNIMEM_HOME` defaults to `~/.omnimem/` on every OS (Linux, macOS, Windows). Override with the `OMNIMEM_HOME` environment variable or in `omnimem.json`.
 
 ## What next
 
