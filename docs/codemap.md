@@ -34,7 +34,7 @@ Indexing produces both:
 omnimem codemap update /path/to/repo/src/auth.py --repo-path /path/to/repo
 ```
 
-Re-parses one source file in place. Use this from a `PostToolUse` hook (see `omnimem hook install`) so the codemap stays current as code changes.
+Re-parses one source file in place. Use this from a `PostToolUse` hook (see `omnimem hook`) so the codemap stays current as code changes.
 
 ### Query symbols
 

@@ -15,7 +15,7 @@ OmniMem — это мультимодальный «второй мозг», LLM
 1. **Document RAG** — ингестит PDF, Word, исходный код и OCR-картинки через Kreuzberg + ChromaDB.
 2. **Структурированные заметки** — заметки в стиле Zettelkasten в переносимом Markdown-хранилище с двунаправленными wiki-ссылками.
 3. **Codemap** — `omnimem codemap build` обходит репозиторий и пишет структурную карту для каждого исходного файла. Поддерживает Python (stdlib `ast`), JavaScript, TypeScript, Go и Rust через реестр парсеров, с записями отдельных символов в ChromaDB.
-4. **Интеграция одной командой** — `omnimem init --agent claude|codex|gemini|cursor|all` прописывает правило в файл инструкций агента + регистрирует MCP-сервер; `omnimem hook install --agent claude|codex|all` добавляет lifecycle-хуки для Claude Code и Codex CLI.
+4. **Интеграция одной командой** — `omnimem init --agent claude|codex|gemini|cursor|all` прописывает правило в файл инструкций агента + регистрирует MCP-сервер; `omnimem hook --agent claude|codex|all` добавляет lifecycle-хуки для Claude Code и Codex CLI.
 5. **Объединённый поиск + временные запросы** — `omnimem search --all` ранжирует результаты из документов, заметок и codemap-символов вместе. `--at-date YYYY-MM-DD` восстанавливает состояние хранилища на конкретный день.
 6. **Canvas-экспорт + редакция секретов** — `omnimem note canvas` экспортирует граф заметок в формате Obsidian Canvas JSON. `omnimem redact` сканирует текст на токены AWS / GitHub / OpenAI / Anthropic, PEM-блоки, JWT и типичные шаблоны учётных данных.
 
@@ -71,11 +71,11 @@ curl -fsSL https://raw.githubusercontent.com/manhlinhfs/omnimem/main/install.sh 
 
 | Агент | Команда |
 |---|---|
-| Claude Code | `./omnimem init --agent claude && ./omnimem hook install --agent claude` |
-| Codex CLI | `./omnimem init --agent codex && ./omnimem hook install --agent codex` |
+| Claude Code | `./omnimem init --agent claude && ./omnimem hook --agent claude` |
+| Codex CLI | `./omnimem init --agent codex && ./omnimem hook --agent codex` |
 | Gemini CLI | `./omnimem init --agent gemini` |
 | Cursor | `./omnimem init --agent cursor` |
-| Все сразу | `./omnimem init --agent all && ./omnimem hook install --agent all` |
+| Все сразу | `./omnimem init --agent all && ./omnimem hook --agent all` |
 
 Установщик **идемпотентен и обратим**:
 

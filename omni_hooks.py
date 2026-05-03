@@ -1,9 +1,9 @@
 """Lifecycle hook installer for OmniMem.
 
-`omnimem hook install` wires OmniMem into an agent CLI's lifecycle so the
-agent does not have to remember to call OmniMem on every turn. v2.0 ships
-support for Claude Code's `settings.json` hook section. Codex CLI hooks land
-once their lifecycle API is stable.
+`omnimem hook --agent claude|codex` wires OmniMem into an agent CLI's
+lifecycle so the agent does not have to remember to call OmniMem on every
+turn. v2.0 ships support for Claude Code's `settings.json` hook section.
+Codex CLI hooks land once their lifecycle API is stable.
 """
 
 import json

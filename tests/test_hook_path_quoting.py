@@ -1,6 +1,6 @@
 """Regression test for the Windows hook-path bug in v1.2.1 / v1.2.2.
 
-`omnimem hook install` writes the Python interpreter path into Claude Code's
+`omnimem hook --agent claude` writes the Python interpreter path into Claude Code's
 `settings.json`. On Windows `sys.executable` returns
 `C:\\Users\\...\\python.exe` (backslashes). Claude Code passes hook commands
 through `bash -c`, which interprets backslashes as escape characters and

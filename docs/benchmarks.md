@@ -84,7 +84,7 @@ This benchmark is therefore most useful as a **floor test**: any future change t
 ## Caveats and roadmap
 
 - **No third-party comparison yet.** Mem0 publishes LOCOMO numbers. We do not run the same dataset, so apples-to-apples claims are intentionally avoided.
-- **No e2e against real agent CLIs.** `omnimem init`, `omnimem hook install`, and the MCP server are exercised by unit tests but not by spawning an actual Claude Code / Codex / Gemini / Cursor session in the benchmark suite. Manual checks live in each PR's test plan.
+- **No e2e against real agent CLIs.** `omnimem init`, `omnimem hook`, and the MCP server are exercised by unit tests but not by spawning an actual Claude Code / Codex / Gemini / Cursor session in the benchmark suite. Manual checks live in each PR's test plan.
 - **No load test.** The latency numbers reflect single-threaded sequential calls. Concurrent ingest/search performance is not characterized.
 - **Single hardware sample.** The numbers come from one developer machine; CI does not yet run the benchmarks.
 

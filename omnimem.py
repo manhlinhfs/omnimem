@@ -1187,7 +1187,7 @@ def build_parser():
         help=(
             "Internal: read a PostToolUse hook payload from stdin and only "
             "reindex notes when the touched file lives inside the vault. "
-            "Used by `hook install`'s recipe."
+            "Used by `omnimem hook`'s installed PostToolUse recipe."
         ),
     )
     hook_parser.set_defaults(handler=handle_hook)
@@ -1243,7 +1243,11 @@ def build_parser():
 
 
 def _force_utf8_streams():
-    for stream in (sys.stdout, sys.stderr):
+    # stdin matters for `note new --body -` and similar verbs that read body
+    # text from a heredoc. On Windows, the default cp1252 decoder turns any
+    # non-cp1252 byte into a surrogate via `surrogateescape`, and the surrogate
+    # then blows up at write time with "surrogates not allowed".
+    for stream in (sys.stdout, sys.stderr, sys.stdin):
         reconfigure = getattr(stream, "reconfigure", None)
         if callable(reconfigure):
             try:
