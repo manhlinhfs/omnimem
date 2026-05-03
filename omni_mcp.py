@@ -12,6 +12,7 @@ Transport: newline-delimited JSON-RPC 2.0 over stdin/stdout.
 
 import json
 import sys
+import threading
 import traceback
 
 from omni_paths import SOURCE_ROOT
@@ -20,6 +21,54 @@ from omni_version import get_version
 JSONRPC_VERSION = "2.0"
 PROTOCOL_VERSION = "2024-11-05"
 SERVER_NAME = "omnimem"
+
+# Runtimes hold a long-lived ChromaDB PersistentClient and a SentenceTransformer
+# embedding function. Reusing them across `tools/call` requests avoids paying
+# the model-load cost (~1-2 s per call) on every MCP invocation. The MCP server
+# is a single-process stdio loop, so caching for the lifetime of the process is
+# safe; key by root_dir so a server reused across vaults stays correct.
+_RUNTIME_CACHE_LOCK = threading.Lock()
+_OMNI_RUNTIME_CACHE = {}
+_NOTE_RUNTIME_CACHE = {}
+
+
+def _get_omni_runtime(root_dir):
+    key = str(root_dir)
+    cached = _OMNI_RUNTIME_CACHE.get(key)
+    if cached is not None:
+        return cached
+    with _RUNTIME_CACHE_LOCK:
+        cached = _OMNI_RUNTIME_CACHE.get(key)
+        if cached is not None:
+            return cached
+        from omni_search_core import OmniRuntime
+
+        runtime = OmniRuntime(root_dir=root_dir)
+        _OMNI_RUNTIME_CACHE[key] = runtime
+        return runtime
+
+
+def _get_note_runtime(root_dir):
+    key = str(root_dir)
+    cached = _NOTE_RUNTIME_CACHE.get(key)
+    if cached is not None:
+        return cached
+    with _RUNTIME_CACHE_LOCK:
+        cached = _NOTE_RUNTIME_CACHE.get(key)
+        if cached is not None:
+            return cached
+        from omni_note_index import NoteRuntime
+
+        runtime = NoteRuntime(root_dir=root_dir)
+        _NOTE_RUNTIME_CACHE[key] = runtime
+        return runtime
+
+
+def _reset_runtime_cache():
+    """Drop cached runtimes — for tests and for reload-after-config-change."""
+    with _RUNTIME_CACHE_LOCK:
+        _OMNI_RUNTIME_CACHE.clear()
+        _NOTE_RUNTIME_CACHE.clear()
 
 
 def _ok(request_id, result):
@@ -170,10 +219,15 @@ def _tool_note_new(args, root_dir):
         root_dir=root_dir,
     )
 
+    try:
+        note_runtime = _get_note_runtime(root_dir)
+    except Exception:
+        note_runtime = None
     index_note_record(
         record["frontmatter"],
         args.get("body") or "",
         record["path"],
+        runtime=note_runtime,
         root_dir=root_dir,
     )
 
@@ -194,12 +248,17 @@ def _tool_note_search(args, root_dir):
     query = args.get("query")
     if not query:
         raise ValueError("note_search requires 'query'")
+    try:
+        note_runtime = _get_note_runtime(root_dir)
+    except Exception:
+        note_runtime = None
     results = search_notes(
         query,
         n_results=int(args.get("limit") or 5),
         note_type=args.get("type"),
         tag=args.get("tag"),
         root_dir=root_dir,
+        runtime=note_runtime,
     )
     payload = []
     for record in results:
@@ -246,9 +305,8 @@ def _tool_note_show(args, root_dir):
 
 
 def _tool_note_link(args, root_dir):
-    from omni_note import add_link
-    from omni_note_index import index_note_record, NoteRuntime
-    from omni_note import read_note
+    from omni_note import add_link, read_note
+    from omni_note_index import index_note_record
 
     from_slug = args.get("from")
     to_slug = args.get("to")
@@ -257,7 +315,7 @@ def _tool_note_link(args, root_dir):
     add_link(from_slug, to_slug, root_dir=root_dir)
     refreshed = read_note(from_slug, root_dir=root_dir)
     try:
-        runtime = NoteRuntime(root_dir=root_dir)
+        runtime = _get_note_runtime(root_dir)
         index_note_record(
             refreshed.get("frontmatter") or {},
             refreshed.get("body") or "",
@@ -272,7 +330,6 @@ def _tool_note_link(args, root_dir):
 
 def _tool_search_all(args, root_dir):
     from omni_note_index import search_notes
-    from omni_search_core import OmniRuntime
 
     query = args.get("query")
     if not query:
@@ -283,7 +340,16 @@ def _tool_search_all(args, root_dir):
     federated = []
 
     try:
-        notes_results = search_notes(query, n_results=limit, root_dir=root_dir)
+        note_runtime = _get_note_runtime(root_dir)
+    except Exception:
+        note_runtime = None
+    try:
+        notes_results = search_notes(
+            query,
+            n_results=limit,
+            root_dir=root_dir,
+            runtime=note_runtime,
+        )
     except Exception:
         notes_results = []
     for record in notes_results:
@@ -301,7 +367,7 @@ def _tool_search_all(args, root_dir):
         )
 
     try:
-        core = OmniRuntime(root_dir=root_dir)
+        core = _get_omni_runtime(root_dir)
         core_results = core.search_records(
             query,
             n_results=limit,
@@ -338,7 +404,9 @@ def _tool_import_file(args, root_dir):
     path = args.get("path")
     if not path:
         raise ValueError("import_file requires 'path'")
-    asyncio.run(import_file_advanced(path, prefer_service=False))
+    # Prefer the warm search service for ingest so we don't reload the
+    # embedding model inside the MCP process when a service is already up.
+    asyncio.run(import_file_advanced(path, prefer_service=True))
     return {"content": _content_text({"imported": True, "path": path})}
 
 

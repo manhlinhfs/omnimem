@@ -228,9 +228,10 @@ def search_notes(
     since=None,
     until=None,
     root_dir=SOURCE_ROOT,
+    runtime=None,
 ):
-    runtime = NoteRuntime(root_dir=root_dir)
-    return runtime.search(
+    local_runtime = runtime or NoteRuntime(root_dir=root_dir)
+    return local_runtime.search(
         query,
         n_results=n_results,
         note_type=note_type,
