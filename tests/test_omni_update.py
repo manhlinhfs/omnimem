@@ -48,9 +48,9 @@ class TestOmniUpdate(unittest.TestCase):
         self._git(["git", "commit", "-m", "seed"], cwd=self.seed_repo)
         self._git(["git", "branch", "-M", "main"], cwd=self.seed_repo)
 
-        self._git(["git", "clone", "--bare", str(self.seed_repo), str(self.remote_repo)], cwd=self.temp_path)
-        self._git(["git", "clone", str(self.remote_repo), str(self.source_repo)], cwd=self.temp_path)
-        self._git(["git", "clone", str(self.remote_repo), str(self.client_repo)], cwd=self.temp_path)
+        self._git(["git", "clone", "--bare", "--no-hardlinks", str(self.seed_repo), str(self.remote_repo)], cwd=self.temp_path)
+        self._git(["git", "clone", "--no-hardlinks", str(self.remote_repo), str(self.source_repo)], cwd=self.temp_path)
+        self._git(["git", "clone", "--no-hardlinks", str(self.remote_repo), str(self.client_repo)], cwd=self.temp_path)
         self._git(["git", "config", "user.name", "Codex Test"], cwd=self.source_repo)
         self._git(["git", "config", "user.email", "codex@example.com"], cwd=self.source_repo)
 
