@@ -29,7 +29,7 @@ def run(cmd, cwd):
 
 class TestOmniUpdate(unittest.TestCase):
     def setUp(self):
-        self.temp_dir = tempfile.TemporaryDirectory()
+        self.temp_dir = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
         self.temp_path = Path(self.temp_dir.name)
         self.seed_repo = self.temp_path / "seed"
         self.remote_repo = self.temp_path / "remote.git"
