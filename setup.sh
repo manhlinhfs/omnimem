@@ -12,6 +12,7 @@ source venv/bin/activate
 # 2. Install Dependencies
 echo "[2/4] Installing dependencies (Kreuzberg, ChromaDB)..."
 pip install -r requirements.txt > /dev/null 2>&1
+pip install -e . > /dev/null 2>&1
 
 echo "[3/4] Bootstrapping the local embedding model..."
 if [ "${OMNIMEM_SKIP_MODEL_BOOTSTRAP:-0}" = "1" ]; then
