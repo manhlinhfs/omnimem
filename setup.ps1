@@ -8,6 +8,7 @@ python -m venv venv
 
 Write-Host "[2/4] Installing dependencies (Kreuzberg, ChromaDB)..."
 pip install -r requirements.txt | Out-Null
+pip install -e . | Out-Null
 
 Write-Host "[3/4] Bootstrapping the local embedding model..."
 if ($env:OMNIMEM_SKIP_MODEL_BOOTSTRAP -eq "1") {

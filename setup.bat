@@ -9,6 +9,7 @@ call venv\Scripts\activate.bat
 
 echo [2/4] Installing dependencies (Kreuzberg, ChromaDB)...
 pip install -r requirements.txt >nul 2>&1
+pip install -e . >nul 2>&1
 
 echo [3/4] Bootstrapping the local embedding model...
 if "%OMNIMEM_SKIP_MODEL_BOOTSTRAP%"=="1" (
