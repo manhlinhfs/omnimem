@@ -84,6 +84,6 @@ If `search_service_enabled` is true, CLI `search`, `add`, `import`, and `reindex
 
 ## Example workflow
 
-1. Copy `omnimem.example.json` to `omnimem.json`
+1. Copy `examples/omnimem.example.json` to `omnimem.json`
 2. Edit the paths you want to move
 3. Run `./omnimem doctor` to confirm the effective config

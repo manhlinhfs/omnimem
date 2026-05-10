@@ -68,7 +68,7 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          bash -n setup.sh
+          bash -n scripts/setup.sh
           bash -n omnimem
 
       - name: Install minimal test dependencies

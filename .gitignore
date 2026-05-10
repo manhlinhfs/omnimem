@@ -11,7 +11,10 @@ dist/
 *.egg-info/
 .pkg-smoke/
 
-# Local runtime config — copy omnimem.example.json to omnimem.json and edit
+# Local runtime config — copy examples/omnimem.example.json to omnimem.json and edit
 # locally. Never ship this file: absolute paths embedded in it would point
 # at the original author's home directory on a fresh clone.
 omnimem.json
+
+# Per-repo Claude Code local settings (permissions, etc.) — user-specific.
+.claude/settings.local.json

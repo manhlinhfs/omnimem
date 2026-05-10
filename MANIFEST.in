@@ -3,6 +3,7 @@ include ROADMAP.md
 include README.md
 include README_vi.md
 include README_ru.md
-include omnimem.example.json
+include examples/omnimem.example.json
+recursive-include scripts *
 recursive-include docs *.md
 recursive-include tests *.py

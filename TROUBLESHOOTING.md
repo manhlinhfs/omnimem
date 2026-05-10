@@ -4,7 +4,7 @@ Common issues and fixes for OmniMem v1.2.x. Start with `omnimem doctor` — it r
 
 ## Install / bootstrap
 
-### `omnimem` command not found after `setup.sh`
+### `omnimem` command not found after `scripts/setup.sh`
 
 You're either not in the repo root or your shell hasn't added the launcher to `PATH`. Run with the explicit path:
 
@@ -28,7 +28,7 @@ OMNIMEM_ALLOW_MODEL_DOWNLOAD=1 python omni_bootstrap.py
 
 ### `chromadb` import fails with `ModuleNotFoundError`
 
-Re-run `setup.sh`, or in package mode reinstall:
+Re-run `scripts/setup.sh`, or in package mode reinstall:
 
 ```bash
 pip install --upgrade chromadb sentence-transformers

@@ -6,7 +6,7 @@ Get OmniMem wired into your AI coding agent in **under 60 seconds**.
 
 ```bash
 git clone https://github.com/manhlinhfs/omnimem.git && cd omnimem
-./setup.sh
+./scripts/setup.sh
 ./omnimem quickstart
 ```
 

@@ -1,4 +1,4 @@
-# OmniMem v1.2.7 - Bộ Não CLI Thứ Hai 🧠
+# OmniMem v1.2.8 - Bộ Não CLI Thứ Hai 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -6,7 +6,7 @@
 >
 > ```bash
 > git clone https://github.com/manhlinhfs/omnimem.git && cd omnimem
-> ./setup.sh
+> ./scripts/setup.sh
 > ./omnimem quickstart        # tương tác: phát hiện agent, cài đặt, seed welcome note
 > ```
 
@@ -34,19 +34,19 @@ OmniMem là "bộ não thứ hai" multimodal, LLM-agnostic, chạy hoàn toàn t
 ```bash
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
-chmod +x setup.sh
-./setup.sh
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 ./omnimem quickstart
 ```
 
-`setup.sh` cài dependencies và tải model embedding vào `.omnimem_models/`. `omnimem quickstart` là wizard tương tác để wire OmniMem vào agent CLI bạn đã cài.
+`scripts/setup.sh` cài dependencies và tải model embedding vào `.omnimem_models/`. `omnimem quickstart` là wizard tương tác để wire OmniMem vào agent CLI bạn đã cài.
 
 ### Windows (PowerShell)
 
 ```powershell
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
-.\setup.ps1
+.\scripts\setup.ps1
 .\omnimem quickstart
 ```
 

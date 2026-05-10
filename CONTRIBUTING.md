@@ -13,7 +13,7 @@ Thanks for considering a contribution. OmniMem is small and opinionated, so a qu
 ```bash
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
-./setup.sh                 # creates venv, installs deps, bootstraps the model
+./scripts/setup.sh         # creates venv, installs deps, bootstraps the model
 source venv/bin/activate
 python -m unittest discover -s tests -v
 ```
