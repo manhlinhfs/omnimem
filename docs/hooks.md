@@ -10,7 +10,7 @@
 | `Stop` | Lists today's notes, prompting the agent to reflect on what was just completed. |
 | `PostToolUse` (Edit, Write, MultiEdit) | Triggers `omnimem note reindex` so any agent-edited note files re-sync to the ChromaDB notes collection. |
 
-Each entry is tagged with `"tag": "omnimem-v1"` inside the hook so reinstalling and uninstalling can target only the OmniMem entries without touching user-defined hooks.
+Each entry is tagged with `"tag": "omnimem-v1"` inside the hook so reinstalling and uninstalling can target only the OmniMem entries without touching user-defined hooks. (One exception: the auto-migrator, see below, intentionally rewrites stale `<python> -m omnimem ...` commands regardless of tag, including hand-installed entries from earlier docs.)
 
 ## Install
 
@@ -55,6 +55,18 @@ The installer is idempotent:
 - Pre-existing OmniMem entries are removed before new ones are written.
 - Reinstalling produces an identical file.
 - User-defined hooks alongside the OmniMem ones are preserved across install / reinstall / uninstall.
+
+## Auto-migration (v1.2.7+)
+
+Every `omnimem hook ...` and `omnimem init ...` invocation (except `omnimem hook --gated-reindex`, which fires on every PostToolUse) runs an idempotent sweep that rewrites stale `<python> -m omnimem ...` entries to the modern `omnimem` console-script form. Coverage:
+
+- Claude `~/.claude/settings.json` and `<project>/.claude/settings.json`
+- Codex `~/.codex/config.toml` (hook block + `[mcp_servers.omnimem]`)
+- Claude / Cursor / Gemini `mcp.json` / `settings.json`
+
+Detection is by **command shape**, not by the `omnimem-v1` tag, so entries you copy-pasted from pre-v1.2.7 docs (or that pre-date the tag) are also fixed. Migration preserves your existing structure — matchers, sibling entries, and ordering are kept intact and we do **not** auto-tag entries we did not previously own. Already-modern configs are a no-op.
+
+If a migration ran, the JSON output of `omnimem hook --status --json` includes a top-level `"migrated": [...]` field listing the rewrites. See [`CHANGELOG.md`](../CHANGELOG.md) for the v1.2.7 background.
 
 ## Customizing the recipe
 

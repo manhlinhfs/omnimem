@@ -53,6 +53,37 @@ echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | omnimem mcp 
 
 You should get a JSON-RPC response within 1-2 seconds.
 
+### Stop hook fails with `'omnimem' is a package and cannot be directly executed`
+
+Symptom — Claude Code shows:
+
+```
+Stop hook error: ... C:\...\python.exe: No module named omnimem.__main__;
+'omnimem' is a package and cannot be directly executed
+```
+
+Cause — your `~/.claude/settings.json` (or `~/.codex/config.toml`, or
+an MCP `mcp.json` / `settings.json`) was installed by OmniMem v1.2.6 or
+earlier, or hand-copied from older docs. The entries call
+`<python> -m omnimem ...`, which runpy refuses whenever any `sys.path`
+entry resolves `omnimem` to a package or namespace package.
+
+Fix — upgrade to v1.2.7+ and run any of:
+
+```bash
+pip install --upgrade omnimem        # or: cd <checkout> && git pull && pip install -e .
+omnimem hook --status                # auto-migrates Claude / Codex hook entries
+omnimem init --status                # auto-migrates Claude / Codex / Gemini / Cursor MCP entries
+```
+
+Both `hook` and `init` rewrite stale `<python> -m omnimem ...` commands to
+the `omnimem` console-script form on every invocation (idempotent). After
+running once, restart your agent CLI so it re-reads the config.
+
+If you still see the error after migration, check the hook entry by hand
+in `~/.claude/settings.json` — the `command` field should start with the
+path to `omnimem.exe` (Windows) or `omnimem` (POSIX), with no `-m omnimem`.
+
 ### Codex CLI hooks don't fire
 
 Codex CLI's hook key surface has shifted across versions. The OmniMem installer ships the **most-common shape** but your version may use different keys. Open `~/.codex/config.toml` and edit between the marker comments:
