@@ -82,7 +82,7 @@ def get_mcp_config_path(agent, scope, base_home=None, base_cwd=None):
     cwd = Path(base_cwd) if base_cwd else _cwd()
 
     if agent == "claude":
-        return home / ".claude" / "mcp.json" if scope == "user" else cwd / ".mcp.json"
+        return home / ".claude.json" if scope == "user" else cwd / ".mcp.json"
     if agent == "codex":
         return home / ".codex" / "config.toml"
     if agent == "gemini":
@@ -170,6 +170,9 @@ def install_mcp_config(agent, scope=DEFAULT_SCOPE, base_home=None, base_cwd=None
     config_path = get_mcp_config_path(agent, scope, base_home=base_home, base_cwd=base_cwd)
     omnimem_command = _detect_omnimem_command()
 
+    if agent == "claude" and scope == "user" and not dry_run:
+        _cleanup_legacy_claude_user_mcp(base_home=base_home)
+
     if agent in ("claude", "cursor"):
         return _install_mcp_json(config_path, omnimem_command, key_path=("mcpServers",), dry_run=dry_run)
     if agent == "gemini":
@@ -181,11 +184,50 @@ def install_mcp_config(agent, scope=DEFAULT_SCOPE, base_home=None, base_cwd=None
 
 def uninstall_mcp_config(agent, scope=DEFAULT_SCOPE, base_home=None, base_cwd=None, dry_run=False):
     config_path = get_mcp_config_path(agent, scope, base_home=base_home, base_cwd=base_cwd)
+    if agent == "claude" and scope == "user" and not dry_run:
+        _cleanup_legacy_claude_user_mcp(base_home=base_home)
     if agent in ("claude", "cursor", "gemini"):
         return _uninstall_mcp_json(config_path, key_path=("mcpServers",), dry_run=dry_run)
     if agent == "codex":
         return _uninstall_mcp_toml_block(config_path, dry_run=dry_run)
     raise InitError(f"Unsupported agent: {agent}")
+
+
+def _cleanup_legacy_claude_user_mcp(base_home=None):
+    """Remove `omnimem` from the v1.3.0-and-earlier `~/.claude/mcp.json` file.
+
+    Up to v1.3.1 we wrote the Claude Code user-scope MCP config to
+    `~/.claude/mcp.json`, but Claude Code never read that path — it stores
+    `mcpServers` at the top level of `~/.claude.json`. v1.3.2 fixes the
+    target path. This helper migrates anyone who installed via an older
+    OmniMem: the orphan `omnimem` entry is dropped, and the legacy file is
+    deleted entirely if it had no other servers.
+    """
+    home = Path(base_home) if base_home else _home()
+    legacy = home / ".claude" / "mcp.json"
+    if not legacy.exists():
+        return
+    try:
+        data = json.loads(legacy.read_text(encoding="utf-8") or "{}")
+    except (json.JSONDecodeError, OSError):
+        return
+    servers = data.get("mcpServers")
+    if not isinstance(servers, dict) or "omnimem" not in servers:
+        return
+    servers.pop("omnimem", None)
+    if not servers and len(data) == 1:
+        try:
+            legacy.unlink()
+        except OSError:
+            pass
+        return
+    try:
+        legacy.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
 
 
 def _detect_omnimem_command():

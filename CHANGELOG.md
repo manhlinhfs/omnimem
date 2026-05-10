@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.3.2 - Fix Claude Code user-scope MCP path
+
+`omnimem init --agent claude` registered the MCP server in
+`~/.claude/mcp.json`, but Claude Code never reads that path — it stores
+`mcpServers` at the top level of `~/.claude.json` (the same file
+`claude mcp add -s user` writes to). The result: `claude mcp list` did
+not show `omnimem`, the agent silently fell back to CLI shell-outs, and
+the six MCP tools (`note_search`, `note_new`, `note_show`, `note_link`,
+`search_all`, `import_file`) never appeared in the tool list.
+
+The fix retargets `~/.claude.json` and merges the entry in place under
+`mcpServers`, leaving every other key (`projects`, `userID`, other MCP
+servers, etc.) untouched. Project scope (`./.mcp.json`) was already
+correct — no change there. Codex / Gemini / Cursor paths unchanged.
+
+A one-shot migration runs on the next `omnimem init --agent claude` or
+`omnimem init --uninstall --agent claude` call: if the legacy
+`~/.claude/mcp.json` still has the orphan `omnimem` entry, it is dropped,
+and the file is deleted entirely when no other servers remain.
+
 ## v1.3.1 - Fix PowerShell variable escape in setup.ps1
 
 `scripts/setup.ps1:6` printed the version banner with `"v$version:"`.

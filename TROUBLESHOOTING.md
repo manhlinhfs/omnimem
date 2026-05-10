@@ -41,7 +41,7 @@ If you're on Windows and ChromaDB import fails on first use, delete `$OMNIMEM_HO
 ### Claude Code does not see `omnimem_*` tools
 
 1. Confirm the rule block exists: `grep -A 5 "OMNIMEM:START" ~/.claude/CLAUDE.md`
-2. Confirm MCP registration: `cat ~/.claude/mcp.json` should have `"omnimem"` under `mcpServers`.
+2. Confirm MCP registration: `claude mcp list` should show `omnimem`. The entry lives in `~/.claude.json` under `mcpServers`. (OmniMem v1.3.1 and earlier wrote it to `~/.claude/mcp.json`, which Claude Code never reads — re-run `omnimem init --agent claude` to migrate.)
 3. **Restart Claude Code.** MCP servers are loaded once per session.
 4. Use `/mcp` inside Claude Code — it lists registered servers and any startup error.
 

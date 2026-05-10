@@ -25,7 +25,11 @@ from omnimem.hooks import (
     install_codex_hooks,
     migrate_legacy_commands,
 )
-from omnimem.init import migrate_legacy_mcp_commands
+from omnimem.init import (
+    install_mcp_config,
+    migrate_legacy_mcp_commands,
+    uninstall_mcp_config,
+)
 
 
 def _remove_tree(path):
@@ -263,7 +267,7 @@ class TestMcpMigration(unittest.TestCase):
         self.python_path, _ = _make_fake_console_script(self.tmp_bin)
 
     def _write_legacy_claude_mcp(self):
-        target = Path(self.tmp_home) / ".claude" / "mcp.json"
+        target = Path(self.tmp_home) / ".claude.json"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(
             json.dumps(
@@ -328,6 +332,136 @@ class TestMcpMigration(unittest.TestCase):
         self.assertEqual(second, [])
         data = json.loads(target.read_text(encoding="utf-8"))
         self.assertEqual(data["mcpServers"]["omnimem"].get("args"), ["mcp", "serve"])
+
+
+class TestClaudeMcpPathMigration(unittest.TestCase):
+    """v1.3.1-and-earlier wrote claude/user MCP config to ~/.claude/mcp.json,
+    which Claude Code never reads. v1.3.2 retargets ~/.claude.json (the file
+    `claude mcp add -s user` actually writes) and drops the orphan entry from
+    the legacy file on next install / uninstall."""
+
+    def setUp(self):
+        self.tmp_home = tempfile.mkdtemp()
+        self.tmp_cwd = tempfile.mkdtemp()
+        self.tmp_bin = tempfile.mkdtemp()
+        self.addCleanup(_remove_tree, self.tmp_home)
+        self.addCleanup(_remove_tree, self.tmp_cwd)
+        self.addCleanup(_remove_tree, self.tmp_bin)
+        self.python_path, _ = _make_fake_console_script(self.tmp_bin)
+
+    def _write_legacy_file(self, payload):
+        legacy = Path(self.tmp_home) / ".claude" / "mcp.json"
+        legacy.parent.mkdir(parents=True, exist_ok=True)
+        legacy.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        return legacy
+
+    def test_install_targets_dot_claude_json(self):
+        with patch("omnimem.init.sys.executable", self.python_path):
+            result = install_mcp_config(
+                "claude",
+                base_home=self.tmp_home,
+                base_cwd=self.tmp_cwd,
+            )
+        self.assertEqual(
+            Path(result["target"]),
+            Path(self.tmp_home) / ".claude.json",
+        )
+        data = json.loads(Path(result["target"]).read_text(encoding="utf-8"))
+        self.assertIn("omnimem", data["mcpServers"])
+
+    def test_install_preserves_other_keys_in_dot_claude_json(self):
+        target = Path(self.tmp_home) / ".claude.json"
+        target.write_text(
+            json.dumps(
+                {
+                    "userID": "abc-123",
+                    "projects": {"/some/dir": {"mcpServers": []}},
+                    "mcpServers": {
+                        "figma": {"command": "npx", "args": ["figma-mcp"]}
+                    },
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        with patch("omnimem.init.sys.executable", self.python_path):
+            install_mcp_config(
+                "claude",
+                base_home=self.tmp_home,
+                base_cwd=self.tmp_cwd,
+            )
+        data = json.loads(target.read_text(encoding="utf-8"))
+        self.assertEqual(data["userID"], "abc-123")
+        self.assertIn("/some/dir", data["projects"])
+        self.assertIn("figma", data["mcpServers"])
+        self.assertIn("omnimem", data["mcpServers"])
+
+    def test_install_drops_orphan_from_legacy_file(self):
+        legacy = self._write_legacy_file(
+            {
+                "mcpServers": {
+                    "omnimem": {
+                        "command": "obsolete",
+                        "args": ["mcp", "serve"],
+                    }
+                }
+            }
+        )
+        with patch("omnimem.init.sys.executable", self.python_path):
+            install_mcp_config(
+                "claude",
+                base_home=self.tmp_home,
+                base_cwd=self.tmp_cwd,
+            )
+        self.assertFalse(
+            legacy.exists(),
+            "legacy ~/.claude/mcp.json should be deleted when it only held the orphan omnimem entry",
+        )
+
+    def test_install_keeps_legacy_file_with_other_servers(self):
+        legacy = self._write_legacy_file(
+            {
+                "mcpServers": {
+                    "omnimem": {"command": "obsolete", "args": []},
+                    "other": {"command": "x", "args": []},
+                }
+            }
+        )
+        with patch("omnimem.init.sys.executable", self.python_path):
+            install_mcp_config(
+                "claude",
+                base_home=self.tmp_home,
+                base_cwd=self.tmp_cwd,
+            )
+        self.assertTrue(legacy.exists())
+        data = json.loads(legacy.read_text(encoding="utf-8"))
+        self.assertNotIn("omnimem", data["mcpServers"])
+        self.assertIn("other", data["mcpServers"])
+
+    def test_uninstall_also_cleans_legacy_file(self):
+        target = Path(self.tmp_home) / ".claude.json"
+        target.write_text(
+            json.dumps(
+                {
+                    "mcpServers": {
+                        "omnimem": {"command": "x", "args": ["mcp", "serve"]}
+                    }
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        legacy = self._write_legacy_file(
+            {"mcpServers": {"omnimem": {"command": "y", "args": []}}}
+        )
+        uninstall_mcp_config(
+            "claude",
+            base_home=self.tmp_home,
+            base_cwd=self.tmp_cwd,
+        )
+        self.assertFalse(legacy.exists())
+        data = json.loads(target.read_text(encoding="utf-8"))
+        self.assertNotIn("omnimem", data.get("mcpServers", {}))
 
 
 if __name__ == "__main__":
