@@ -3,7 +3,7 @@ $repoDir = Resolve-Path (Join-Path $scriptDir "..")
 Set-Location $repoDir
 
 $version = Get-Content VERSION | Select-Object -First 1
-Write-Host "=== OMNIMEM v$version: The Universal RAG Core for CLI ===" -ForegroundColor Cyan
+Write-Host "=== OMNIMEM v${version}: The Universal RAG Core for CLI ===" -ForegroundColor Cyan
 Write-Host "Installing dependencies for Windows PowerShell..."
 
 Write-Host "[1/4] Creating Python Virtual Environment (venv)..."
