@@ -191,17 +191,28 @@ def uninstall_mcp_config(agent, scope=DEFAULT_SCOPE, base_home=None, base_cwd=No
 def _detect_omnimem_command():
     """Return command + args needed to launch the OmniMem MCP server.
 
-    Always emit POSIX-style forward slashes in the path so the entry survives
-    JSON / TOML round-tripping. Some agent CLIs invoke MCP servers via a shell
-    on Windows; bash interprets backslashes as escapes and silently strips
-    them, turning `C:\\Users\\foo\\python.exe` into `C:Usersfoopython.exe`.
-    Python on Windows accepts forward slashes natively, so this is safe.
+    Resolve to the `omnimem` console script (alongside the active interpreter)
+    rather than `<python> -m omnimem mcp serve`. The `-m` form is fragile when
+    any sys.path entry resolves `omnimem` to a package or namespace package
+    — runpy then refuses with "'omnimem' is a package and cannot be directly
+    executed", which has been reported across Claude/Codex/Gemini hosts.
+    Console scripts dispatch through entry points and bypass that machinery.
+
+    Always emit POSIX-style forward slashes so the entry survives JSON / TOML
+    round-tripping; some agents invoke MCP servers via a shell on Windows, and
+    bash interprets backslashes as escapes.
     """
-    raw = sys.executable or "python"
-    return {
-        "command": raw.replace("\\", "/"),
-        "args": ["-m", "omnimem", "mcp", "serve"],
-    }
+    raw = sys.executable or ""
+    if raw:
+        bin_dir = Path(raw).parent
+        for name in ("omnimem.exe", "omnimem") if os.name == "nt" else ("omnimem",):
+            candidate = bin_dir / name
+            if candidate.exists():
+                return {
+                    "command": str(candidate).replace("\\", "/"),
+                    "args": ["mcp", "serve"],
+                }
+    return {"command": "omnimem", "args": ["mcp", "serve"]}
 
 
 def _install_mcp_json(path, server_spec, key_path, dry_run=False):
@@ -250,7 +261,7 @@ def _uninstall_mcp_json(path, key_path, dry_run=False):
 
 
 _TOML_BLOCK_PATTERN = re.compile(
-    r"\n*\[mcp_servers\.omnimem\][^\[]*",
+    r"\n*\[mcp_servers\.omnimem\][\s\S]*?(?=\n\[|\Z)",
     re.DOTALL,
 )
 
@@ -305,6 +316,83 @@ def _diff_preview(before, after, max_lines=8):
         "after_length": len(after_lines),
         "preview": "\n".join(head_after),
     }
+
+
+_LEGACY_MCP_DASH_M_RE = re.compile(r'(?:^|[\s,\[])"-m"(?:[\s,\]]|$)')
+
+
+def _mcp_json_is_legacy(path):
+    if not path.exists():
+        return False
+    try:
+        data = json.loads(path.read_text(encoding="utf-8") or "{}")
+    except (json.JSONDecodeError, OSError):
+        return False
+    server = (data.get("mcpServers") or {}).get("omnimem")
+    if not isinstance(server, dict):
+        return False
+    args = server.get("args") or []
+    if not isinstance(args, list):
+        return False
+    for i, arg in enumerate(args):
+        if arg == "-m" and i + 1 < len(args) and args[i + 1] == "omnimem":
+            return True
+    return False
+
+
+def _mcp_toml_is_legacy(path):
+    if not path.exists():
+        return False
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    section_match = re.search(
+        r"\[mcp_servers\.omnimem\](.*?)(?:\n\[|\Z)",
+        text,
+        re.DOTALL,
+    )
+    if not section_match:
+        return False
+    args_match = re.search(r"args\s*=\s*\[([^\]]*)\]", section_match.group(1))
+    if not args_match:
+        return False
+    args_text = args_match.group(1)
+    return '"-m"' in args_text or "'-m'" in args_text
+
+
+def migrate_legacy_mcp_commands(base_home=None, base_cwd=None):
+    """Rewrite v1.2.6-era `<python> -m omnimem mcp serve` MCP entries to the
+    console-script shape introduced in v1.2.7.
+
+    Idempotent. Returns a list of {agent, scope} records for any rewrite that
+    happened (empty list when nothing to do).
+    """
+    migrations = []
+    for agent in SUPPORTED_AGENTS:
+        for scope in ("user", "project"):
+            try:
+                config_path = get_mcp_config_path(
+                    agent, scope, base_home=base_home, base_cwd=base_cwd
+                )
+            except InitError:
+                continue
+            if agent == "codex":
+                if scope == "project":
+                    continue
+                if not _mcp_toml_is_legacy(config_path):
+                    continue
+            else:
+                if not _mcp_json_is_legacy(config_path):
+                    continue
+            try:
+                install_mcp_config(
+                    agent, scope=scope, base_home=base_home, base_cwd=base_cwd
+                )
+            except InitError:
+                continue
+            migrations.append({"agent": agent, "scope": scope})
+    return migrations
 
 
 def detect_installed_agents(base_home=None):

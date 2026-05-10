@@ -7,6 +7,7 @@ Codex CLI hooks land once their lifecycle API is stable.
 """
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -30,20 +31,33 @@ def _home():
 
 
 def _omnimem_command():
-    """Return the Python interpreter path in a shell-safe form.
+    """Return the omnimem console-script path in a shell-safe form.
 
-    Hook commands are stored in JSON config files. Claude Code and Codex CLI
-    on Windows pass them through `bash -c`, which interprets backslashes as
-    escape characters and silently strips them. So `C:\\Users\\foo\\python.exe`
-    becomes `C:Usersfoopython.exe`. We always emit POSIX-style forward slashes
-    — Python on Windows accepts them natively, and bash leaves them alone.
+    `python -m omnimem` is fragile: on any sys.path entry that resolves
+    `omnimem` to a package or namespace package (e.g. CWD containing a sibling
+    `omnimem/` directory), runpy raises "'omnimem' is a package and cannot be
+    directly executed". Console scripts dispatch through importlib.metadata
+    entry points and bypass module-resolution machinery entirely, so they are
+    immune.
+
+    Path emission uses POSIX-style forward slashes so the entry survives
+    `bash -c` quoting on Windows — bash treats backslashes as escape chars
+    and silently consumes them, turning `C:\\Users\\foo\\omnimem.exe` into
+    `C:Usersfoo\\omnimem.exe`. Forward slashes work natively on both Windows
+    and POSIX shells.
     """
-    raw = sys.executable or "python"
-    return raw.replace("\\", "/")
+    raw = sys.executable or ""
+    if raw:
+        bin_dir = Path(raw).parent
+        for name in ("omnimem.exe", "omnimem") if os.name == "nt" else ("omnimem",):
+            candidate = bin_dir / name
+            if candidate.exists():
+                return str(candidate).replace("\\", "/")
+    return "omnimem"
 
 
 def _omnimem_args(*extra):
-    return ["-m", "omnimem", *extra]
+    return list(extra)
 
 
 def _claude_settings_path(scope, base_home=None, base_cwd=None):
@@ -458,3 +472,143 @@ def gated_reindex_from_stdin(stdin=None, root_dir=SOURCE_ROOT):
 
     result = reindex_all_notes(root_dir=root_dir)
     return {"acted": True, "file_path": str(file_path), "result": result}
+
+
+_LEGACY_CMD_RE = re.compile(
+    r'^\s*(?:"[^"]+"|\'[^\']+\'|\S+)\s+-m\s+omnimem(\s|$)'
+)
+
+
+def _rewrite_legacy_command(command, new_launcher):
+    """If `command` starts with `<some-launcher> -m omnimem`, swap the launcher
+    for `new_launcher` and drop the `-m omnimem` segment. Returns the rewritten
+    string, or `None` if the command does not match the legacy shape."""
+    if not isinstance(command, str):
+        return None
+    if not _LEGACY_CMD_RE.match(command):
+        return None
+    return _LEGACY_CMD_RE.sub(lambda m: new_launcher + m.group(1), command, count=1)
+
+
+def _command_is_legacy(command):
+    return _rewrite_legacy_command(command, "_") is not None
+
+
+def _rewrite_legacy_in_settings(settings, new_launcher):
+    """Walk a Claude settings.json dict and rewrite any hook command that
+    matches the legacy `<python> -m omnimem ...` shape, regardless of whether
+    it carries our `omnimem-v1` tag. Returns the sorted list of events that
+    were touched (empty when no rewrite happened)."""
+    changed = set()
+    for event, entries in (settings.get("hooks") or {}).items():
+        for entry in entries or []:
+            for nested in entry.get("hooks") or []:
+                rewritten = _rewrite_legacy_command(nested.get("command"), new_launcher)
+                if rewritten is None:
+                    continue
+                nested["command"] = rewritten
+                changed.add(event)
+    return sorted(changed)
+
+
+def _claude_legacy_events(target):
+    """Return the list of events in `target` that contain at least one hook
+    command still matching the legacy `<python> -m omnimem ...` shape — used
+    by tests and status reporting."""
+    if not target.exists():
+        return []
+    try:
+        settings = json.loads(target.read_text(encoding="utf-8") or "{}")
+    except json.JSONDecodeError:
+        return []
+    legacy = []
+    for event, entries in (settings.get("hooks") or {}).items():
+        for entry in entries or []:
+            for nested in entry.get("hooks") or []:
+                if _command_is_legacy(nested.get("command")):
+                    legacy.append(event)
+                    break
+    return legacy
+
+
+def _rewrite_legacy_in_codex_toml(text, new_launcher):
+    """Rewrite legacy `command = "<python> -m omnimem ..."` lines inside the
+    OmniMem START/END marker block. Returns (new_text, changed_bool)."""
+    match = _CODEX_BLOCK_RE.search(text)
+    if not match:
+        return text, False
+    block = match.group(0)
+    new_block, count = re.subn(
+        r'(command\s*=\s*)"([^"]+)"',
+        lambda m: m.group(1) + json.dumps(
+            _rewrite_legacy_command(m.group(2), new_launcher) or m.group(2)
+        ),
+        block,
+    )
+    if new_block == block:
+        return text, False
+    return text[: match.start()] + new_block + text[match.end():], True
+
+
+def _codex_block_is_legacy(target):
+    if not target.exists():
+        return False
+    try:
+        text = target.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    match = _CODEX_BLOCK_RE.search(text)
+    if not match:
+        return False
+    return bool(re.search(r"-m\s+omnimem", match.group(0)))
+
+
+def migrate_legacy_commands(base_home=None, base_cwd=None):
+    """Rewrite `<python> -m omnimem ...` hook commands to the console-script
+    shape introduced in v1.2.7.
+
+    Detection is by command **shape** (regex match on `-m omnimem`), not by
+    the `omnimem-v1` tag — older OmniMem versions and hand-installed entries
+    from docs lack the tag, and we still need to fix them.
+
+    Rewriting is in-place: structure (matchers, sibling entries, ordering) is
+    preserved. We do NOT auto-tag entries we did not previously own. We do NOT
+    deduplicate — that is a separate user-driven concern.
+
+    Idempotent: running twice on already-migrated config is a no-op. Returns a
+    list of `{agent, scope, events}` records describing what was migrated.
+    """
+    new_launcher = _omnimem_command()
+    migrations = []
+
+    for scope in ("user", "project"):
+        target = _claude_settings_path(scope, base_home=base_home, base_cwd=base_cwd)
+        if not target.exists():
+            continue
+        try:
+            settings = json.loads(target.read_text(encoding="utf-8") or "{}")
+        except json.JSONDecodeError:
+            continue
+        changed_events = _rewrite_legacy_in_settings(settings, new_launcher)
+        if changed_events:
+            target.write_text(
+                json.dumps(settings, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            migrations.append(
+                {"agent": "claude", "scope": scope, "events": changed_events}
+            )
+
+    for scope in ("user", "project"):
+        target = _codex_config_path(scope, base_home=base_home, base_cwd=base_cwd)
+        if not target.exists():
+            continue
+        try:
+            text = target.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        new_text, changed = _rewrite_legacy_in_codex_toml(text, new_launcher)
+        if changed:
+            target.write_text(new_text, encoding="utf-8")
+            migrations.append({"agent": "codex", "scope": scope})
+    return migrations
