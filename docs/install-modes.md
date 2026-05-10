@@ -9,7 +9,7 @@ Use this when you want the repo launchers, local scripts, and built-in self-upda
 ```bash
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
-./setup.sh
+./scripts/setup.sh
 ```
 
 Characteristics:

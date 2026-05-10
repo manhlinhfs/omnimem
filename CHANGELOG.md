@@ -1,5 +1,59 @@
 # Changelog
 
+## v1.2.8 - Tidier root: setup scripts and example config moved into subdirs
+
+A cosmetic / organisational refresh. No code changes; runtime behaviour is
+identical to v1.2.7. The repo root had drifted to ~55 entries (28
+top-level `.py` modules + 7 setup/launcher scripts + 13 doc/metadata
+files), which made the project look cluttered on the first impression.
+
+### Moved
+
+- `setup.sh`, `setup.bat`, `setup.ps1` → `scripts/`
+- `omnimem.example.json` → `examples/`
+
+The launcher scripts `omnimem`, `omnimem.bat`, `omnimem.ps1` **stay at the
+repo root** because the install instructions tell users to add the repo
+directory to `PATH` so they can call `omnimem` from anywhere; moving them
+would break that.
+
+`install.sh` also stays at the repo root because the published one-liner
+`curl -fsSL https://raw.githubusercontent.com/manhlinhfs/omnimem/main/install.sh | bash`
+points there.
+
+### Updated
+
+- `install.sh`: invokes `./scripts/setup.sh` instead of `./setup.sh`.
+- `MANIFEST.in`: includes `scripts/` and `examples/` so they ship in sdist.
+- `.github/workflows/ci.yml`: `bash -n scripts/setup.sh`.
+- `README.md`, `README_vi.md`, `README_ru.md`: install snippets updated to
+  `./scripts/setup.sh` (or `.\scripts\setup.ps1` on Windows) and
+  `cp examples/omnimem.example.json omnimem.json`.
+- `QUICKSTART.md`, `CONTRIBUTING.md`, `TROUBLESHOOTING.md`: same.
+- `docs/release-checklist.md`, `docs/install-modes.md`, `docs/faq.md`,
+  `docs/configuration.md`: updated references.
+- `tests/test_release_metadata.py`: `test_example_config_exists` now
+  checks `examples/omnimem.example.json`.
+- `.gitignore` comment.
+
+### Migration for existing checkouts
+
+If you have a v1.2.7 (or older) checkout and run `git pull`, the moved
+files come with the pull — nothing to do. If you previously ran
+`./setup.sh` from the repo root, that path no longer exists; use
+`./scripts/setup.sh` instead. Same for `setup.bat` / `setup.ps1`.
+
+The `omnimem` launcher (and `omnimem.bat`, `omnimem.ps1`) are unchanged.
+Anything you have on `PATH` keeps working.
+
+### Coming next
+
+A larger Phase 2 refactor that moves all 27 `omni_*.py` modules into a
+proper `omnimem/` package is sketched in
+`docs/refactor-package-layout-v1.3.0.md`. That is a breaking change to
+the import surface (`from omni_hooks import ...` →
+`from omnimem.hooks import ...`) and is being held for v1.3.0.
+
 ## v1.2.7 - Console-script hooks + auto-migration
 
 Stop / SessionStart / PostToolUse hooks installed by v1.2.6 (and earlier

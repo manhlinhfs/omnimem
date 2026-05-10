@@ -1,4 +1,4 @@
-# OmniMem v1.2.7 - The CLI Second Brain 🧠
+# OmniMem v1.2.8 - The CLI Second Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -6,7 +6,7 @@
 >
 > ```bash
 > git clone https://github.com/manhlinhfs/omnimem.git && cd omnimem
-> ./setup.sh
+> ./scripts/setup.sh
 > ./omnimem quickstart        # interactive: detect agents, install, seed welcome note
 > ```
 
@@ -35,26 +35,26 @@ For the fastest path see the Quickstart block at the top of this README. Below a
 curl -fsSL https://raw.githubusercontent.com/manhlinhfs/omnimem/main/install.sh | bash
 ~/.omnimem-cli/omnimem quickstart
 ```
-Clones into `~/.omnimem-cli` (override with `OMNIMEM_INSTALL_DIR=...`), runs `setup.sh`, then leaves you at the interactive wizard.
+Clones into `~/.omnimem-cli` (override with `OMNIMEM_INSTALL_DIR=...`), runs `scripts/setup.sh`, then leaves you at the interactive wizard.
 
 ### Linux / macOS (manual clone)
 ```bash
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
-chmod +x setup.sh
-./setup.sh
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 ./omnimem quickstart
 ```
-`setup.sh` installs dependencies and downloads the embedding model. The model lives at `<OMNIMEM_HOME>/.omnimem_models/` (default `~/.omnimem/.omnimem_models/`) — **not inside the repo**.
+`scripts/setup.sh` installs dependencies and downloads the embedding model. The model lives at `<OMNIMEM_HOME>/.omnimem_models/` (default `~/.omnimem/.omnimem_models/`) — **not inside the repo**.
 
 ### Windows (PowerShell)
 ```powershell
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
-.\setup.ps1
+.\scripts\setup.ps1
 .\omnimem quickstart
 ```
-`setup.ps1` performs the same bootstrap on Windows. Runtime data lives at `~/.omnimem/` by default (same as Linux/macOS). The launcher `.\omnimem.bat` works from `cmd.exe` too.
+`scripts\setup.ps1` performs the same bootstrap on Windows. Runtime data lives at `~/.omnimem/` by default (same as Linux/macOS). The launcher `.\omnimem.bat` works from `cmd.exe` too.
 
 ### Package install mode
 ```bash
@@ -86,7 +86,7 @@ python3 omni_doctor.py --json
 
 ### Configure runtime paths and behavior
 ```bash
-cp omnimem.example.json omnimem.json
+cp examples/omnimem.example.json omnimem.json
 ./omnimem doctor
 ```
 Edit `omnimem.json` to move the DB/model directories or change operational settings without editing code.
@@ -306,7 +306,7 @@ Patterns covered: AWS, GitHub PAT/OAuth, OpenAI, Anthropic, Slack, Google, Strip
 ### Configure runtime paths
 
 ```bash
-cp omnimem.example.json omnimem.json
+cp examples/omnimem.example.json omnimem.json
 ./omnimem doctor                              # confirms the new paths are loaded
 ```
 

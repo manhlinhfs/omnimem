@@ -1,4 +1,4 @@
-# OmniMem v1.2.7 - CLI «Второй Мозг» 🧠
+# OmniMem v1.2.8 - CLI «Второй Мозг» 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -6,7 +6,7 @@
 >
 > ```bash
 > git clone https://github.com/manhlinhfs/omnimem.git && cd omnimem
-> ./setup.sh
+> ./scripts/setup.sh
 > ./omnimem quickstart        # интерактивно: обнаружить агенты, установить, создать welcome-заметку
 > ```
 
@@ -34,19 +34,19 @@ OmniMem — это мультимодальный «второй мозг», LLM
 ```bash
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
-chmod +x setup.sh
-./setup.sh
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 ./omnimem quickstart
 ```
 
-`setup.sh` устанавливает зависимости и скачивает embedding-модель в `.omnimem_models/`. `omnimem quickstart` — интерактивный мастер для подключения OmniMem к установленным CLI агентов.
+`scripts/setup.sh` устанавливает зависимости и скачивает embedding-модель в `.omnimem_models/`. `omnimem quickstart` — интерактивный мастер для подключения OmniMem к установленным CLI агентов.
 
 ### Windows (PowerShell)
 
 ```powershell
 git clone https://github.com/manhlinhfs/omnimem.git
 cd omnimem
-.\setup.ps1
+.\scripts\setup.ps1
 .\omnimem quickstart
 ```
 

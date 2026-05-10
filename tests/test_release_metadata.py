@@ -72,7 +72,7 @@ class TestReleaseMetadata(unittest.TestCase):
         self.assertIn("Reindexing", reindexing.read_text(encoding="utf-8"))
 
     def test_example_config_exists(self):
-        example = ROOT_DIR / "omnimem.example.json"
+        example = ROOT_DIR / "examples" / "omnimem.example.json"
         self.assertTrue(example.exists())
         self.assertIn("\"db_dir\"", example.read_text(encoding="utf-8"))
 

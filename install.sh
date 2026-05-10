@@ -43,11 +43,11 @@ fi
 
 cd "$INSTALL_DIR"
 
-if [[ -x "./setup.sh" ]]; then
-    log "Running setup.sh (this bootstraps the embedding model on first run)."
-    ./setup.sh
+if [[ -x "./scripts/setup.sh" ]]; then
+    log "Running scripts/setup.sh (this bootstraps the embedding model on first run)."
+    ./scripts/setup.sh
 else
-    err "setup.sh not found or not executable in $INSTALL_DIR."
+    err "scripts/setup.sh not found or not executable in $INSTALL_DIR."
 fi
 
 LAUNCHER="$INSTALL_DIR/omnimem"

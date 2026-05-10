@@ -9,7 +9,7 @@ Use this checklist before tagging a new OmniMem release.
 
 ## Quality gates
 - Run `python3 -m compileall omnimem.py omni_add.py omni_bootstrap.py omni_chunking.py omni_config.py omni_del.py omni_doctor.py omni_embeddings.py omni_import.py omni_metadata.py omni_ops.py omni_paths.py omni_reindex.py omni_search.py omni_search_core.py omni_service.py omni_update.py omni_version.py`
-- Run `bash -n setup.sh`
+- Run `bash -n scripts/setup.sh`
 - Run `bash -n omnimem`
 - Run `python3 -m unittest discover -s tests -v`
 - Run `python3 -m build`
