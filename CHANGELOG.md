@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.3.1 - Fix PowerShell variable escape in setup.ps1
+
+`scripts/setup.ps1:6` printed the version banner with `"v$version:"`.
+PowerShell parses `$version:` as a drive-qualified variable reference, so
+running the script on Windows failed immediately with
+`InvalidVariableReferenceWithDrive` and never reached the venv / pip /
+bootstrap steps. A first-time Windows user following the README would
+get stuck before any dependency was installed.
+
+The fix wraps the variable in `${version}` so the trailing colon stays a
+literal character in the banner. `setup.bat` (cmd.exe) and `setup.sh`
+(bash) were audited and were not affected — only the PowerShell script
+needed the escape.
+
 ## v1.3.0 - Package layout refactor (breaking import surface)
 
 The 28 top-level Python modules at the repo root (`omnimem.py` plus 27
