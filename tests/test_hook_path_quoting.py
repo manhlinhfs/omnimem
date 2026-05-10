@@ -26,8 +26,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from omni_hooks import OMNIMEM_HOOK_TAG, _omnimem_command, install_claude_hooks
-from omni_init import _detect_omnimem_command
+from omnimem.hooks import OMNIMEM_HOOK_TAG, _omnimem_command, install_claude_hooks
+from omnimem.init import _detect_omnimem_command
 
 
 def _remove_tree(path):
@@ -53,7 +53,7 @@ class TestPathQuoting(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             suffix = ".exe" if os.name == "nt" else ""
             python_path, omnimem_path = _make_fake_console_script(tmp, suffix=suffix)
-            with patch("omni_hooks.sys.executable", python_path):
+            with patch("omnimem.hooks.sys.executable", python_path):
                 resolved = _omnimem_command()
             self.assertEqual(resolved, omnimem_path.replace("\\", "/"))
             self.assertNotIn("\\", resolved)
@@ -62,25 +62,25 @@ class TestPathQuoting(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             python_path = Path(tmp) / ("python.exe" if os.name == "nt" else "python")
             python_path.write_text("", encoding="utf-8")
-            with patch("omni_hooks.sys.executable", str(python_path)):
+            with patch("omnimem.hooks.sys.executable", str(python_path)):
                 self.assertEqual(_omnimem_command(), "omnimem")
 
     def test_omnimem_command_falls_back_to_naked_omnimem_when_executable_blank(self):
-        with patch("omni_hooks.sys.executable", ""):
+        with patch("omnimem.hooks.sys.executable", ""):
             self.assertEqual(_omnimem_command(), "omnimem")
 
     def test_init_detect_command_resolves_console_script(self):
         with tempfile.TemporaryDirectory() as tmp:
             suffix = ".exe" if os.name == "nt" else ""
             python_path, omnimem_path = _make_fake_console_script(tmp, suffix=suffix)
-            with patch("omni_init.sys.executable", python_path):
+            with patch("omnimem.init.sys.executable", python_path):
                 spec = _detect_omnimem_command()
             self.assertEqual(spec["command"], omnimem_path.replace("\\", "/"))
             self.assertEqual(spec["args"], ["mcp", "serve"])
             self.assertNotIn("\\", spec["command"])
 
     def test_init_detect_command_falls_back_to_naked_omnimem(self):
-        with patch("omni_init.sys.executable", ""):
+        with patch("omnimem.init.sys.executable", ""):
             spec = _detect_omnimem_command()
             self.assertEqual(spec["command"], "omnimem")
             self.assertEqual(spec["args"], ["mcp", "serve"])
@@ -98,7 +98,7 @@ class TestInstalledHookCommandsAreShellSafe(unittest.TestCase):
     def test_claude_settings_command_uses_console_script_with_no_dash_m(self):
         suffix = ".exe" if os.name == "nt" else ""
         python_path, omnimem_path = _make_fake_console_script(self.tmp_bin, suffix=suffix)
-        with patch("omni_hooks.sys.executable", python_path):
+        with patch("omnimem.hooks.sys.executable", python_path):
             result = install_claude_hooks(
                 base_home=self.tmp_home,
                 base_cwd=self.tmp_cwd,

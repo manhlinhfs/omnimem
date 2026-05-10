@@ -5,17 +5,17 @@ import platform
 import sys
 from pathlib import Path
 
-from omni_config import resolve_runtime_config, serialize_runtime_config
-from omni_paths import SOURCE_ROOT, get_bootstrap_command, get_db_dir, get_runtime_home
+from omnimem.config import resolve_runtime_config, serialize_runtime_config
+from omnimem.paths import SOURCE_ROOT, get_bootstrap_command, get_db_dir, get_runtime_home
 
-from omni_embeddings import (  # noqa: E402
+from omnimem.embeddings import (  # noqa: E402
     MODEL_REPO_ID,
     build_embedding_function,
     ensure_model_ready,
     get_model_dir,
     is_model_bootstrapped,
 )
-from omni_version import add_version_argument, get_version, get_version_banner  # noqa: E402
+from omnimem.version import add_version_argument, get_version, get_version_banner  # noqa: E402
 
 
 COLLECTION_NAME = "omnimem_core"
@@ -111,7 +111,7 @@ def run_doctor(deep=False):
     results.append(_result("runtime_home", "pass", str(runtime_home)))
 
     try:
-        from omni_vault import get_notes_dir, get_vault_root, list_note_paths
+        from omnimem.vault import get_notes_dir, get_vault_root, list_note_paths
 
         vault_root = get_vault_root(root_dir=SOURCE_ROOT)
         notes_dir = get_notes_dir(root_dir=SOURCE_ROOT)
@@ -137,7 +137,7 @@ def run_doctor(deep=False):
         results.append(_result("vault", "fail", f"Vault inspection failed: {exc}"))
 
     try:
-        from omni_init import status as init_status
+        from omnimem.init import status as init_status
 
         init_report = init_status()
         installed_pairs = []
@@ -287,7 +287,7 @@ def run_doctor(deep=False):
         overall = "warn"
 
     return {
-        "tool": "omni_doctor",
+        "tool": "omnimem.doctor",
         "version": get_version(),
         "overall": overall,
         "deep": deep,

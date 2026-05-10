@@ -36,7 +36,7 @@ class TestGatedReindex(unittest.TestCase):
         self.addCleanup(_remove_tree, self.tmpdir)
         os.environ["OMNIMEM_HOME"] = str(self.tmpdir_path)
 
-        from omni_vault import ensure_vault_layout, get_vault_root
+        from omnimem.vault import ensure_vault_layout, get_vault_root
 
         ensure_vault_layout(root_dir=self.tmpdir_path)
         self.vault_root = Path(get_vault_root(root_dir=self.tmpdir_path)).resolve()
@@ -45,7 +45,7 @@ class TestGatedReindex(unittest.TestCase):
         self.vault_note.write_text("---\nslug: decision-foo\n---\nbody\n", encoding="utf-8")
 
     def _run(self, payload, reindex_called=None):
-        from omni_hooks import gated_reindex_from_stdin
+        from omnimem.hooks import gated_reindex_from_stdin
 
         stdin = io.StringIO(json.dumps(payload) if payload is not None else "")
         calls = []
@@ -54,7 +54,7 @@ class TestGatedReindex(unittest.TestCase):
             calls.append({"root_dir": root_dir, "dry_run": dry_run})
             return {"indexed": 1, "failed": [], "total": 1}
 
-        with patch("omni_note_index.reindex_all_notes", _fake_reindex):
+        with patch("omnimem.note_index.reindex_all_notes", _fake_reindex):
             report = gated_reindex_from_stdin(stdin=stdin, root_dir=self.tmpdir_path)
         if reindex_called is not None:
             self.assertEqual(len(calls), reindex_called, msg=f"report={report}")
@@ -66,9 +66,9 @@ class TestGatedReindex(unittest.TestCase):
         self.assertEqual(report["reason"], "empty stdin")
 
     def test_skips_when_payload_is_invalid_json(self):
-        from omni_hooks import gated_reindex_from_stdin
+        from omnimem.hooks import gated_reindex_from_stdin
 
-        with patch("omni_note_index.reindex_all_notes") as reindex:
+        with patch("omnimem.note_index.reindex_all_notes") as reindex:
             report = gated_reindex_from_stdin(
                 stdin=io.StringIO("not-json"),
                 root_dir=self.tmpdir_path,
@@ -121,7 +121,7 @@ class TestGatedReindex(unittest.TestCase):
     def test_post_tool_use_recipe_uses_gated_command(self):
         # Pin the wire format so a regression in `_hook_recipe` doesn't
         # silently revert to the old "always reindex" behavior.
-        from omni_hooks import _hook_recipe
+        from omnimem.hooks import _hook_recipe
 
         recipe = _hook_recipe("PostToolUse")
         command = recipe["hooks"][0]["command"]

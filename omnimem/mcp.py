@@ -15,8 +15,8 @@ import sys
 import threading
 import traceback
 
-from omni_paths import SOURCE_ROOT
-from omni_version import get_version
+from omnimem.paths import SOURCE_ROOT
+from omnimem.version import get_version
 
 JSONRPC_VERSION = "2.0"
 PROTOCOL_VERSION = "2024-11-05"
@@ -41,7 +41,7 @@ def _get_omni_runtime(root_dir):
         cached = _OMNI_RUNTIME_CACHE.get(key)
         if cached is not None:
             return cached
-        from omni_search_core import OmniRuntime
+        from omnimem.search_core import OmniRuntime
 
         runtime = OmniRuntime(root_dir=root_dir)
         _OMNI_RUNTIME_CACHE[key] = runtime
@@ -57,7 +57,7 @@ def _get_note_runtime(root_dir):
         cached = _NOTE_RUNTIME_CACHE.get(key)
         if cached is not None:
             return cached
-        from omni_note_index import NoteRuntime
+        from omnimem.note_index import NoteRuntime
 
         runtime = NoteRuntime(root_dir=root_dir)
         _NOTE_RUNTIME_CACHE[key] = runtime
@@ -196,9 +196,9 @@ def dispatch_tool(name, arguments, root_dir=SOURCE_ROOT):
 
 
 def _tool_note_new(args, root_dir):
-    from omni_note import create_note
-    from omni_note_index import index_note_record
-    from omni_vault import ensure_vault_layout
+    from omnimem.note import create_note
+    from omnimem.note_index import index_note_record
+    from omnimem.vault import ensure_vault_layout
 
     ensure_vault_layout(root_dir=root_dir)
     title = args.get("title")
@@ -243,7 +243,7 @@ def _tool_note_new(args, root_dir):
 
 
 def _tool_note_search(args, root_dir):
-    from omni_note_index import search_notes
+    from omnimem.note_index import search_notes
 
     query = args.get("query")
     if not query:
@@ -281,7 +281,7 @@ def _tool_note_search(args, root_dir):
 
 
 def _tool_note_show(args, root_dir):
-    from omni_note import find_backlinks, read_note
+    from omnimem.note import find_backlinks, read_note
 
     slug_or_id = args.get("slug_or_id")
     if not slug_or_id:
@@ -305,8 +305,8 @@ def _tool_note_show(args, root_dir):
 
 
 def _tool_note_link(args, root_dir):
-    from omni_note import add_link, read_note
-    from omni_note_index import index_note_record
+    from omnimem.note import add_link, read_note
+    from omnimem.note_index import index_note_record
 
     from_slug = args.get("from")
     to_slug = args.get("to")
@@ -329,7 +329,7 @@ def _tool_note_link(args, root_dir):
 
 
 def _tool_search_all(args, root_dir):
-    from omni_note_index import search_notes
+    from omnimem.note_index import search_notes
 
     query = args.get("query")
     if not query:
@@ -399,7 +399,7 @@ def _tool_search_all(args, root_dir):
 def _tool_import_file(args, root_dir):
     import asyncio
 
-    from omni_import import import_file_advanced
+    from omnimem.import_ import import_file_advanced
 
     path = args.get("path")
     if not path:

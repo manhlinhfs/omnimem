@@ -1,9 +1,9 @@
 import argparse
 import sys
 
-from omni_paths import SOURCE_ROOT
-from omni_search_core import SearchRuntime, render_search_results
-from omni_version import add_version_argument
+from omnimem.paths import SOURCE_ROOT
+from omnimem.search_core import SearchRuntime, render_search_results
+from omnimem.version import add_version_argument
 
 
 def search_memory(
@@ -21,7 +21,7 @@ def search_memory(
     records = None
     if prefer_service:
         try:
-            from omni_service import SearchServiceError, search_via_service
+            from omnimem.service import SearchServiceError, search_via_service
 
             records = search_via_service(
                 query,
@@ -78,7 +78,7 @@ def federate_with_notes(query, core_records, n_results=5):
         federated.append(item)
 
     try:
-        from omni_note_index import search_notes
+        from omnimem.note_index import search_notes
 
         note_records = search_notes(query, n_results=n_results)
     except Exception as exc:
@@ -98,7 +98,7 @@ def federate_with_notes(query, core_records, n_results=5):
         )
 
     try:
-        from omni_codemap import CodemapRuntime
+        from omnimem.codemap import CodemapRuntime
 
         codemap_runtime = CodemapRuntime()
         codemap_records = codemap_runtime.query(query, n_results=n_results)

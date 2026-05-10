@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from omni_reindex import ReindexError, reindex_collection
+from omnimem.reindex import ReindexError, reindex_collection
 
 
 class FakeCollection:
@@ -130,7 +130,7 @@ class TestOmniReindex(unittest.TestCase):
                 "OMNIMEM_CHUNK_OVERLAP_TOKENS": "4",
             }
 
-            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_embeddings": fake_embeddings}):
+            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omnimem.embeddings": fake_embeddings}):
                 with patch.dict(os.environ, {**os.environ, **env}, clear=True):
                     report = reindex_collection(root_dir=root, skip_backup=True)
 
@@ -172,7 +172,7 @@ class TestOmniReindex(unittest.TestCase):
             fake_chromadb = types.SimpleNamespace(PersistentClient=FakePersistentClient)
             fake_embeddings = types.SimpleNamespace(build_embedding_function=lambda: "ef")
 
-            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_embeddings": fake_embeddings}):
+            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omnimem.embeddings": fake_embeddings}):
                 with patch.dict(os.environ, {**os.environ, "OMNIMEM_HOME": str(root)}):
                     report = reindex_collection(root_dir=root, dry_run=True, skip_backup=True)
 
@@ -233,8 +233,8 @@ class TestOmniReindex(unittest.TestCase):
                     FakePersistentClient.stores[db_path]["omnimem_core"] = broken_collection
                     return {"replaced": len(records)}
 
-            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_embeddings": fake_embeddings}):
-                with patch("omni_reindex.OmniRuntime", CorruptingRuntime):
+            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omnimem.embeddings": fake_embeddings}):
+                with patch("omnimem.reindex.OmniRuntime", CorruptingRuntime):
                     with patch.dict(os.environ, {**os.environ, "OMNIMEM_HOME": str(root)}):
                         with self.assertRaises(ReindexError):
                             reindex_collection(root_dir=root, skip_backup=True)

@@ -8,9 +8,9 @@ import tarfile
 import tempfile
 from pathlib import Path
 
-from omni_config import discover_config, get_preferred_config_path, resolve_runtime_config
-from omni_paths import SOURCE_ROOT, get_db_dir, get_models_root, get_runtime_home
-from omni_version import add_version_argument, get_version, get_version_banner
+from omnimem.config import discover_config, get_preferred_config_path, resolve_runtime_config
+from omnimem.paths import SOURCE_ROOT, get_db_dir, get_models_root, get_runtime_home
+from omnimem.version import add_version_argument, get_version, get_version_banner
 
 COLLECTION_NAME = "omnimem_core"
 
@@ -63,7 +63,7 @@ def create_backup(
     include_config=True,
     root_dir=SOURCE_ROOT,
 ):
-    from omni_vault import get_vault_root
+    from omnimem.vault import get_vault_root
 
     runtime_config = resolve_runtime_config(root_dir=root_dir)
     config_report = runtime_config["config"]
@@ -81,7 +81,7 @@ def create_backup(
             config_path = candidate
 
     manifest = {
-        "tool": "omni_backup",
+        "tool": "omnimem.backup",
         "version": get_version(),
         "created_at": datetime.datetime.now(datetime.timezone.utc)
         .replace(tzinfo=None)
@@ -109,7 +109,7 @@ def create_backup(
             archive.add(config_path, arcname="config/config.json")
 
     return {
-        "tool": "omni_backup",
+        "tool": "omnimem.backup",
         "status": "pass",
         "output_path": str(archive_path),
         "db_included": db_dir.exists(),
@@ -149,7 +149,7 @@ def export_memories(output_path=None, overwrite=False, root_dir=SOURCE_ROOT):
             )
 
     export_payload = {
-        "tool": "omni_export",
+        "tool": "omnimem.export",
         "version": get_version(),
         "exported_at": datetime.datetime.now(datetime.timezone.utc)
         .replace(tzinfo=None)
@@ -162,7 +162,7 @@ def export_memories(output_path=None, overwrite=False, root_dir=SOURCE_ROOT):
     target_path.write_text(json.dumps(export_payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
     return {
-        "tool": "omni_export",
+        "tool": "omnimem.export",
         "status": "pass",
         "output_path": str(target_path),
         "record_count": len(items),
@@ -189,7 +189,7 @@ def restore_backup(archive_path, force=False, root_dir=SOURCE_ROOT):
     if not tarfile.is_tarfile(archive_path):
         raise OpsError(f"Not a valid backup archive: {archive_path}")
 
-    from omni_vault import get_vault_root
+    from omnimem.vault import get_vault_root
 
     db_dir = get_db_dir(root_dir=root_dir)
     models_dir = get_models_root(root_dir=root_dir)
@@ -228,7 +228,7 @@ def restore_backup(archive_path, force=False, root_dir=SOURCE_ROOT):
             restored_targets.append(str(target_file))
 
     return {
-        "tool": "omni_restore",
+        "tool": "omnimem.restore",
         "status": "pass",
         "input_path": str(archive_path),
         "restore_kind": "backup",
@@ -251,7 +251,7 @@ def restore_export(export_path, force=False, root_dir=SOURCE_ROOT):
 
     import chromadb
 
-    from omni_embeddings import build_embedding_function
+    from omnimem.embeddings import build_embedding_function
 
     client = chromadb.PersistentClient(path=str(get_db_dir(root_dir=root_dir)))
 
@@ -284,7 +284,7 @@ def restore_export(export_path, force=False, root_dir=SOURCE_ROOT):
         collection.add(documents=documents, metadatas=metadatas, ids=ids)
 
     return {
-        "tool": "omni_restore",
+        "tool": "omnimem.restore",
         "status": "pass",
         "input_path": str(export_path),
         "restore_kind": "export",
@@ -303,13 +303,13 @@ def restore_snapshot(input_path, force=False, root_dir=SOURCE_ROOT):
 def print_human_report(report):
     print(get_version_banner())
     print(f"Status: {report['status'].upper()}")
-    if report["tool"] == "omni_backup":
+    if report["tool"] == "omnimem.backup":
         print(f"Backup archive: {report['output_path']}")
         print(f"DB included: {report['db_included']}")
         print(f"Models included: {report['models_included']}")
         print(f"Vault included: {report.get('vault_included', False)}")
         print(f"Config included: {report['config_included']}")
-    elif report["tool"] == "omni_export":
+    elif report["tool"] == "omnimem.export":
         print(f"Export file: {report['output_path']}")
         print(f"Records exported: {report['record_count']}")
     else:
@@ -373,13 +373,13 @@ def main(argv=None):
             report = restore_snapshot(args.input_path, force=args.force)
     except OpsError as exc:
         if getattr(args, "json", False):
-            print(json.dumps({"tool": "omni_ops", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.ops", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         return 1
     except RuntimeError as exc:
         if getattr(args, "json", False):
-            print(json.dumps({"tool": "omni_ops", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.ops", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         return 1

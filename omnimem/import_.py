@@ -3,12 +3,12 @@ import asyncio
 import os
 import sys
 
-from omni_config import get_async_extract_timeout_seconds
-from omni_chunking import build_import_records
-from omni_metadata import current_timestamp
-from omni_paths import SOURCE_ROOT
-from omni_search_core import OmniRuntime
-from omni_version import add_version_argument
+from omnimem.config import get_async_extract_timeout_seconds
+from omnimem.chunking import build_import_records
+from omnimem.metadata import current_timestamp
+from omnimem.paths import SOURCE_ROOT
+from omnimem.search_core import OmniRuntime
+from omnimem.version import add_version_argument
 
 async def extract_with_fallback(file_path):
     try:
@@ -78,7 +78,7 @@ async def import_file_advanced(file_path, prefer_service=False):
     if documents:
         if prefer_service:
             try:
-                from omni_service import SearchServiceError, add_records_via_service
+                from omnimem.service import SearchServiceError, add_records_via_service
 
                 add_records_via_service(
                     documents,

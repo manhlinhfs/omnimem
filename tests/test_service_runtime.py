@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import omni_service
+import omnimem.service as omni_service
 
 
 class TestSearchServiceRuntimeIsolation(unittest.TestCase):

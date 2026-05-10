@@ -9,7 +9,7 @@ behavior so a regression would be caught.
 import unittest
 from unittest.mock import patch
 
-import omni_mcp
+import omnimem.mcp as omni_mcp
 
 
 class _CountingOmniRuntime:
@@ -44,28 +44,28 @@ class TestRuntimeCache(unittest.TestCase):
         omni_mcp._reset_runtime_cache()
 
     def test_get_omni_runtime_returns_same_instance_for_same_root(self):
-        with patch("omni_search_core.OmniRuntime", _CountingOmniRuntime):
+        with patch("omnimem.search_core.OmniRuntime", _CountingOmniRuntime):
             first = omni_mcp._get_omni_runtime("/tmp/vault-a")
             second = omni_mcp._get_omni_runtime("/tmp/vault-a")
         self.assertIs(first, second)
         self.assertEqual(_CountingOmniRuntime.instances, 1)
 
     def test_get_omni_runtime_separates_by_root_dir(self):
-        with patch("omni_search_core.OmniRuntime", _CountingOmniRuntime):
+        with patch("omnimem.search_core.OmniRuntime", _CountingOmniRuntime):
             first = omni_mcp._get_omni_runtime("/tmp/vault-a")
             second = omni_mcp._get_omni_runtime("/tmp/vault-b")
         self.assertIsNot(first, second)
         self.assertEqual(_CountingOmniRuntime.instances, 2)
 
     def test_get_note_runtime_returns_same_instance_for_same_root(self):
-        with patch("omni_note_index.NoteRuntime", _CountingNoteRuntime):
+        with patch("omnimem.note_index.NoteRuntime", _CountingNoteRuntime):
             first = omni_mcp._get_note_runtime("/tmp/vault-a")
             second = omni_mcp._get_note_runtime("/tmp/vault-a")
         self.assertIs(first, second)
         self.assertEqual(_CountingNoteRuntime.instances, 1)
 
     def test_get_note_runtime_separates_by_root_dir(self):
-        with patch("omni_note_index.NoteRuntime", _CountingNoteRuntime):
+        with patch("omnimem.note_index.NoteRuntime", _CountingNoteRuntime):
             first = omni_mcp._get_note_runtime("/tmp/vault-a")
             second = omni_mcp._get_note_runtime("/tmp/vault-b")
         self.assertIsNot(first, second)
@@ -73,8 +73,8 @@ class TestRuntimeCache(unittest.TestCase):
 
     def test_search_all_tool_reuses_runtimes_across_calls(self):
         """Two consecutive `search_all` calls must construct each runtime once."""
-        with patch("omni_search_core.OmniRuntime", _CountingOmniRuntime), patch(
-            "omni_note_index.NoteRuntime", _CountingNoteRuntime
+        with patch("omnimem.search_core.OmniRuntime", _CountingOmniRuntime), patch(
+            "omnimem.note_index.NoteRuntime", _CountingNoteRuntime
         ):
             omni_mcp.dispatch_tool(
                 "search_all", {"query": "hello"}, root_dir="/tmp/vault-x"

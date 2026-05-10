@@ -7,8 +7,8 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-import omni_search
-from omni_metadata import build_search_where
+import omnimem.search as omni_search
+from omnimem.metadata import build_search_where
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 
@@ -48,10 +48,12 @@ class FakePersistentClient:
 
 class TestSearchFilters(unittest.TestCase):
     def test_legacy_search_help_lists_filter_flags(self):
+        env = {**__import__("os").environ, "PYTHONPATH": str(ROOT_DIR)}
         result = subprocess.run(
-            [sys.executable, str(ROOT_DIR / "omni_search.py"), "--help"],
+            [sys.executable, "-m", "omnimem.search", "--help"],
             text=True,
             capture_output=True,
+            env=env,
         )
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         self.assertIn("--source", result.stdout)
@@ -64,7 +66,7 @@ class TestSearchFilters(unittest.TestCase):
         fake_chromadb = types.SimpleNamespace(PersistentClient=FakePersistentClient)
         fake_embeddings = types.SimpleNamespace(build_embedding_function=lambda: "ef")
         output = io.StringIO()
-        with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_embeddings": fake_embeddings}):
+        with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omnimem.embeddings": fake_embeddings}):
             with redirect_stdout(output):
                 omni_search.search_memory("release", **kwargs)
         return output.getvalue(), FakePersistentClient.last_collection.query_kwargs

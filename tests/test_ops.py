@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from omni_ops import create_backup, export_memories, restore_backup, restore_export
+from omnimem.ops import create_backup, export_memories, restore_backup, restore_export
 
 
 class FakeCollection:
@@ -143,7 +143,7 @@ class TestOmniOps(unittest.TestCase):
             fake_chromadb = types.SimpleNamespace(PersistentClient=FakePersistentClient)
             fake_embeddings = types.SimpleNamespace(build_embedding_function=lambda: "ef")
             export_path = source_root / "export.json"
-            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_embeddings": fake_embeddings}):
+            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omnimem.embeddings": fake_embeddings}):
                 export_report = export_memories(output_path=export_path, root_dir=source_root)
                 restore_report = restore_export(export_path, root_dir=restore_root)
 

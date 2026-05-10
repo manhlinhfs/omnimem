@@ -2,8 +2,8 @@ import os
 import tempfile
 import unittest
 
-from omni_note import create_note
-from omni_note_index import (
+from omnimem.note import create_note
+from omnimem.note_index import (
     NOTES_COLLECTION_NAME,
     NoteRuntime,
     index_note_record,
@@ -13,7 +13,7 @@ from omni_note_index import (
     search_notes,
     unindex_note_id,
 )
-from omni_vault import ensure_vault_layout
+from omnimem.vault import ensure_vault_layout
 
 
 def _restore_env(name, previous_value):

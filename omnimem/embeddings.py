@@ -2,8 +2,8 @@ import os
 import shutil
 from pathlib import Path
 
-from omni_config import get_allow_model_download
-from omni_paths import SOURCE_ROOT, get_bootstrap_command, get_models_root
+from omnimem.config import get_allow_model_download
+from omnimem.paths import SOURCE_ROOT, get_bootstrap_command, get_models_root
 
 MODEL_REPO_ID = os.getenv(
     "OMNIMEM_EMBED_MODEL_REPO", "sentence-transformers/all-MiniLM-L6-v2"

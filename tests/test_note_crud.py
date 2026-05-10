@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_note import (
+from omnimem.note import (
     NoteError,
     add_link,
     create_note,
@@ -17,7 +17,7 @@ from omni_note import (
     serialize_note,
     write_note,
 )
-from omni_vault import (
+from omnimem.vault import (
     DEFAULT_NOTE_TYPE,
     ensure_vault_layout,
     list_existing_note_slugs,

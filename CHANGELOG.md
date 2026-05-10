@@ -1,5 +1,123 @@
 # Changelog
 
+## v1.3.0 - Package layout refactor (breaking import surface)
+
+The 28 top-level Python modules at the repo root (`omnimem.py` plus 27
+`omni_*.py` files) are now a single `omnimem/` package. Runtime behaviour
+is unchanged — same CLI, same hooks, same MCP server, same v1.2.7
+auto-migration — but the **import surface is breaking**: anyone importing
+the modules directly must rename.
+
+### Why now
+
+- After v1.2.7 fixed the runpy `'omnimem' is a package' …` footgun by
+  switching hooks + MCP to the `omnimem` console script, the original
+  reason to keep `omnimem.py` flat fell away.
+- The repo root had 55 entries (28 of them top-level modules), which
+  looked cluttered and polluted `sys.path` with 27 leaked
+  top-level names.
+- Standard Python project layout is a single package; tooling
+  (mypy, isort, IDE refactors, packaging) all expect this shape.
+
+### Moved (via `git mv` so history follows)
+
+| Was (flat root)               | Now (inside `omnimem/`)        |
+|-------------------------------|--------------------------------|
+| `omnimem.py`                  | `omnimem/cli.py`               |
+| `omni_add.py`                 | `omnimem/add.py`               |
+| `omni_bootstrap.py`           | `omnimem/bootstrap.py`         |
+| `omni_canvas.py`              | `omnimem/canvas.py`            |
+| `omni_chunking.py`            | `omnimem/chunking.py`          |
+| `omni_codemap.py`             | `omnimem/codemap.py`           |
+| `omni_config.py`              | `omnimem/config.py`            |
+| `omni_del.py`                 | `omnimem/del_.py`  (keyword)   |
+| `omni_doctor.py`              | `omnimem/doctor.py`            |
+| `omni_embeddings.py`          | `omnimem/embeddings.py`        |
+| `omni_hooks.py`               | `omnimem/hooks.py`             |
+| `omni_import.py`              | `omnimem/import_.py` (keyword) |
+| `omni_init.py`                | `omnimem/init.py`              |
+| `omni_mcp.py`                 | `omnimem/mcp.py`               |
+| `omni_metadata.py`            | `omnimem/metadata.py`          |
+| `omni_note.py`                | `omnimem/note.py`              |
+| `omni_note_index.py`          | `omnimem/note_index.py`        |
+| `omni_ops.py`                 | `omnimem/ops.py`               |
+| `omni_paths.py`               | `omnimem/paths.py`             |
+| `omni_quickstart.py`          | `omnimem/quickstart.py`        |
+| `omni_redact.py`              | `omnimem/redact.py`            |
+| `omni_reindex.py`             | `omnimem/reindex.py`           |
+| `omni_search.py`              | `omnimem/search.py`            |
+| `omni_search_core.py`         | `omnimem/search_core.py`       |
+| `omni_service.py`             | `omnimem/service.py`           |
+| `omni_update.py`              | `omnimem/update.py`            |
+| `omni_vault.py`               | `omnimem/vault.py`             |
+| `omni_version.py`             | `omnimem/version.py`           |
+
+`del` and `import` are Python keywords, so `omnimem/del.py` and
+`omnimem/import.py` would not parse. Trailing-underscore is the
+conventional escape.
+
+### Added
+
+- `omnimem/__init__.py` — exports `main` (and the legacy `_print` /
+  `_force_utf8_streams` helpers that older tests rely on) so the
+  `omnimem` console script and `from omnimem import main` keep working.
+- `omnimem/__main__.py` — `python -m omnimem` works again as defence
+  in depth. Console script remains the canonical entry point.
+- `scripts/codemod_omni_imports.py` — one-shot codemod used during the
+  refactor; kept around as documentation of how the rewrite was applied.
+
+### Updated
+
+- `pyproject.toml`: `py-modules = [...]` (28-entry list) replaced by
+  `packages = ["omnimem"]`.
+- `.github/workflows/ci.yml`: explicit `compileall` list collapsed to
+  `omnimem/ tests/ benchmarks/`.
+- Launcher scripts (`scripts/omnimem`, `scripts/omnimem.bat`,
+  `scripts/omnimem.ps1`) now invoke `python -m omnimem` from the repo's
+  venv (or fall back to a `PYTHONPATH=<repo>` system Python).
+- `scripts/setup.{sh,bat,ps1}`: bootstrap step calls
+  `python -m omnimem.bootstrap` (was `python omni_bootstrap.py`).
+- `omnimem/paths.py:SOURCE_ROOT` walks one extra `.parent` so it still
+  resolves to the repo root from inside the package.
+- `omnimem/update.py`: user-facing strings now mention `omnimem update`
+  / `python -m omnimem.bootstrap` rather than the legacy `omni_*.py`
+  file paths.
+- `docs/redact.md`: import sample uses `from omnimem.redact import ...`.
+- Tests: import paths and `mock.patch` target strings codemodded to the
+  new layout. `tests/test_unified_cli.py` invokes `python -m omnimem`
+  instead of `python <repo>/omnimem.py`.
+- `MANIFEST.in`: ships `examples/` and `scripts/` in sdist.
+
+### Migration for downstream consumers
+
+Anyone importing OmniMem internals as top-level modules must rename:
+
+```python
+# before
+from omni_hooks import HookError
+from omni_init import migrate_legacy_mcp_commands
+import omni_paths
+
+# after
+from omnimem.hooks import HookError
+from omnimem.init import migrate_legacy_mcp_commands
+import omnimem.paths
+```
+
+Special cases (renamed because the natural module name is a Python keyword):
+- `omni_del` → `omnimem.del_`
+- `omni_import` → `omnimem.import_`
+
+### Verified on
+
+- 253 unit tests pass on local + 9-cell CI matrix
+  (ubuntu / windows / macOS × Python 3.10 / 3.11 / 3.12).
+- `omnimem --version`, `python -m omnimem --version`,
+  `python -m omnimem.search --help`, `./scripts/omnimem --version` all
+  smoke-tested.
+- v1.2.7 hook auto-migration still detects + rewrites legacy
+  `<python> -m omnimem ...` entries (no behaviour change there).
+
 ## v1.2.8 - Tidier root: setup scripts and example config moved into subdirs
 
 A cosmetic / organisational refresh. No code changes; runtime behaviour is

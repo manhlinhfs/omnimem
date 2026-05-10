@@ -1,6 +1,6 @@
 import unittest
 
-from omni_redact import detect_secrets, redact, redact_inline
+from omnimem.redact import detect_secrets, redact, redact_inline
 
 
 class TestDetectSecrets(unittest.TestCase):

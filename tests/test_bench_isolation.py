@@ -53,7 +53,7 @@ class TestIsolatedOmnimemHome(unittest.TestCase):
         self.addCleanup(_restore_env, "OMNIMEM_HOME", previous_home)
         self.addCleanup(_restore_env, "OMNIMEM_CONFIG", previous_config)
         with isolated_omnimem_home() as runtime_home:
-            from omni_paths import get_db_dir, get_models_root, get_runtime_home
+            from omnimem.paths import get_db_dir, get_models_root, get_runtime_home
 
             home = get_runtime_home()
             db = get_db_dir()

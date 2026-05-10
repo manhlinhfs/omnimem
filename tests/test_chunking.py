@@ -1,6 +1,6 @@
 import unittest
 
-from omni_chunking import build_import_records, chunk_document, detect_chunk_profile
+from omnimem.chunking import build_import_records, chunk_document, detect_chunk_profile
 
 
 TEST_CONFIG = {

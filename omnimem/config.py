@@ -3,7 +3,7 @@ import os
 import sys
 from pathlib import Path
 
-from omni_paths import (
+from omnimem.paths import (
     SOURCE_ROOT,
     _dedupe_paths,
     detect_install_mode,

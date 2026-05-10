@@ -5,8 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from omni_paths import SOURCE_ROOT, detect_install_mode
-from omni_version import add_version_argument, get_version, get_version_banner
+from omnimem.paths import SOURCE_ROOT, detect_install_mode
+from omnimem.version import add_version_argument, get_version, get_version_banner
 
 ROOT_DIR = SOURCE_ROOT
 
@@ -51,7 +51,7 @@ def get_upstream(root_dir=ROOT_DIR):
     )
     if result.returncode != 0:
         raise UpdateError(
-            "This branch has no upstream configured. Set a tracked remote branch before running omni_update.py."
+            "This branch has no upstream configured. Set a tracked remote branch before running `omnimem update`."
         )
     return result.stdout.strip()
 
@@ -96,7 +96,7 @@ def reinstall_dependencies(root_dir=ROOT_DIR):
 
 
 def bootstrap_model(root_dir=ROOT_DIR, allow_model_download=False):
-    cmd = [sys.executable, str(Path(root_dir) / "omni_bootstrap.py"), "--offline-only"]
+    cmd = [sys.executable, "-m", "omnimem.bootstrap", "--offline-only"]
     result = run_command(cmd, cwd=root_dir, check=False)
     if result.returncode == 0:
         return {
@@ -111,7 +111,7 @@ def bootstrap_model(root_dir=ROOT_DIR, allow_model_download=False):
         "yes",
         "on",
     }:
-        run_command([sys.executable, str(Path(root_dir) / "omni_bootstrap.py")], cwd=root_dir)
+        run_command([sys.executable, "-m", "omnimem.bootstrap"], cwd=root_dir)
         return {
             "name": "bootstrap",
             "status": "pass",
@@ -123,7 +123,7 @@ def bootstrap_model(root_dir=ROOT_DIR, allow_model_download=False):
         "status": "warn",
         "detail": (
             "Model bootstrap refresh did not complete in offline mode. "
-            "Run `python3 omni_bootstrap.py` if this clone needs a fresh model download."
+            "Run `python3 -m omnimem.bootstrap` if this clone needs a fresh model download."
         ),
     }
 
@@ -145,7 +145,7 @@ def build_install_mode_guidance(mode):
 def inspect_update_state(root_dir=ROOT_DIR, site_roots=None):
     install_mode_report = detect_install_mode(root_dir=root_dir, site_roots=site_roots)
     report = {
-        "tool": "omni_update",
+        "tool": "omnimem.update",
         "current_version": get_version(),
         "install_mode": install_mode_report["mode"],
         "install_mode_detail": install_mode_report["detail"],
@@ -208,7 +208,7 @@ def perform_update(root_dir=ROOT_DIR, skip_deps=False, skip_bootstrap=False, all
     status = get_worktree_status(root_dir=root_dir)
     if status:
         raise UpdateError(
-            "Working tree is not clean. Commit, stash, or remove local changes before running omni_update.py."
+            "Working tree is not clean. Commit, stash, or remove local changes before running `omnimem update`."
         )
 
     if report["status"] == "diverged":
@@ -291,7 +291,7 @@ def print_human_report(report):
         print("This clone is already up to date.")
     elif report["status"] == "update_available":
         print("")
-        print(f"Update available: behind by {report['behind']} commit(s). Run `python3 omni_update.py` to apply it.")
+        print(f"Update available: behind by {report['behind']} commit(s). Run `omnimem update` to apply it.")
 
 
 def main():
@@ -321,7 +321,7 @@ def main():
     parser.add_argument(
         "--allow-model-download",
         action="store_true",
-        help="Allow omni_update.py to download the embedding model if offline bootstrap is insufficient",
+        help="Allow `omnimem update` to download the embedding model if offline bootstrap is insufficient",
     )
     add_version_argument(parser)
     args = parser.parse_args()
@@ -334,7 +334,7 @@ def main():
         )
     except UpdateError as exc:
         if args.json:
-            print(json.dumps({"tool": "omni_update", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.update", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         sys.exit(1)

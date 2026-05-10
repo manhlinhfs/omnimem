@@ -9,10 +9,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib import error, request
 
-from omni_config import get_search_service_settings as get_config_search_service_settings
-from omni_paths import SOURCE_ROOT, get_db_dir, get_models_root, get_runtime_home
-from omni_search_core import OmniRuntime
-from omni_version import add_version_argument, get_version_banner
+from omnimem.config import get_search_service_settings as get_config_search_service_settings
+from omnimem.paths import SOURCE_ROOT, get_db_dir, get_models_root, get_runtime_home
+from omnimem.search_core import OmniRuntime
+from omnimem.version import add_version_argument, get_version_banner
 
 DEFAULT_SERVICE_HOST = "127.0.0.1"
 DEFAULT_SERVICE_PORT = 41733
@@ -183,7 +183,7 @@ def _get_note_runtime_for_server(server):
     runtime = getattr(server, "note_runtime", None)
     if runtime is not None:
         return runtime
-    from omni_note_index import NoteRuntime
+    from omnimem.note_index import NoteRuntime
 
     server.note_runtime = NoteRuntime(root_dir=getattr(server, "root_dir", SOURCE_ROOT))
     return server.note_runtime
@@ -193,7 +193,7 @@ def _get_codemap_runtime_for_server(server):
     runtime = getattr(server, "codemap_runtime", None)
     if runtime is not None:
         return runtime
-    from omni_codemap import CodemapRuntime
+    from omnimem.codemap import CodemapRuntime
 
     server.codemap_runtime = CodemapRuntime(
         root_dir=getattr(server, "root_dir", SOURCE_ROOT)

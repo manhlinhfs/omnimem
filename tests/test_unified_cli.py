@@ -24,10 +24,12 @@ SUBCOMMANDS = (
 
 
 def run_cli(*args):
+    env = {**os.environ, "PYTHONPATH": str(ROOT_DIR)}
     return subprocess.run(
-        [sys.executable, str(ROOT_DIR / "omnimem.py"), *args],
+        [sys.executable, "-m", "omnimem", *args],
         text=True,
         capture_output=True,
+        env=env,
     )
 
 
@@ -63,15 +65,18 @@ class TestUnifiedCli(unittest.TestCase):
                 self.assertIn("--direct", result.stdout)
 
     def test_cross_platform_launchers_exist(self):
-        self.assertTrue((ROOT_DIR / "omnimem").exists())
-        self.assertTrue((ROOT_DIR / "omnimem.ps1").exists())
-        self.assertTrue((ROOT_DIR / "omnimem.bat").exists())
+        # Launchers moved to scripts/ in v1.2.8 to make room for the
+        # `omnimem/` package introduced in v1.3.0. The repo-root names
+        # would now collide with the package directory.
+        self.assertTrue((ROOT_DIR / "scripts" / "omnimem").exists())
+        self.assertTrue((ROOT_DIR / "scripts" / "omnimem.ps1").exists())
+        self.assertTrue((ROOT_DIR / "scripts" / "omnimem.bat").exists())
         self.assertTrue((ROOT_DIR / "pyproject.toml").exists())
 
     @unittest.skipUnless(os.name == "posix", "POSIX launcher test only applies on POSIX hosts")
     def test_posix_launcher_prints_version(self):
         result = subprocess.run(
-            [str(ROOT_DIR / "omnimem"), "--version"],
+            [str(ROOT_DIR / "scripts" / "omnimem"), "--version"],
             text=True,
             capture_output=True,
         )

@@ -10,9 +10,9 @@ import json
 import math
 from pathlib import Path
 
-from omni_note import extract_wikilinks, list_notes, parse_frontmatter
-from omni_paths import SOURCE_ROOT
-from omni_vault import list_note_paths
+from omnimem.note import extract_wikilinks, list_notes, parse_frontmatter
+from omnimem.paths import SOURCE_ROOT
+from omnimem.vault import list_note_paths
 
 NODE_WIDTH = 240
 NODE_HEIGHT = 80

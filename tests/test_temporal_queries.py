@@ -6,8 +6,8 @@ from pathlib import Path
 
 import yaml
 
-from omni_note import create_note, list_notes, parse_frontmatter
-from omni_vault import ensure_vault_layout, note_path_for_slug
+from omnimem.note import create_note, list_notes, parse_frontmatter
+from omnimem.vault import ensure_vault_layout, note_path_for_slug
 
 
 def _restore_env(name, previous_value):

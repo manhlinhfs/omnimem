@@ -3,13 +3,13 @@ import os
 import tempfile
 import unittest
 
-from omni_mcp import (
+from omnimem.mcp import (
     PROTOCOL_VERSION,
     SERVER_NAME,
     handle_request,
     list_tool_definitions,
 )
-from omni_vault import ensure_vault_layout
+from omnimem.vault import ensure_vault_layout
 
 
 def _restore_env(name, previous_value):

@@ -1,7 +1,9 @@
 from importlib import metadata
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parent
+# `VERSION` lives at the repo root. Walk two `.parent`s
+# (version.py → omnimem/ → repo root) after the v1.3.0 package refactor.
+ROOT_DIR = Path(__file__).resolve().parent.parent
 VERSION_FILE = ROOT_DIR / "VERSION"
 
 

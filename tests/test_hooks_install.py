@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_hooks import (
+from omnimem.hooks import (
     DEFAULT_EVENTS,
     OMNIMEM_HOOK_TAG,
     HookError,

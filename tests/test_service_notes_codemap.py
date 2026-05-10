@@ -17,7 +17,7 @@ import unittest
 from io import BytesIO
 from unittest.mock import patch
 
-import omni_service
+import omnimem.service as omni_service
 
 
 class _RecordingHandler:
@@ -104,7 +104,7 @@ class TestNotesSearchEndpoint(unittest.TestCase):
         server = _FakeServer()
         handler = _RecordingHandler(server, body=json.dumps({"query": "hello"}).encode("utf-8"))
 
-        with patch("omni_note_index.NoteRuntime", _FakeNoteRuntime):
+        with patch("omnimem.note_index.NoteRuntime", _FakeNoteRuntime):
             omni_service._SearchServiceHandler._handle_notes_search(handler)
 
         self.assertEqual(handler.status, 200)
@@ -116,7 +116,7 @@ class TestNotesSearchEndpoint(unittest.TestCase):
         server = _FakeServer()
         body = json.dumps({"query": "hello"}).encode("utf-8")
 
-        with patch("omni_note_index.NoteRuntime", _FakeNoteRuntime):
+        with patch("omnimem.note_index.NoteRuntime", _FakeNoteRuntime):
             for _ in range(3):
                 handler = _RecordingHandler(server, body=body)
                 omni_service._SearchServiceHandler._handle_notes_search(handler)
@@ -134,7 +134,7 @@ class TestCodemapQueryEndpoint(unittest.TestCase):
         server = _FakeServer()
         handler = _RecordingHandler(server, body=json.dumps({"query": "alpha"}).encode("utf-8"))
 
-        with patch("omni_codemap.CodemapRuntime", _FakeCodemapRuntime):
+        with patch("omnimem.codemap.CodemapRuntime", _FakeCodemapRuntime):
             omni_service._SearchServiceHandler._handle_codemap_query(handler)
 
         self.assertEqual(handler.status, 200)
@@ -145,7 +145,7 @@ class TestCodemapQueryEndpoint(unittest.TestCase):
         server = _FakeServer()
         body = json.dumps({"query": "alpha"}).encode("utf-8")
 
-        with patch("omni_codemap.CodemapRuntime", _FakeCodemapRuntime):
+        with patch("omnimem.codemap.CodemapRuntime", _FakeCodemapRuntime):
             for _ in range(2):
                 handler = _RecordingHandler(server, body=body)
                 omni_service._SearchServiceHandler._handle_codemap_query(handler)

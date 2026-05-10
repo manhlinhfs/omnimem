@@ -12,7 +12,7 @@ import re
 import sys
 from pathlib import Path
 
-from omni_paths import SOURCE_ROOT
+from omnimem.paths import SOURCE_ROOT
 
 OMNIMEM_HOOK_TAG = "omnimem-v1"
 SUPPORTED_AGENTS = ("claude", "codex")
@@ -462,13 +462,13 @@ def gated_reindex_from_stdin(stdin=None, root_dir=SOURCE_ROOT):
     if not file_path:
         return {"acted": False, "reason": "no file_path in payload"}
 
-    from omni_vault import get_vault_root
+    from omnimem.vault import get_vault_root
 
     vault_root = get_vault_root(root_dir=root_dir)
     if not _path_is_inside(file_path, vault_root):
         return {"acted": False, "reason": "file outside vault"}
 
-    from omni_note_index import reindex_all_notes
+    from omnimem.note_index import reindex_all_notes
 
     result = reindex_all_notes(root_dir=root_dir)
     return {"acted": True, "file_path": str(file_path), "result": result}

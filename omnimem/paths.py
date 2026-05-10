@@ -4,7 +4,13 @@ import sys
 import sysconfig
 from pathlib import Path
 
-SOURCE_ROOT = Path(__file__).resolve().parent
+# `SOURCE_ROOT` points at the repository root (one level up from this
+# package). Modules previously lived flat at the repo root, so `__file__.parent`
+# was already the repo root. After v1.3.0's package refactor, this file lives
+# at `<repo>/omnimem/paths.py`, and consumers (`update.detect_install_mode`,
+# config discovery, codemap, etc.) still expect SOURCE_ROOT to be the repo
+# root. The double `.parent` walks paths.py → omnimem/ → repo root.
+SOURCE_ROOT = Path(__file__).resolve().parent.parent
 
 
 def _is_relative_to(path, parent):
@@ -87,7 +93,7 @@ def get_default_user_config_root():
 
 
 def _resolve_runtime_config(root_dir=SOURCE_ROOT, site_roots=None, user_data_root=None):
-    from omni_config import resolve_runtime_config
+    from omnimem.config import resolve_runtime_config
 
     return resolve_runtime_config(
         root_dir=root_dir,
@@ -135,4 +141,4 @@ def get_bootstrap_command(root_dir=SOURCE_ROOT, install_mode_report=None, site_r
     report = install_mode_report or detect_install_mode(root_dir=root_dir, site_roots=site_roots)
     if report["mode"] == "package_install":
         return "omnimem bootstrap"
-    return f"python {Path(root_dir).expanduser().resolve() / 'omni_bootstrap.py'}"
+    return f"{sys.executable} -m omnimem.bootstrap"

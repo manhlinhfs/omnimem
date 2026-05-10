@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_codemap import (
+from omnimem.codemap import (
     SUPPORTED_LANGUAGES,
     build_repo_codemap,
     detect_language,
@@ -15,7 +15,7 @@ from omni_codemap import (
     parse_rust_module,
     parse_typescript_module,
 )
-from omni_vault import ensure_vault_layout
+from omnimem.vault import ensure_vault_layout
 
 
 def _restore_env(name, previous_value):
@@ -204,7 +204,7 @@ class TestFlattenSymbols(unittest.TestCase):
 def baz():
     pass
 """
-        from omni_codemap import parse_python_module
+        from omnimem.codemap import parse_python_module
 
         model = parse_python_module(source, path="m.py")
         records = flatten_symbols(model)

@@ -4,9 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_note import create_note
-from omni_ops import create_backup, restore_backup
-from omni_vault import ensure_vault_layout, get_notes_dir
+from omnimem.note import create_note
+from omnimem.ops import create_backup, restore_backup
+from omnimem.vault import ensure_vault_layout, get_notes_dir
 
 
 def _restore_env(name, previous_value):

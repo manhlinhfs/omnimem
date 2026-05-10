@@ -42,7 +42,7 @@ Returns the redacted text and a list of findings. Each match is replaced by `[RE
 ## Library use
 
 ```python
-from omni_redact import detect_secrets, redact, redact_inline
+from omnimem.redact import detect_secrets, redact, redact_inline
 
 findings = detect_secrets(text)
 redacted, findings = redact(text)
