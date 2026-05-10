@@ -526,14 +526,27 @@ def handle_note(args):
 
 
 def handle_init(args):
-    from omni_init import InitError, install, status, uninstall
+    from omni_hooks import migrate_legacy_commands
+    from omni_init import (
+        InitError,
+        install,
+        migrate_legacy_mcp_commands,
+        status,
+        uninstall,
+    )
 
     as_json = getattr(args, "json", False)
     include_mcp = not args.no_mcp
 
     try:
+        migrated = []
+        if not args.dry_run:
+            migrated = migrate_legacy_commands() + migrate_legacy_mcp_commands()
+
         if args.status:
             report = status()
+            if migrated:
+                report = {"agents": report, "migrated": migrated}
             _print(report, as_json)
             return 0
         if args.uninstall:
@@ -543,7 +556,10 @@ def handle_init(args):
                 include_mcp=include_mcp,
                 dry_run=args.dry_run,
             )
-            _print({"uninstalled": results}, as_json)
+            payload = {"uninstalled": results}
+            if migrated:
+                payload["migrated"] = migrated
+            _print(payload, as_json)
             return 0
         results = install(
             args.agent,
@@ -551,7 +567,10 @@ def handle_init(args):
             include_mcp=include_mcp,
             dry_run=args.dry_run,
         )
-        _print({"installed": results}, as_json)
+        payload = {"installed": results}
+        if migrated:
+            payload["migrated"] = migrated
+        _print(payload, as_json)
         return 0
     except InitError as exc:
         if as_json:
@@ -691,7 +710,15 @@ def handle_codemap(args):
 
 
 def handle_hook(args):
-    from omni_hooks import HookError, gated_reindex_from_stdin, install, status, uninstall
+    from omni_hooks import (
+        HookError,
+        gated_reindex_from_stdin,
+        install,
+        migrate_legacy_commands,
+        status,
+        uninstall,
+    )
+    from omni_init import migrate_legacy_mcp_commands
 
     as_json = getattr(args, "json", False)
     try:
@@ -699,12 +726,27 @@ def handle_hook(args):
             report = gated_reindex_from_stdin()
             _print(report, as_json)
             return 0
+
+        # Auto-rewrite v1.2.6-era `python -m omnimem ...` entries to the
+        # console-script shape before any user-facing operation. Silent on the
+        # common no-op path; on dry-run we surface a `migrated` field instead
+        # of mutating disk.
+        migrated = []
+        if not args.dry_run:
+            migrated = migrate_legacy_commands() + migrate_legacy_mcp_commands()
+
         if args.status:
-            _print(status(), as_json)
+            report = status()
+            if migrated:
+                report = {**report, "migrated": migrated}
+            _print(report, as_json)
             return 0
         if args.uninstall:
             results = uninstall(args.agent, scope=args.scope, dry_run=args.dry_run)
-            _print({"uninstalled": results}, as_json)
+            payload = {"uninstalled": results}
+            if migrated:
+                payload["migrated"] = migrated
+            _print(payload, as_json)
             return 0
         events = args.event or None
         results = install(
@@ -713,7 +755,10 @@ def handle_hook(args):
             scope=args.scope,
             dry_run=args.dry_run,
         )
-        _print({"installed": results}, as_json)
+        payload = {"installed": results}
+        if migrated:
+            payload["migrated"] = migrated
+        _print(payload, as_json)
         return 0
     except HookError as exc:
         if as_json:

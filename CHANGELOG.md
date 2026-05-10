@@ -1,5 +1,46 @@
 # Changelog
 
+## v1.2.7 - Console-script hooks + auto-migration
+
+Stop / SessionStart / PostToolUse hooks installed by v1.2.6 (and earlier
+versions) emitted `<python> -m omnimem ...`. When any `sys.path` entry
+resolved `omnimem` to a package or namespace package — possible after
+editable installs, on machines with a sibling `omnimem/` directory, or on
+certain Python build layouts — runpy refused with:
+
+```
+'omnimem' is a package and cannot be directly executed
+```
+
+This broke Stop hooks on Claude Code CLI and would surface for Codex /
+Gemini hooks under the same conditions.
+
+### Fixed
+
+- **Hooks and MCP entries now use the `omnimem` console script**
+  (`<venv>/Scripts/omnimem.exe` on Windows, `<venv>/bin/omnimem` on POSIX)
+  instead of `<python> -m omnimem ...`. Console scripts dispatch through
+  `importlib.metadata` entry points and bypass module-resolution
+  machinery — immune to package / namespace collisions. Falls back to
+  naked `omnimem` (PATH lookup) if the file is missing. Path emission
+  stays POSIX-style so `bash -c` on Windows does not eat backslashes.
+- **`omnimem hook ...` and `omnimem init ...` auto-migrate stale
+  `-m omnimem` entries** (Claude `settings.json`, Codex `config.toml`
+  hook block + MCP block, Claude / Cursor / Gemini `mcp.json`).
+  Detection is by command shape, not by tag, so hand-installed entries
+  from earlier docs are also rewritten. Migration is idempotent and runs
+  on every non-`--gated-reindex` invocation.
+- **Codex MCP TOML reinstall left orphan content.**
+  `_TOML_BLOCK_PATTERN` stopped matching at the first `[` of `args = [...]`,
+  so substituting the OmniMem block left the previous args list orphaned
+  on disk. Pattern now extends to the next TOML table header.
+
+### Docs
+
+- `docs/integrations/{mcp,codex,gemini}.md` updated to recommend the
+  `omnimem` console script. The legacy `<python> -m omnimem mcp serve`
+  form is documented only as "do not use".
+
 ## v1.2.6 - Stdin UTF-8 And Hook Docs Sync
 
 A small follow-up patch covering two Windows-hygiene issues that surfaced

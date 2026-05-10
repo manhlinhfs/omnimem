@@ -40,8 +40,8 @@ If you would rather wire OmniMem in by hand instead of using `omnimem init`, her
 {
   "mcpServers": {
     "omnimem": {
-      "command": "/path/to/python",
-      "args": ["-m", "omnimem", "mcp", "serve"]
+      "command": "/path/to/omnimem",
+      "args": ["mcp", "serve"]
     }
   }
 }
@@ -51,8 +51,8 @@ If you would rather wire OmniMem in by hand instead of using `omnimem init`, her
 
 ```toml
 [mcp_servers.omnimem]
-command = "/path/to/python"
-args = ["-m", "omnimem", "mcp", "serve"]
+command = "/path/to/omnimem"
+args = ["mcp", "serve"]
 ```
 
 ### Gemini CLI (`~/.gemini/settings.json`)
@@ -61,8 +61,8 @@ args = ["-m", "omnimem", "mcp", "serve"]
 {
   "mcpServers": {
     "omnimem": {
-      "command": "/path/to/python",
-      "args": ["-m", "omnimem", "mcp", "serve"]
+      "command": "/path/to/omnimem",
+      "args": ["mcp", "serve"]
     }
   }
 }
@@ -74,12 +74,21 @@ args = ["-m", "omnimem", "mcp", "serve"]
 {
   "mcpServers": {
     "omnimem": {
-      "command": "/path/to/python",
-      "args": ["-m", "omnimem", "mcp", "serve"]
+      "command": "/path/to/omnimem",
+      "args": ["mcp", "serve"]
     }
   }
 }
 ```
+
+> The `command` field must point at the `omnimem` console script that
+> `pip install` placed alongside your interpreter — typically
+> `<venv>/bin/omnimem` on POSIX or `<venv>/Scripts/omnimem.exe` on Windows.
+> Earlier OmniMem releases recommended `<python> -m omnimem mcp serve`; do
+> not use that form — when any `sys.path` entry resolves `omnimem` to a
+> package or namespace package, runpy refuses with "'omnimem' is a package
+> and cannot be directly executed". `omnimem init` (and `omnimem hook`) auto-
+> rewrite stale `-m omnimem` entries on the next invocation.
 
 ## Debugging
 

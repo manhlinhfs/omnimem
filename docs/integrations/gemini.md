@@ -34,12 +34,18 @@ Inspect `~/.gemini/settings.json` — you should see:
 {
   "mcpServers": {
     "omnimem": {
-      "command": "/path/to/python",
-      "args": ["-m", "omnimem", "mcp", "serve"]
+      "command": "/path/to/omnimem",
+      "args": ["mcp", "serve"]
     }
   }
 }
 ```
+
+> `command` must point at the `omnimem` console script (`<venv>/bin/omnimem`
+> or `<venv>/Scripts/omnimem.exe`). The earlier `<python> -m omnimem mcp serve`
+> form is fragile — when any `sys.path` entry resolves `omnimem` to a package
+> or namespace package, runpy refuses with "'omnimem' is a package and cannot
+> be directly executed". `omnimem init` auto-rewrites stale entries.
 
 ## Uninstall
 
