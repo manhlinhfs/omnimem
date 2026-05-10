@@ -1,4 +1,4 @@
-# OmniMem v1.2.6 - The CLI Second Brain 🧠
+# OmniMem v1.2.7 - The CLI Second Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -160,7 +160,7 @@ What `omnimem hook` does (Claude Code + Codex CLI only):
 - `Stop` → lists today's notes so the agent reflects on what was just completed.
 - `PostToolUse` (Edit / Write / MultiEdit) → triggers `omnimem note reindex` so any edited markdown re-syncs into ChromaDB.
 
-Each entry is tagged `omnimem-v1` so the installer can coexist with any hand-authored hooks you already have. Path quoting on Windows uses POSIX forward slashes, which `bash -c` accepts natively (a fix added in v1.2.4).
+Each entry is tagged `omnimem-v1` so the installer can coexist with any hand-authored hooks you already have. Hook commands launch the `omnimem` console script (no `python -m omnimem`, fix in v1.2.7) and quote Windows paths with POSIX forward slashes for `bash -c` (fix in v1.2.4). v1.2.7+ also auto-rewrites stale `<python> -m omnimem ...` entries from earlier installs on the next `omnimem hook` / `omnimem init` invocation.
 
 ### What the agent sees after install
 

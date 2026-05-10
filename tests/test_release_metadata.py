@@ -10,6 +10,18 @@ class TestReleaseMetadata(unittest.TestCase):
         changelog = (ROOT_DIR / "CHANGELOG.md").read_text(encoding="utf-8")
         self.assertIn(f"## v{version}", changelog)
 
+    def test_readme_headlines_match_current_version(self):
+        version = (ROOT_DIR / "VERSION").read_text(encoding="utf-8").strip()
+        for name in ("README.md", "README_vi.md", "README_ru.md"):
+            path = ROOT_DIR / name
+            self.assertTrue(path.exists(), f"{name} missing")
+            first_line = path.read_text(encoding="utf-8").splitlines()[0]
+            self.assertIn(
+                f"v{version}",
+                first_line,
+                f"{name} headline does not advertise current VERSION ({version}): {first_line!r}",
+            )
+
     def test_release_checklist_exists(self):
         checklist = ROOT_DIR / "docs" / "release-checklist.md"
         self.assertTrue(checklist.exists())
