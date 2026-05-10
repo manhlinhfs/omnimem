@@ -34,7 +34,7 @@ Each tool publishes a JSON Schema via `tools/list`. Agents can rely on standard 
 
 If you would rather wire OmniMem in by hand instead of using `omnimem init`, here are the snippets:
 
-### Claude Code (`~/.claude/mcp.json`)
+### Claude Code (`~/.claude.json`)
 
 ```json
 {

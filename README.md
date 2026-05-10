@@ -1,4 +1,4 @@
-# OmniMem v1.3.1 - The CLI Second Brain 🧠
+# OmniMem v1.3.2 - The CLI Second Brain 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
@@ -152,7 +152,7 @@ This is intended for users who imported files on older OmniMem releases and want
 
 What `init` does:
 - Writes a marked rule block (`<!-- OMNIMEM:START v1.2 -->` ... `<!-- OMNIMEM:END -->`) into the agent's instructions file (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, or `.cursor/rules/omnimem.mdc`). Existing content is preserved.
-- Registers the OmniMem MCP server in the agent's MCP config (`mcp.json` for Claude Code / Cursor, `settings.json` for Gemini, `config.toml` for Codex).
+- Registers the OmniMem MCP server in the agent's MCP config (`~/.claude.json` for Claude Code, `~/.cursor/mcp.json` for Cursor, `settings.json` for Gemini, `config.toml` for Codex).
 - Idempotent: re-running replaces only the marked block. Reversible: `./omnimem init --uninstall --agent <agent>` strips it cleanly.
 
 What `omnimem hook` does (Claude Code + Codex CLI only):

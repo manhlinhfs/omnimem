@@ -11,7 +11,7 @@ omnimem init --agent claude
 This writes:
 
 - `~/.claude/CLAUDE.md` — appends the OmniMem rule block (between `<!-- OMNIMEM:START v1.2 -->` and `<!-- OMNIMEM:END -->` markers).
-- `~/.claude/mcp.json` — registers the `omnimem` MCP server under `mcpServers.omnimem`.
+- `~/.claude.json` — registers the `omnimem` MCP server under `mcpServers.omnimem` (the same file `claude mcp add -s user` writes; merged in place, every other key preserved).
 
 ## Project scope
 
@@ -45,10 +45,10 @@ Restart Claude Code and the `omnimem` tools should appear in the tool list.
 omnimem init --uninstall --agent claude
 ```
 
-This strips the marked block from `CLAUDE.md` (preserving any surrounding content) and removes the `omnimem` entry from `mcp.json`.
+This strips the marked block from `CLAUDE.md` (preserving any surrounding content) and removes the `omnimem` entry from `~/.claude.json`. If you upgraded from OmniMem v1.3.1 or earlier, the orphan entry that lived in the (unread) `~/.claude/mcp.json` file is also dropped, and that file is deleted when no other servers remain.
 
 ## Troubleshooting
 
-- **Claude does not see the tools** — Confirm `~/.claude/mcp.json` has an `omnimem` entry under `mcpServers`. Restart Claude Code so it re-reads the file.
+- **Claude does not see the tools** — Confirm `claude mcp list` shows `omnimem` (the entry lives in `~/.claude.json` under `mcpServers`). Restart Claude Code so it re-reads the file.
 - **`omnimem` not on PATH inside Claude** — Install the package (`pip install .`) or absolute-path the launcher in your rule block.
 - **Rule block was deleted** — Re-run `omnimem init --agent claude`. The installer is idempotent and only touches the marked region.

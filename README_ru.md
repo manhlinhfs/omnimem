@@ -1,4 +1,4 @@
-# OmniMem v1.3.1 - CLI «Второй Мозг» 🧠
+# OmniMem v1.3.2 - CLI «Второй Мозг» 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 

@@ -1,4 +1,4 @@
-# OmniMem v1.3.1 - Bộ Não CLI Thứ Hai 🧠
+# OmniMem v1.3.2 - Bộ Não CLI Thứ Hai 🧠
 
 [Tiếng Việt](README_vi.md) | [Русский](README_ru.md) | [English](README.md)
 
