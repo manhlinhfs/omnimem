@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from omni_config import get_preferred_config_path, resolve_runtime_config, serialize_runtime_config
+from omnimem.config import get_preferred_config_path, resolve_runtime_config, serialize_runtime_config
 
 
 class TestOmniConfig(unittest.TestCase):

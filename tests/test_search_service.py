@@ -5,8 +5,8 @@ import unittest
 from contextlib import redirect_stdout
 from unittest.mock import patch
 
-import omni_search
-from omni_search_core import search_collection_records
+import omnimem.search as omni_search
+from omnimem.search_core import search_collection_records
 
 
 class _ProgressiveCollection:
@@ -63,7 +63,7 @@ class TestSearchService(unittest.TestCase):
             ],
         )
         output = io.StringIO()
-        with patch.dict(sys.modules, {"omni_service": fake_service}):
+        with patch.dict(sys.modules, {"omnimem.service": fake_service}):
             with patch.object(omni_search, "SearchRuntime", side_effect=AssertionError("direct path should not run")):
                 with redirect_stdout(output):
                     omni_search.search_memory("release", prefer_service=True)
@@ -78,7 +78,7 @@ class TestSearchService(unittest.TestCase):
             search_via_service=lambda *args, **kwargs: (_ for _ in ()).throw(FakeServiceError("down")),
         )
         output = io.StringIO()
-        with patch.dict(sys.modules, {"omni_service": fake_service}):
+        with patch.dict(sys.modules, {"omnimem.service": fake_service}):
             with patch.object(omni_search, "SearchRuntime", return_value=_DirectRuntime()):
                 with redirect_stdout(output):
                     omni_search.search_memory("release", prefer_service=True)

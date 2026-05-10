@@ -4,18 +4,18 @@ import json
 import os
 import sys
 
-from omni_version import add_version_argument, get_version_banner
+from omnimem.version import add_version_argument, get_version_banner
 
 
 def handle_add(args):
-    from omni_add import add_memory
+    from omnimem.add import add_memory
 
     add_memory(args.text, args.source, args.tags, prefer_service=not args.direct)
     return 0
 
 
 def handle_search(args):
-    from omni_search import search_memory
+    from omnimem.search import search_memory
 
     until = args.until
     at_date = getattr(args, "at_date", None)
@@ -38,7 +38,7 @@ def handle_search(args):
 
 
 def handle_import(args):
-    from omni_import import import_file_advanced
+    from omnimem.import_ import import_file_advanced
 
     if not os.path.exists(args.file_path):
         print(f"Error: File not found: {args.file_path}")
@@ -49,13 +49,13 @@ def handle_import(args):
 
 
 def handle_delete(args):
-    from omni_del import delete_memory
+    from omnimem.del_ import delete_memory
 
     return delete_memory(doc_id=args.id, source=args.source, wipe_all=args.wipe_all, force=args.force)
 
 
 def handle_doctor(args):
-    from omni_doctor import print_human_report, run_doctor
+    from omnimem.doctor import print_human_report, run_doctor
 
     report = run_doctor(deep=args.deep)
     if args.json:
@@ -67,7 +67,7 @@ def handle_doctor(args):
 
 
 def handle_bootstrap(args):
-    from omni_embeddings import MODEL_REPO_ID, bootstrap_model, get_model_dir
+    from omnimem.embeddings import MODEL_REPO_ID, bootstrap_model, get_model_dir
 
     print(f"[OmniMem] Model repo: {MODEL_REPO_ID}")
     print(f"[OmniMem] Local model dir: {get_model_dir()}")
@@ -77,7 +77,7 @@ def handle_bootstrap(args):
 
 
 def handle_update(args):
-    from omni_update import UpdateError, inspect_update_state, perform_update, print_human_report
+    from omnimem.update import UpdateError, inspect_update_state, perform_update, print_human_report
 
     try:
         report = inspect_update_state() if args.check else perform_update(
@@ -89,7 +89,7 @@ def handle_update(args):
         if args.json:
             print(
                 json.dumps(
-                    {"tool": "omni_update", "status": "fail", "detail": str(exc)},
+                    {"tool": "omnimem.update", "status": "fail", "detail": str(exc)},
                     ensure_ascii=False,
                     indent=2,
                 )
@@ -107,7 +107,7 @@ def handle_update(args):
 
 
 def handle_backup(args):
-    from omni_ops import OpsError, create_backup, print_human_report
+    from omnimem.ops import OpsError, create_backup, print_human_report
 
     try:
         report = create_backup(
@@ -118,7 +118,7 @@ def handle_backup(args):
         )
     except OpsError as exc:
         if args.json:
-            print(json.dumps({"tool": "omni_backup", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.backup", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         return 1
@@ -132,13 +132,13 @@ def handle_backup(args):
 
 
 def handle_export(args):
-    from omni_ops import OpsError, export_memories, print_human_report
+    from omnimem.ops import OpsError, export_memories, print_human_report
 
     try:
         report = export_memories(output_path=args.output, overwrite=args.overwrite)
     except OpsError as exc:
         if args.json:
-            print(json.dumps({"tool": "omni_export", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.export", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         return 1
@@ -152,13 +152,13 @@ def handle_export(args):
 
 
 def handle_restore(args):
-    from omni_ops import OpsError, print_human_report, restore_snapshot
+    from omnimem.ops import OpsError, print_human_report, restore_snapshot
 
     try:
         report = restore_snapshot(args.input_path, force=args.force)
     except OpsError as exc:
         if args.json:
-            print(json.dumps({"tool": "omni_restore", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.restore", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         return 1
@@ -172,7 +172,7 @@ def handle_restore(args):
 
 
 def handle_reindex(args):
-    from omni_reindex import ReindexError, print_human_report, reindex_collection
+    from omnimem.reindex import ReindexError, print_human_report, reindex_collection
 
     try:
         report = reindex_collection(
@@ -184,7 +184,7 @@ def handle_reindex(args):
         )
     except ReindexError as exc:
         if args.json:
-            print(json.dumps({"tool": "omni_reindex", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.reindex", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         return 1
@@ -305,7 +305,7 @@ def _at_date_eod(at_date):
 
 
 def handle_note(args):
-    from omni_note import (
+    from omnimem.note import (
         NoteError,
         add_link,
         create_note,
@@ -316,14 +316,14 @@ def handle_note(args):
         remove_link,
         write_note,
     )
-    from omni_note_index import (
+    from omnimem.note_index import (
         NoteIndexError,
         index_note_record,
         reindex_all_notes,
         search_notes,
         unindex_note_id,
     )
-    from omni_vault import ensure_vault_layout
+    from omnimem.vault import ensure_vault_layout
 
     ensure_vault_layout()
     action = args.note_command
@@ -410,7 +410,7 @@ def handle_note(args):
             records = None
             if not getattr(args, "direct", False):
                 try:
-                    from omni_service import (
+                    from omnimem.service import (
                         SearchServiceError,
                         search_notes_via_service,
                     )
@@ -486,7 +486,7 @@ def handle_note(args):
             for record in records:
                 slug = record["slug"]
                 loaded = read_note(slug)
-                from omni_note import extract_wikilinks
+                from omnimem.note import extract_wikilinks
 
                 for target in extract_wikilinks(loaded.get("body") or ""):
                     if not args.root or target == args.root or slug == args.root:
@@ -526,8 +526,8 @@ def handle_note(args):
 
 
 def handle_init(args):
-    from omni_hooks import migrate_legacy_commands
-    from omni_init import (
+    from omnimem.hooks import migrate_legacy_commands
+    from omnimem.init import (
         InitError,
         install,
         migrate_legacy_mcp_commands,
@@ -581,7 +581,7 @@ def handle_init(args):
 
 
 def handle_quickstart(args):
-    from omni_quickstart import run as run_quickstart
+    from omnimem.quickstart import run as run_quickstart
 
     as_json = getattr(args, "json", False)
     report = run_quickstart(
@@ -604,7 +604,7 @@ def handle_quickstart(args):
 
 
 def handle_redact(args):
-    from omni_redact import detect_secrets, redact
+    from omnimem.redact import detect_secrets, redact
 
     as_json = getattr(args, "json", False)
     if args.text == "-":
@@ -624,7 +624,7 @@ def handle_redact(args):
 
 
 def handle_canvas(args):
-    from omni_canvas import CanvasError, export_canvas
+    from omnimem.canvas import CanvasError, export_canvas
 
     as_json = getattr(args, "json", False)
     try:
@@ -647,7 +647,7 @@ def handle_canvas(args):
 
 
 def handle_codemap(args):
-    from omni_codemap import (
+    from omnimem.codemap import (
         CodemapError,
         CodemapRuntime,
         ensure_codemap_layout,
@@ -677,7 +677,7 @@ def handle_codemap(args):
             semantic_results = []
             if not getattr(args, "direct", False):
                 try:
-                    from omni_service import (
+                    from omnimem.service import (
                         SearchServiceError,
                         query_codemap_via_service,
                     )
@@ -710,7 +710,7 @@ def handle_codemap(args):
 
 
 def handle_hook(args):
-    from omni_hooks import (
+    from omnimem.hooks import (
         HookError,
         gated_reindex_from_stdin,
         install,
@@ -718,7 +718,7 @@ def handle_hook(args):
         status,
         uninstall,
     )
-    from omni_init import migrate_legacy_mcp_commands
+    from omnimem.init import migrate_legacy_mcp_commands
 
     as_json = getattr(args, "json", False)
     try:
@@ -769,7 +769,7 @@ def handle_hook(args):
 
 
 def handle_mcp(args):
-    from omni_mcp import list_tool_definitions, serve_stdio
+    from omnimem.mcp import list_tool_definitions, serve_stdio
 
     if args.mcp_command == "tools":
         tools = list_tool_definitions()
@@ -786,8 +786,8 @@ def handle_mcp(args):
 
 
 def handle_serve(args):
-    from omni_service import handle_serve as run_service
-    from omni_service import handle_status as show_service_status
+    from omnimem.service import handle_serve as run_service
+    from omnimem.service import handle_status as show_service_status
 
     if args.status:
         return show_service_status(args)

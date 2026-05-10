@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_paths import detect_install_mode, get_db_dir, get_models_root, get_runtime_home
+from omnimem.paths import detect_install_mode, get_db_dir, get_models_root, get_runtime_home
 
 
 class TestOmniPaths(unittest.TestCase):

@@ -6,11 +6,11 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from omni_chunking import build_import_records
-from omni_ops import COLLECTION_NAME, export_memories
-from omni_paths import SOURCE_ROOT, get_db_dir, get_runtime_home
-from omni_search_core import OmniRuntime
-from omni_version import add_version_argument, get_version, get_version_banner
+from omnimem.chunking import build_import_records
+from omnimem.ops import COLLECTION_NAME, export_memories
+from omnimem.paths import SOURCE_ROOT, get_db_dir, get_runtime_home
+from omnimem.search_core import OmniRuntime
+from omnimem.version import add_version_argument, get_version, get_version_banner
 
 
 class ReindexError(RuntimeError):
@@ -216,7 +216,7 @@ def reindex_collection(
     items = _read_collection_items(collection)
     plan = plan_reindex(items, source=source)
     report = {
-        "tool": "omni_reindex",
+        "tool": "omnimem.reindex",
         "version": get_version(),
         "source": _normalize_source_filter(source),
         "total_records_before": len(items),
@@ -248,7 +248,7 @@ def reindex_collection(
 
     if prefer_service:
         try:
-            from omni_service import SearchServiceError, replace_core_records_via_service
+            from omnimem.service import SearchServiceError, replace_core_records_via_service
 
             replace_core_records_via_service(
                 plan["all_records"],
@@ -331,13 +331,13 @@ def main(argv=None):
         )
     except ReindexError as exc:
         if args.json:
-            print(json.dumps({"tool": "omni_reindex", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.reindex", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         return 1
     except RuntimeError as exc:
         if args.json:
-            print(json.dumps({"tool": "omni_reindex", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
+            print(json.dumps({"tool": "omnimem.reindex", "status": "fail", "detail": str(exc)}, ensure_ascii=False, indent=2))
         else:
             print(f"Error: {exc}")
         return 1

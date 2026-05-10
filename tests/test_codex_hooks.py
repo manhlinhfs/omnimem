@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_hooks import (
+from omnimem.hooks import (
     CODEX_BLOCK_END,
     CODEX_BLOCK_START,
     CODEX_DEFAULT_EVENTS,

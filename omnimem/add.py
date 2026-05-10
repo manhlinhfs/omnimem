@@ -3,10 +3,10 @@ import datetime
 import sys
 import uuid
 
-from omni_metadata import build_base_metadata
-from omni_paths import SOURCE_ROOT
-from omni_search_core import OmniRuntime
-from omni_version import add_version_argument
+from omnimem.metadata import build_base_metadata
+from omnimem.paths import SOURCE_ROOT
+from omnimem.search_core import OmniRuntime
+from omnimem.version import add_version_argument
 
 def add_memory(text, source="user_input", tags=None, prefer_service=False):
     doc_id = str(uuid.uuid4())
@@ -29,7 +29,7 @@ def add_memory(text, source="user_input", tags=None, prefer_service=False):
 
     if prefer_service:
         try:
-            from omni_service import SearchServiceError, add_records_via_service
+            from omnimem.service import SearchServiceError, add_records_via_service
 
             add_records_via_service(documents, metadatas, ids, root_dir=SOURCE_ROOT, autostart=True)
         except SearchServiceError:

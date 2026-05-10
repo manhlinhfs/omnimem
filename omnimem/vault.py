@@ -4,7 +4,7 @@ import re
 import unicodedata
 from pathlib import Path
 
-from omni_paths import SOURCE_ROOT, get_runtime_home
+from omnimem.paths import SOURCE_ROOT, get_runtime_home
 
 VAULT_DIRNAME = "vault"
 NOTES_DIRNAME = "notes"

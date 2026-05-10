@@ -1,6 +1,6 @@
 import unittest
 
-from omni_metadata import (
+from omnimem.metadata import (
     build_base_metadata,
     build_search_where,
     build_time_bounds,

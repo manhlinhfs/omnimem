@@ -4,9 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_canvas import CanvasError, collect_graph, export_canvas
-from omni_note import create_note
-from omni_vault import ensure_vault_layout
+from omnimem.canvas import CanvasError, collect_graph, export_canvas
+from omnimem.note import create_note
+from omnimem.vault import ensure_vault_layout
 
 
 def _restore_env(name, previous_value):

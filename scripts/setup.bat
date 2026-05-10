@@ -1,4 +1,8 @@
 @echo off
+setlocal
+set "SCRIPT_DIR=%~dp0"
+pushd "%SCRIPT_DIR%.."
+
 set /p OMNIMEM_VERSION=<VERSION
 echo === OMNIMEM v%OMNIMEM_VERSION%: The Universal RAG Core for CLI ===
 echo Installing dependencies for Windows...
@@ -15,20 +19,23 @@ echo [3/4] Bootstrapping the local embedding model...
 if "%OMNIMEM_SKIP_MODEL_BOOTSTRAP%"=="1" (
   echo Skipping model bootstrap because OMNIMEM_SKIP_MODEL_BOOTSTRAP=1
 ) else (
-  .\venv\Scripts\python.exe omni_bootstrap.py
-  if errorlevel 1 exit /b 1
+  .\venv\Scripts\python.exe -m omnimem.bootstrap
+  if errorlevel 1 (popd & exit /b 1)
 )
 
 echo [4/4] SETUP COMPLETE!
 echo.
-echo 🔥 OmniMem is ready. To use it with your CLI AI (Claude, Gemini, Cursor):
-echo Copy the 'System Prompt' from the README and paste it into your AI's custom instructions.
-echo Example usage manually:
-echo .\omnimem.bat import C:\path\to\document.pdf
-echo .\omnimem.bat bootstrap
-echo .\omnimem.bat doctor
-echo .\omnimem.bat update --check
-echo .\omnimem.bat update
-echo .\omnimem.bat search "my query" --full
-echo Legacy scripts still work under .\venv\Scripts\python.exe as before.
+echo OmniMem is ready. Wire it into your agent CLIs:
+echo   .\scripts\omnimem.bat quickstart
+echo.
+echo Manual usage examples:
+echo   .\scripts\omnimem.bat import C:\path\to\document.pdf
+echo   .\scripts\omnimem.bat doctor
+echo   .\scripts\omnimem.bat update --check
+echo   .\scripts\omnimem.bat search "my query" --full
+echo.
+echo After install, the 'omnimem' console script is also available at:
+echo   .\venv\Scripts\omnimem.exe
+
+popd
 pause

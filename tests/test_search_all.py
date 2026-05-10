@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from omni_search import federate_with_notes
+from omnimem.search import federate_with_notes
 
 
 def _restore_env(name, previous_value):
@@ -64,8 +64,8 @@ class TestFederateWithNotes(unittest.TestCase):
             def query(self, query, n_results=5):
                 return codemap
 
-        with patch("omni_note_index.search_notes", return_value=notes), patch(
-            "omni_codemap.CodemapRuntime", _StubCodemapRuntime
+        with patch("omnimem.note_index.search_notes", return_value=notes), patch(
+            "omnimem.codemap.CodemapRuntime", _StubCodemapRuntime
         ):
             merged = federate_with_notes("query", core, n_results=10)
 
@@ -82,8 +82,8 @@ class TestFederateWithNotes(unittest.TestCase):
             {"id": "n2", "distance": 0.5, "document": "c", "metadata": {"id": "n2"}},
         ]
 
-        with patch("omni_note_index.search_notes", return_value=notes), patch(
-            "omni_codemap.CodemapRuntime", _EmptyCodemapRuntime
+        with patch("omnimem.note_index.search_notes", return_value=notes), patch(
+            "omnimem.codemap.CodemapRuntime", _EmptyCodemapRuntime
         ):
             merged = federate_with_notes("query", core, n_results=5)
 
@@ -97,8 +97,8 @@ class TestFederateWithNotes(unittest.TestCase):
             for i in range(5)
         ]
 
-        with patch("omni_note_index.search_notes", return_value=notes), patch(
-            "omni_codemap.CodemapRuntime", _EmptyCodemapRuntime
+        with patch("omnimem.note_index.search_notes", return_value=notes), patch(
+            "omnimem.codemap.CodemapRuntime", _EmptyCodemapRuntime
         ):
             merged = federate_with_notes("query", core, n_results=3)
 
@@ -106,8 +106,8 @@ class TestFederateWithNotes(unittest.TestCase):
 
     def test_empty_notes_returns_just_core(self):
         core = [{"id": "c1", "distance": 0.2, "content": "a", "metadata": {}}]
-        with patch("omni_note_index.search_notes", return_value=[]), patch(
-            "omni_codemap.CodemapRuntime", _EmptyCodemapRuntime
+        with patch("omnimem.note_index.search_notes", return_value=[]), patch(
+            "omnimem.codemap.CodemapRuntime", _EmptyCodemapRuntime
         ):
             merged = federate_with_notes("query", core, n_results=5)
         self.assertEqual(len(merged), 1)
@@ -115,8 +115,8 @@ class TestFederateWithNotes(unittest.TestCase):
 
     def test_search_notes_failure_does_not_break_federation(self):
         core = [{"id": "c1", "distance": 0.2, "content": "a", "metadata": {}}]
-        with patch("omni_note_index.search_notes", side_effect=RuntimeError("boom")), patch(
-            "omni_codemap.CodemapRuntime", _EmptyCodemapRuntime
+        with patch("omnimem.note_index.search_notes", side_effect=RuntimeError("boom")), patch(
+            "omnimem.codemap.CodemapRuntime", _EmptyCodemapRuntime
         ):
             merged = federate_with_notes("query", core, n_results=5)
         self.assertEqual(len(merged), 1)

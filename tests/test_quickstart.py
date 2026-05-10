@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_quickstart import detect_agents, run as run_quickstart
+from omnimem.quickstart import detect_agents, run as run_quickstart
 
 
 def _restore_env(name, previous_value):
@@ -85,8 +85,8 @@ class TestQuickstartRun(unittest.TestCase):
         )
 
     def test_seed_note_skips_when_vault_already_has_notes(self):
-        from omni_note import create_note
-        from omni_vault import ensure_vault_layout
+        from omnimem.note import create_note
+        from omnimem.vault import ensure_vault_layout
 
         ensure_vault_layout(root_dir=self.tmp_runtime)
         create_note("Pre-existing", root_dir=self.tmp_runtime)

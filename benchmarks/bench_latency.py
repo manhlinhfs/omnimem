@@ -44,8 +44,8 @@ TOPICS = [
 
 
 def _seed_notes(count):
-    from omni_note import create_note
-    from omni_note_index import index_note_record
+    from omnimem.note import create_note
+    from omnimem.note_index import index_note_record
 
     durations = []
     for index in range(count):
@@ -68,7 +68,7 @@ def _seed_notes(count):
 
 
 def _run_search_queries(query_count):
-    from omni_note_index import search_notes
+    from omnimem.note_index import search_notes
 
     durations = []
     for index in range(query_count):
@@ -83,7 +83,7 @@ def _run_search_queries(query_count):
 def run(count=DEFAULT_NOTES, queries=DEFAULT_QUERIES):
     with isolated_omnimem_home():
         with timer() as warm:
-            from omni_vault import ensure_vault_layout
+            from omnimem.vault import ensure_vault_layout
 
             ensure_vault_layout()
 

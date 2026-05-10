@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from omni_version import get_version, get_version_banner
+from omnimem.version import get_version, get_version_banner
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 

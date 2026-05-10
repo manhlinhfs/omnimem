@@ -1,8 +1,8 @@
 import argparse
 import sys
 
-from omni_embeddings import MODEL_REPO_ID, bootstrap_model, get_model_dir
-from omni_version import add_version_argument
+from omnimem.embeddings import MODEL_REPO_ID, bootstrap_model, get_model_dir
+from omnimem.version import add_version_argument
 
 
 def main():

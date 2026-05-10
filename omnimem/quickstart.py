@@ -11,7 +11,7 @@ non-interactively (useful from `install.sh`).
 import sys
 from pathlib import Path
 
-from omni_paths import SOURCE_ROOT
+from omnimem.paths import SOURCE_ROOT
 
 
 def _supports_unicode(stream):
@@ -71,9 +71,9 @@ def detect_agents(home=None):
 
 
 def _seed_welcome_note(root_dir=SOURCE_ROOT):
-    from omni_note import create_note, list_notes
-    from omni_note_index import index_note_record
-    from omni_vault import ensure_vault_layout
+    from omnimem.note import create_note, list_notes
+    from omnimem.note_index import index_note_record
+    from omnimem.vault import ensure_vault_layout
 
     ensure_vault_layout(root_dir=root_dir)
     if list_notes(root_dir=root_dir, limit=1):
@@ -156,7 +156,7 @@ def run(
     ):
         out.write("Skipped init.\n")
     else:
-        from omni_init import install as init_install
+        from omnimem.init import install as init_install
 
         try:
             install_results = init_install(
@@ -179,7 +179,7 @@ def run(
                 assume_yes=assume_yes,
                 stream=out,
             ):
-                from omni_hooks import install as hook_install
+                from omnimem.hooks import install as hook_install
 
                 try:
                     hook_results = hook_install(

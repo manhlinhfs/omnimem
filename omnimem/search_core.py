@@ -1,14 +1,14 @@
 import json
 import threading
 
-from omni_metadata import (
+from omnimem.metadata import (
     build_search_where,
     build_time_bounds,
     describe_search_filters,
     metadata_matches_time_bounds,
 )
-from omni_ops import COLLECTION_NAME
-from omni_paths import SOURCE_ROOT, get_db_dir
+from omnimem.ops import COLLECTION_NAME
+from omnimem.paths import SOURCE_ROOT, get_db_dir
 
 TIME_FILTER_MIN_CANDIDATES = 20
 TIME_FILTER_MULTIPLIER = 4
@@ -18,7 +18,7 @@ class OmniRuntime:
     def __init__(self, root_dir=SOURCE_ROOT):
         import chromadb
 
-        from omni_embeddings import build_embedding_function
+        from omnimem.embeddings import build_embedding_function
 
         self.root_dir = root_dir
         self.client = chromadb.PersistentClient(path=str(get_db_dir(root_dir=root_dir)))

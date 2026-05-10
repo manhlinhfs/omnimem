@@ -3,7 +3,7 @@ import types
 import unittest
 from unittest.mock import patch
 
-import omni_doctor
+import omnimem.doctor as omni_doctor
 
 
 class FakeCollection:

@@ -19,13 +19,13 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from omni_hooks import (
+from omnimem.hooks import (
     OMNIMEM_HOOK_TAG,
     install_claude_hooks,
     install_codex_hooks,
     migrate_legacy_commands,
 )
-from omni_init import migrate_legacy_mcp_commands
+from omnimem.init import migrate_legacy_mcp_commands
 
 
 def _remove_tree(path):
@@ -112,7 +112,7 @@ class TestHookMigration(unittest.TestCase):
 
     def test_migration_rewrites_legacy_claude_user_scope(self):
         target = self._write_legacy_claude_settings("user")
-        with patch("omni_hooks.sys.executable", self.python_path):
+        with patch("omnimem.hooks.sys.executable", self.python_path):
             migrated = migrate_legacy_commands(
                 base_home=self.tmp_home, base_cwd=self.tmp_cwd
             )
@@ -130,7 +130,7 @@ class TestHookMigration(unittest.TestCase):
 
     def test_migration_rewrites_legacy_claude_project_scope(self):
         target = self._write_legacy_claude_settings("project")
-        with patch("omni_hooks.sys.executable", self.python_path):
+        with patch("omnimem.hooks.sys.executable", self.python_path):
             migrated = migrate_legacy_commands(
                 base_home=self.tmp_home, base_cwd=self.tmp_cwd
             )
@@ -140,7 +140,7 @@ class TestHookMigration(unittest.TestCase):
 
     def test_migration_is_idempotent(self):
         target = self._write_legacy_claude_settings("user")
-        with patch("omni_hooks.sys.executable", self.python_path):
+        with patch("omnimem.hooks.sys.executable", self.python_path):
             first = migrate_legacy_commands(base_home=self.tmp_home, base_cwd=self.tmp_cwd)
             second = migrate_legacy_commands(base_home=self.tmp_home, base_cwd=self.tmp_cwd)
         self.assertEqual(len(first), 1)
@@ -150,7 +150,7 @@ class TestHookMigration(unittest.TestCase):
 
     def test_migration_leaves_already_modern_settings_untouched(self):
         # Install a fresh (modern) hook block first, then ensure migration is a no-op.
-        with patch("omni_hooks.sys.executable", self.python_path):
+        with patch("omnimem.hooks.sys.executable", self.python_path):
             install_claude_hooks(base_home=self.tmp_home, base_cwd=self.tmp_cwd)
             target = Path(self.tmp_home) / ".claude" / "settings.json"
             before = target.read_text(encoding="utf-8")
@@ -190,7 +190,7 @@ class TestHookMigration(unittest.TestCase):
             ),
             encoding="utf-8",
         )
-        with patch("omni_hooks.sys.executable", self.python_path):
+        with patch("omnimem.hooks.sys.executable", self.python_path):
             migrated = migrate_legacy_commands(
                 base_home=self.tmp_home, base_cwd=self.tmp_cwd
             )
@@ -222,7 +222,7 @@ class TestHookMigration(unittest.TestCase):
             ),
             encoding="utf-8",
         )
-        with patch("omni_hooks.sys.executable", self.python_path):
+        with patch("omnimem.hooks.sys.executable", self.python_path):
             migrate_legacy_commands(base_home=self.tmp_home, base_cwd=self.tmp_cwd)
         data = json.loads(target.read_text(encoding="utf-8"))
         self.assertEqual(len(data["hooks"]["Stop"]), 2)
@@ -243,7 +243,7 @@ class TestHookMigration(unittest.TestCase):
             ),
             encoding="utf-8",
         )
-        with patch("omni_hooks.sys.executable", self.python_path):
+        with patch("omnimem.hooks.sys.executable", self.python_path):
             migrated = migrate_legacy_commands(
                 base_home=self.tmp_home, base_cwd=self.tmp_cwd
             )
@@ -283,7 +283,7 @@ class TestMcpMigration(unittest.TestCase):
 
     def test_legacy_claude_mcp_rewritten(self):
         target = self._write_legacy_claude_mcp()
-        with patch("omni_init.sys.executable", self.python_path):
+        with patch("omnimem.init.sys.executable", self.python_path):
             migrated = migrate_legacy_mcp_commands(
                 base_home=self.tmp_home, base_cwd=self.tmp_cwd
             )
@@ -305,7 +305,7 @@ class TestMcpMigration(unittest.TestCase):
             ),
             encoding="utf-8",
         )
-        with patch("omni_init.sys.executable", self.python_path):
+        with patch("omnimem.init.sys.executable", self.python_path):
             migrated = migrate_legacy_mcp_commands(
                 base_home=self.tmp_home, base_cwd=self.tmp_cwd
             )
@@ -317,7 +317,7 @@ class TestMcpMigration(unittest.TestCase):
 
     def test_mcp_migration_is_idempotent(self):
         target = self._write_legacy_claude_mcp()
-        with patch("omni_init.sys.executable", self.python_path):
+        with patch("omnimem.init.sys.executable", self.python_path):
             first = migrate_legacy_mcp_commands(
                 base_home=self.tmp_home, base_cwd=self.tmp_cwd
             )

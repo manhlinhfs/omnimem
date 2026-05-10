@@ -12,9 +12,9 @@ from pathlib import Path
 
 import yaml
 
-from omni_metadata import current_timestamp, normalize_tags
-from omni_paths import SOURCE_ROOT
-from omni_vault import (
+from omnimem.metadata import current_timestamp, normalize_tags
+from omnimem.paths import SOURCE_ROOT
+from omnimem.vault import (
     DEFAULT_NOTE_TYPE,
     NOTE_TYPES,
     list_existing_note_slugs,

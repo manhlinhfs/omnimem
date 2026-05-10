@@ -3,8 +3,8 @@ import re
 import uuid
 from pathlib import Path
 
-from omni_config import get_chunk_settings_for_profile
-from omni_metadata import build_base_metadata, coerce_metadata_value, normalize_mime_type
+from omnimem.config import get_chunk_settings_for_profile
+from omnimem.metadata import build_base_metadata, coerce_metadata_value, normalize_mime_type
 
 CHUNK_STRATEGY_VERSION = "v2"
 CODE_PROFILE = "code"

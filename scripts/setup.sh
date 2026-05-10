@@ -1,4 +1,10 @@
 #!/bin/bash
+set -euo pipefail
+
+# Resolve the repo root (this script lives at <repo>/scripts/setup.sh).
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+REPO_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
+cd "$REPO_DIR"
 
 VERSION=$(cat VERSION)
 echo "=== OMNIMEM v$VERSION: The Universal RAG Core for CLI ==="
@@ -18,19 +24,19 @@ echo "[3/4] Bootstrapping the local embedding model..."
 if [ "${OMNIMEM_SKIP_MODEL_BOOTSTRAP:-0}" = "1" ]; then
   echo "Skipping model bootstrap because OMNIMEM_SKIP_MODEL_BOOTSTRAP=1"
 else
-  ./venv/bin/python3 omni_bootstrap.py || exit 1
+  ./venv/bin/python3 -m omnimem.bootstrap || exit 1
 fi
 
 echo "[4/4] SETUP COMPLETE!"
 echo ""
-echo "🔥 OmniMem is ready. To use it with your CLI AI (Claude, Gemini, Cursor):"
-echo "Copy the 'System Prompt' from the README and paste it into your AI's custom instructions."
-echo "Example usage manually:"
-echo "./omnimem import /path/to/document.pdf"
-echo "./omnimem bootstrap"
-echo "./omnimem doctor"
-echo "./omnimem update --check"
-echo "./omnimem update"
-echo "./omnimem search \"my query\" --full"
+echo "OmniMem is ready. Wire it into your agent CLIs:"
+echo "  ./scripts/omnimem quickstart"
 echo ""
-echo "Legacy scripts still work under ./venv/bin/python3 as before."
+echo "Manual usage examples:"
+echo "  ./scripts/omnimem import /path/to/document.pdf"
+echo "  ./scripts/omnimem doctor"
+echo "  ./scripts/omnimem update --check"
+echo "  ./scripts/omnimem search \"my query\" --full"
+echo ""
+echo "After install, the 'omnimem' console script is also available at:"
+echo "  ./venv/bin/omnimem"

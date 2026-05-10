@@ -50,7 +50,7 @@ else
     err "scripts/setup.sh not found or not executable in $INSTALL_DIR."
 fi
 
-LAUNCHER="$INSTALL_DIR/omnimem"
+LAUNCHER="$INSTALL_DIR/scripts/omnimem"
 if [[ ! -x "$LAUNCHER" ]]; then
     err "Launcher $LAUNCHER is missing or not executable. Setup may have failed."
 fi
@@ -64,7 +64,10 @@ echo "Or jump straight in:"
 echo "    $LAUNCHER init --agent all"
 echo "    $LAUNCHER hook install --agent all"
 echo
-echo "Add this directory to PATH if you want a plain 'omnimem' command:"
-echo "    export PATH=\"$INSTALL_DIR:\$PATH\""
+echo "Add the scripts/ directory to PATH if you want a plain 'omnimem' command:"
+echo "    export PATH=\"$INSTALL_DIR/scripts:\$PATH\""
+echo
+echo "Or use the venv-installed console script directly:"
+echo "    export PATH=\"$INSTALL_DIR/venv/bin:\$PATH\""
 echo
 echo "Docs: $INSTALL_DIR/QUICKSTART.md"

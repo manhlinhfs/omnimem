@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_init import (
+from omnimem.init import (
     SUPPORTED_AGENTS,
     detect_installed_agents,
     get_mcp_config_path,

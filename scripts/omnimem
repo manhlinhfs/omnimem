@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+REPO_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
+PYTHON_BIN="$REPO_DIR/venv/bin/python3"
+
+if [ -x "$PYTHON_BIN" ]; then
+  exec "$PYTHON_BIN" -m omnimem "$@"
+fi
+
+PYTHONPATH="$REPO_DIR${PYTHONPATH:+:$PYTHONPATH}" exec python3 -m omnimem "$@"

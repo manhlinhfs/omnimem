@@ -1,8 +1,8 @@
 import argparse
 import sys
 
-from omni_paths import get_db_dir
-from omni_version import add_version_argument
+from omnimem.paths import get_db_dir
+from omnimem.version import add_version_argument
 
 
 def _is_missing_collection_error(exc):

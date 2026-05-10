@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from omni_del import delete_memory
+from omnimem.del_ import delete_memory
 
 
 class FakeCollection:
@@ -69,7 +69,7 @@ class TestOmniDelete(unittest.TestCase):
             fake_chromadb = types.SimpleNamespace(PersistentClient=FakePersistentClient)
 
             with patch.dict(sys.modules, {"chromadb": fake_chromadb}):
-                with patch("omni_del.get_db_dir", return_value=db_dir):
+                with patch("omnimem.del_.get_db_dir", return_value=db_dir):
                     with patch.object(sys, "stdin", _NonInteractiveStdin()):
                         rc = delete_memory(wipe_all=True)
 
@@ -90,7 +90,7 @@ class TestOmniDelete(unittest.TestCase):
             fake_chromadb = types.SimpleNamespace(PersistentClient=FakePersistentClient)
 
             with patch.dict(sys.modules, {"chromadb": fake_chromadb}):
-                with patch("omni_del.get_db_dir", return_value=db_dir):
+                with patch("omnimem.del_.get_db_dir", return_value=db_dir):
                     rc = delete_memory(wipe_all=True, force=True)
 
         self.assertEqual(rc, 0)

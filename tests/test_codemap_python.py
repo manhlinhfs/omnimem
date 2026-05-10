@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_codemap import (
+from omnimem.codemap import (
     CodemapError,
     build_repo_codemap,
     detect_language,
@@ -15,7 +15,7 @@ from omni_codemap import (
     render_markdown,
     update_single_file,
 )
-from omni_vault import ensure_vault_layout
+from omnimem.vault import ensure_vault_layout
 
 
 def _restore_env(name, previous_value):

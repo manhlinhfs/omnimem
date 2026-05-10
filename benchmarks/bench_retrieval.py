@@ -71,8 +71,8 @@ def _build_corpus(count, seed=42):
 
 
 def _seed_notes(items):
-    from omni_note import create_note
-    from omni_note_index import index_note_record
+    from omnimem.note import create_note
+    from omnimem.note_index import index_note_record
 
     by_marker = {}
     for item in items:
@@ -83,7 +83,7 @@ def _seed_notes(items):
 
 
 def _evaluate(items, by_marker, top_k=10):
-    from omni_note_index import search_notes
+    from omnimem.note_index import search_notes
 
     hit_at_1 = 0
     hit_at_5 = 0
@@ -141,7 +141,7 @@ def _evaluate(items, by_marker, top_k=10):
 def run(count=DEFAULT_NOTES, seed=42):
     items = _build_corpus(count, seed=seed)
     with isolated_omnimem_home():
-        from omni_vault import ensure_vault_layout
+        from omnimem.vault import ensure_vault_layout
 
         ensure_vault_layout()
         by_marker = _seed_notes(items)

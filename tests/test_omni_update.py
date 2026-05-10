@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_update import inspect_update_state
+from omnimem.update import inspect_update_state
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 IGNORE_NAMES = {
@@ -70,7 +70,7 @@ class TestOmniUpdate(unittest.TestCase):
         self._git(["git", "push", "origin", "HEAD"], cwd=self.source_repo)
 
         result = run(
-            [sys.executable, str(self.client_repo / "omni_update.py"), "--check", "--json"],
+            [sys.executable, "-m", "omnimem.update", "--check", "--json"],
             cwd=self.client_repo,
         )
         self.assertEqual(result.returncode, 0, msg=result.stderr)
@@ -89,7 +89,8 @@ class TestOmniUpdate(unittest.TestCase):
         result = run(
             [
                 sys.executable,
-                str(self.client_repo / "omni_update.py"),
+                "-m",
+                "omnimem.update",
                 "--skip-bootstrap",
                 "--skip-deps",
             ],
@@ -101,7 +102,7 @@ class TestOmniUpdate(unittest.TestCase):
         readme = self.client_repo / "README.md"
         readme.write_text(readme.read_text(encoding="utf-8") + "\nlocal dirty\n", encoding="utf-8")
         dirty_result = run(
-            [sys.executable, str(self.client_repo / "omni_update.py"), "--skip-bootstrap"],
+            [sys.executable, "-m", "omnimem.update", "--skip-bootstrap"],
             cwd=self.client_repo,
         )
         self.assertNotEqual(dirty_result.returncode, 0)

@@ -192,7 +192,7 @@ def _score(captured, expected):
 
 
 def run():
-    from omni_codemap import LANGUAGE_PARSERS
+    from omnimem.codemap import LANGUAGE_PARSERS
 
     per_language = {}
     weighted_precision = []

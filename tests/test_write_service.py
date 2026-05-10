@@ -9,9 +9,9 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-import omni_add
-import omni_import
-from omni_reindex import reindex_collection
+import omnimem.add as omni_add
+import omnimem.import_ as omni_import
+from omnimem.reindex import reindex_collection
 
 
 class _DirectRuntime:
@@ -74,7 +74,7 @@ class TestWriteService(unittest.TestCase):
             add_records_via_service=_fake_add_records,
         )
         output = io.StringIO()
-        with patch.dict(sys.modules, {"omni_service": fake_service}):
+        with patch.dict(sys.modules, {"omnimem.service": fake_service}):
             with patch.object(omni_add, "OmniRuntime", side_effect=AssertionError("direct path should not run")):
                 with redirect_stdout(output):
                     omni_add.add_memory("remember this", prefer_service=True)
@@ -93,7 +93,7 @@ class TestWriteService(unittest.TestCase):
         )
         runtime = _DirectRuntime()
         output = io.StringIO()
-        with patch.dict(sys.modules, {"omni_service": fake_service}):
+        with patch.dict(sys.modules, {"omnimem.service": fake_service}):
             with patch.object(omni_add, "OmniRuntime", return_value=runtime):
                 with redirect_stdout(output):
                     omni_add.add_memory("remember this", prefer_service=True)
@@ -132,7 +132,7 @@ class TestWriteService(unittest.TestCase):
         )
         with patch.object(omni_import, "extract_with_fallback", _fake_extract):
             with patch.object(omni_import, "build_import_records", _fake_build_import_records):
-                with patch.dict(sys.modules, {"omni_service": fake_service}):
+                with patch.dict(sys.modules, {"omnimem.service": fake_service}):
                     with patch.object(omni_import, "OmniRuntime", side_effect=AssertionError("direct path should not run")):
                         asyncio.run(omni_import.import_file_advanced("/tmp/sample.txt", prefer_service=True))
 
@@ -185,7 +185,7 @@ class TestWriteService(unittest.TestCase):
                 replace_core_records_via_service=_fake_replace,
             )
 
-            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omni_service": fake_service}):
+            with patch.dict(sys.modules, {"chromadb": fake_chromadb, "omnimem.service": fake_service}):
                 with patch.dict(os.environ, {**os.environ, "OMNIMEM_HOME": str(root)}):
                     report = reindex_collection(root_dir=root, skip_backup=True, prefer_service=True)
 

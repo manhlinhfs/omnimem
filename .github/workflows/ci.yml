@@ -29,47 +29,16 @@ jobs:
         shell: bash
         run: |
           python -m compileall \
-            omnimem.py \
-            omni_add.py \
-            omni_search.py \
-            omni_search_core.py \
-            omni_service.py \
-            omni_import.py \
-            omni_del.py \
-            omni_bootstrap.py \
-            omni_doctor.py \
-            omni_metadata.py \
-            omni_paths.py \
-            omni_config.py \
-            omni_chunking.py \
-            omni_embeddings.py \
-            omni_ops.py \
-            omni_reindex.py \
-            omni_update.py \
-            omni_version.py \
-            omni_init.py \
-            omni_mcp.py \
-            omni_note.py \
-            omni_note_index.py \
-            omni_vault.py \
-            omni_codemap.py \
-            omni_hooks.py \
-            omni_canvas.py \
-            omni_redact.py \
-            omni_quickstart.py \
-            benchmarks/__init__.py \
-            benchmarks/common.py \
-            benchmarks/bench_codemap_accuracy.py \
-            benchmarks/bench_latency.py \
-            benchmarks/bench_retrieval.py \
-            benchmarks/run_all.py
+            omnimem/ \
+            tests/ \
+            benchmarks/
 
       - name: Validate shell setup scripts
         if: runner.os != 'Windows'
         shell: bash
         run: |
           bash -n scripts/setup.sh
-          bash -n omnimem
+          bash -n scripts/omnimem
 
       - name: Install minimal test dependencies
         run: python -m pip install --upgrade pip pyyaml

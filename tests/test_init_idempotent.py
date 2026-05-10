@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omni_init import (
+from omnimem.init import (
     MARKER_END,
     MARKER_PATTERN,
     MARKER_START,

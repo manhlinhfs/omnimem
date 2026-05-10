@@ -13,9 +13,9 @@ import re
 import threading
 from pathlib import Path
 
-from omni_metadata import current_timestamp
-from omni_paths import SOURCE_ROOT, get_db_dir, get_runtime_home
-from omni_vault import VAULT_DIRNAME
+from omnimem.metadata import current_timestamp
+from omnimem.paths import SOURCE_ROOT, get_db_dir, get_runtime_home
+from omnimem.vault import VAULT_DIRNAME
 
 CODEMAP_DIRNAME = "codemap"
 CODEMAP_COLLECTION_NAME = "omnimem_codemap"
@@ -821,7 +821,7 @@ class CodemapRuntime:
     def __init__(self, root_dir=SOURCE_ROOT):
         import chromadb
 
-        from omni_embeddings import build_embedding_function
+        from omnimem.embeddings import build_embedding_function
 
         self.root_dir = root_dir
         self.client = chromadb.PersistentClient(path=str(get_db_dir(root_dir=root_dir)))
